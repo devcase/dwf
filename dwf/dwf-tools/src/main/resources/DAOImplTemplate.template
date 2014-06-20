@@ -1,0 +1,18 @@
+package $daopackage;
+
+import javax.transaction.Transactional;
+
+import org.springframework.stereotype.Repository;
+
+import $entityClass.fullName;
+import dwf.persistence.dao.BaseDAOImpl;
+
+@Repository("${entityClass.name.toLowerCase()}DAO")
+@Transactional
+public class ${entityClass.name}DAOImpl extends BaseDAOImpl<${entityClass.name}> implements ${entityClass.name}DAO{
+
+	public ${entityClass.name}DAOImpl() {
+		super(${entityClass.name}.class);
+	}
+
+}

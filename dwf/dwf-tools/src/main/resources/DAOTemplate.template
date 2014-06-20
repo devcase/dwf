@@ -1,0 +1,8 @@
+package $daopackage;
+
+import $entityClass.fullName;
+import dwf.persistence.dao.DAO;
+
+public interface ${entityClass.name}DAO extends DAO<$entityClass.name> {
+
+}

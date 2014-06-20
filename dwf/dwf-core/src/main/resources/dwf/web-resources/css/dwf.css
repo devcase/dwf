@@ -1,0 +1,79 @@
+body {
+	padding-top: 50px;
+}
+
+/**
+ * Labels used in crud tables
+ */
+table td .label {
+	display: inline-block;
+}
+
+/**
+ * Crud navigation bar
+ */
+.navcrud {
+	margin-bottom: 30px;
+}
+
+.actions {
+	margin-top: 5x;
+	margin-bottom: 5px;
+}
+
+/**
+ * Ajax progress indicator
+ */
+.ajax-indicator {
+	position: fixed;
+	top: 10px;
+	right: 0px;
+	left: 0px;
+	z-index: 2030;
+	display: none;
+	height: 0px;
+}
+
+.ajax-indicator .ajax-indicator-content {
+	position: relative;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 2px;
+	background-color: rgb(251, 255, 152);
+	width: 110px;
+	text-align: center;
+	border: 1px solid rgb(197, 201, 98);
+	border-radius: 6px;
+	font-size: 0.8em;
+}
+
+table td .pagination {
+	margin: 0px;
+}
+
+a.navbar-brand.qualistart-logo {
+	height: 40px;
+	background-image: url('../img/qualistart-logo.png');
+	background-repeat: no-repeat;
+	background-position: center;
+	border: none;
+}
+
+
+/* Login */
+
+.login-box .logo {
+	margin: 0px auto 30px;
+	display: block;
+}
+
+.login-box input[type="text"], .login-box input[type="password"] {
+	color: black!important;
+}
+
+/* Using buttons inside a .navbar-brand (navcrud) */
+.navbar-brand .btn {
+	margin-top: -8px;	
+	margin-bottom: -8px;	
+	margin-right: 10px;
+}

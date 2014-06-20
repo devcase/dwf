@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	version="2.1">
+
+	<description>Devcase Decorator Library</description>
+	<display-name>Devcase Decorator Library</display-name>
+	<tlib-version>1.0</tlib-version>
+	<short-name>decorator</short-name>
+	<uri>http://dwf.devcase.com.br/decorator</uri>
+    <tag-file>
+        <name>scripts</name>
+		<path>/META-INF/tags/decorator/decoratorScripts.tag</path>
+    </tag-file>
+    <tag-file>
+        <name>body</name>
+		<path>/META-INF/tags/decorator/decoratorBody.tag</path>
+    </tag-file>
+    <tag-file>
+        <name>title</name>
+		<path>/META-INF/tags/decorator/decoratorTitle.tag</path>
+    </tag-file>
+    <tag-file>
+        <name>head</name>
+		<path>/META-INF/tags/decorator/decoratorHead.tag</path>
+    </tag-file>
+    <tag-file>
+        <name>table</name>
+		<path>/META-INF/tags/decorator/decoratorTable.tag</path>
+    </tag-file>
+    <tag-file>
+        <name>fullPage</name>
+		<path>/META-INF/tags/decorator/decoratorFullPage.tag</path>
+    </tag-file>
+	
+</taglib>
