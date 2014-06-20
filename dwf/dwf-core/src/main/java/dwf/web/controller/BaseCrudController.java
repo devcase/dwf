@@ -237,6 +237,33 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 			}
 		};
 	}
+	
+	protected Callable<String> saveByGroup(final D form, final Class<?>... groups) {
+		return new Callable<String>() {
+			public String call() throws Exception {
+				
+				try {
+					D d;
+					if (form.getId() == null) {
+						d = getDAO().saveNew(form);
+						addUserMessage("crud.save.new.success", UserMessageType.SUCCESS);
+					} else {
+						d = getDAO().updateByAnnotation(form, groups);
+						addUserMessage("crud.save.update.success", UserMessageType.SUCCESS);
+					}
+					return "redirect:/" + entityName + "/" + form.getId();
+				} catch (ValidationException ex) {
+					addValidationExceptionMessage(ex);
+					model.addAttribute(entityName, form);
+					if (form.getId() == null)
+						setupNavCrud(OPERATION_CREATE, null);
+					else
+						setupNavCrud(OPERATION_EDIT, form);
+					return "/" + entityName + "/edit";
+				}
+			}
+		};
+	}
 
 	@SuppressWarnings("unchecked")
 	public DAO<D> getDAO() {

@@ -10,7 +10,8 @@ public class UpdatedProperty {
 	private String propertyName;
 	private String oldValue;
 	private String newValue;
-	@Column(length=200)
+	private boolean hiddenValues;
+	@Column(length=200, updatable=false)
 	public String getOldValue() {
 		return oldValue;
 	}
@@ -18,7 +19,7 @@ public class UpdatedProperty {
 		if(oldValue != null) oldValue = StringUtils.abbreviate(oldValue, 200);
 		this.oldValue = oldValue;
 	}
-	@Column(length=200)
+	@Column(length=200, updatable=false)
 	public String getNewValue() {
 		return newValue;
 	}
@@ -26,13 +27,26 @@ public class UpdatedProperty {
 		if(newValue != null) newValue = StringUtils.abbreviate(newValue, 200);
 		this.newValue = newValue;
 	}
-	@Column(length=200)
+	@Column(length=200, updatable=false)
 	public String getPropertyName() {
 		return propertyName;
 	}
 	public void setPropertyName(String propertyName) {
 		if(propertyName != null) propertyName = StringUtils.abbreviate(propertyName, 200);
 		this.propertyName = propertyName;
+	}
+	/**
+	 * @return the hiddenValues
+	 */
+	@Column(nullable=false, updatable=false)
+	public boolean isHiddenValues() {
+		return hiddenValues;
+	}
+	/**
+	 * @param hiddenValues the hiddenValues to set
+	 */
+	public void setHiddenValues(boolean hiddenValues) {
+		this.hiddenValues = hiddenValues;
 	}
 	
 	

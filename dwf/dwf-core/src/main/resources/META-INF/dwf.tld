@@ -70,6 +70,10 @@
 		<path>/META-INF/tags/dwf/inputEntitySelect.tag</path>
 	</tag-file>
 	<tag-file>
+		<name>inputPassword</name>
+		<path>/META-INF/tags/dwf/inputPassword.tag</path>
+	</tag-file>
+	<tag-file>
 		<name>inputEntityCheckboxList</name>
 		<path>/META-INF/tags/dwf/inputEntityCheckboxList.tag</path>
 	</tag-file>

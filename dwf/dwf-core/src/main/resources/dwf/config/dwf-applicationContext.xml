@@ -18,7 +18,7 @@
            http://www.springframework.org/schema/mvc 
            http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
            http://www.springframework.org/schema/security 
-           http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+           http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
 
 	<context:annotation-config />
@@ -44,6 +44,11 @@
 
 	<!-- Transaction Manager (Hibernate) -->
 	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
+	<!--  Aplica o pattern de abrir a sessão a cada request. Compatível com requisições assíncronas -->
+	<bean id="openSessionInViewInterceptor" class="org.springframework.orm.hibernate4.support.OpenSessionInViewInterceptor">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 	
@@ -84,5 +89,26 @@
 	<!-- Ao acessar urls do tipo /resources/, ele procura na pasta da aplicação e, depois, nos arquivos do dwf -->
 	<mvc:resources mapping="/resources/**" location="/resources/, classpath:/dwf/web-resources/" />
 
+	<!-- SEGURANÇA -->
+	<bean class="dwf.security.DwfUserDetailsServiceImpl" id="userDetailsService">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	<!-- Password encoder -->
+	<bean class="org.springframework.security.crypto.password.StandardPasswordEncoder" id="passwordEncoder">
+	</bean>
+	<!-- Authentication Manager -->	
+	<security:authentication-manager id="authenticationManager">
+		<security:authentication-provider user-service-ref="userDetailsService">
+			<security:password-encoder ref="passwordEncoder"/>
+		</security:authentication-provider>
+	</security:authentication-manager>
+	<!-- Segurança - HTTP -->
+	<security:http pattern="/resources/**" security="none" authentication-manager-ref="authenticationManager"/>
+	<security:http pattern="/login.jsp*" security="none" authentication-manager-ref="authenticationManager"/>
+	<security:http auto-config="true" use-expressions="true" authentication-manager-ref="authenticationManager" >
+		<security:intercept-url pattern="/**" access="isAuthenticated()" />
+		<security:form-login login-page="/login.jsp" />
+	</security:http>
+	
 
 </beans>

@@ -17,10 +17,10 @@ List targetEntityList = dao.findAll();
 getJspContext().setAttribute("targetEntityList", targetEntityList);
 %>
 <dwf:formGroup parentAttrMap="${attrMap}">
-	<div class="btn-group" data-toggle="buttons">
-		<c:forEach items="${targetEntityList}" var="targetEntity">
+	<div class="btn-group" >
+		<c:forEach items="${targetEntityList}" var="targetEntity" varStatus="loopStatus">
 			<label class= "btn btn-default">
-				<input type="checkbox" name="${name}.id" value="${targetEntity.id }">${targetEntity.displayText}</input>
+				<input type="checkbox" name="${name}[].id" value="${targetEntity.id }" ${value.contains(targetEntity) ? 'checked="checked"' : '' }>${targetEntity.displayText}</input>
 			</label>
 		</c:forEach>
 	</div>	

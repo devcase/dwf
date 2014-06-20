@@ -16,6 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+import dwf.persistence.annotations.HideActivityLogValues;
 import dwf.persistence.annotations.UniqueValue;
 import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.domain.BaseEntity;
@@ -58,11 +59,12 @@ public abstract class User extends BaseEntity<Long> {
 		this.username = username;
 	}
 
-	@Column(name = "password", length = 200, nullable = false)
+	@Column(name = "password", length = 200, nullable = true)
 	@NotNull(groups = { ValidationGroups.MergePersist.class,
 			ValidationGroups.ChangePassword.class })
 	@UpdatableProperty(groups = { ValidationGroups.MergePersist.class,
 			ValidationGroups.ChangePassword.class })
+	@HideActivityLogValues
 	public String getHashedPassword() {
 		return hashedPassword;
 	}

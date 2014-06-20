@@ -16,7 +16,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Hirata
  *
  */
-@WebFilter(asyncSupported=true, urlPatterns="/*")
 public class AppPathFilter extends OncePerRequestFilter  {
 	
 	@Override

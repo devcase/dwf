@@ -22,7 +22,6 @@ import org.springframework.web.servlet.LocaleResolver;
  * @author Hirata
  *
  */
-@WebFilter(urlPatterns="/*", dispatcherTypes={DispatcherType.REQUEST}, asyncSupported=true)
 public class SetupLocaleFilter extends OncePerRequestFilter {
 	public static String DATE_PATTERN_JAVA_ATTRIBUTE = "datePatternJava";
 

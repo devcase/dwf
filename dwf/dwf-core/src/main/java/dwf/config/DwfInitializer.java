@@ -28,8 +28,8 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 import dwf.web.DefaultLocaleResolver;
 import dwf.web.filter.AppPathFilter;
-import dwf.web.filter.SetupLocaleFilter;
 import dwf.web.filter.SetUtf8EncodingFilter;
+import dwf.web.filter.SetupLocaleFilter;
 
 /**
  * Configura o framework

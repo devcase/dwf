@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dwf.activitylog.domain.UpdatedProperty;
 import dwf.activitylog.service.ActivityLogService;
+import dwf.persistence.annotations.HideActivityLogValues;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.domain.BaseEntity;
@@ -70,6 +71,9 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 * 
 	 */
 	protected final List<Field> fieldsToTrim;
+	/**
+	 * Cache with UpdatableProperty annotations
+	 */
 	protected final Map<PropertyDescriptor, UpdatableProperty> updatableProperties;
 
 	public BaseDAOImpl(Class<D> clazz) {
@@ -261,16 +265,24 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		trimAllStringFields(entity);
 		validate(entity, groups);
 
-		D retrievedEntity = findById(entity.getId());
-		if(retrievedEntity == null)
+		D x = findById(entity.getId());
+		if(x == null)
 			throw new IllegalArgumentException("Id must be not-null");
-		getSession().evict(retrievedEntity);
+		//getSession().evict(retrievedEntity);
+		D retrievedEntity;
+		try {
+			retrievedEntity = clazz.newInstance();
+			BeanUtils.copyProperties(retrievedEntity, x);
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e1) {
+			throw new RuntimeException(e1);
+		}
 		
 		List<UpdatedProperty> updatedProperties = new ArrayList<UpdatedProperty>();
 		
 		for (final PropertyDescriptor property : this.updatableProperties.keySet()) {
 			try {
 				UpdatableProperty annotation = this.updatableProperties.get(property);
+				
 				
 				if(checkUpdateGroup(annotation, groups)) {
 					Object value = PropertyUtils.getSimpleProperty(entity, property.getName());
@@ -283,8 +295,13 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 					}
 					
 					UpdatedProperty up = new UpdatedProperty();
-					up.setNewValue(value != null ? value.toString() : "-");
-					up.setOldValue(oldValue != null ? oldValue.toString() : "-");
+					if(property.getReadMethod().getAnnotation(HideActivityLogValues.class) != null) {
+						up.setHiddenValues(true);
+					} else {
+						up.setNewValue(value != null ? value.toString() : "-");
+						up.setOldValue(oldValue != null ? oldValue.toString() : "-");
+						up.setHiddenValues(false);
+					}
 					up.setPropertyName(property.getName());
 					updatedProperties.add(up);
 					BeanUtils.copyProperty(retrievedEntity, property.getName(), value);

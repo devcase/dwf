@@ -15,7 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * força o encoding dos requests para UTF-8 
  * @author Hirata
  */
-@WebFilter(urlPatterns="/*", dispatcherTypes={DispatcherType.REQUEST}, asyncSupported=true)
 public class SetUtf8EncodingFilter extends OncePerRequestFilter {
 
 	@Override
