@@ -8,6 +8,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,8 +22,6 @@ import javax.validation.groups.Default;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -37,6 +36,7 @@ import dwf.persistence.annotations.HideActivityLogValues;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.domain.BaseEntity;
+import dwf.utils.ModifiableParsedMap;
 import dwf.utils.ParsedMap;
 import dwf.validation.ValidationGroups;
 
@@ -50,7 +50,6 @@ import dwf.validation.ValidationGroups;
 public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		implements DAO<D> {
 	
-	private Log log = LogFactory.getLog(getClass());
 	private final static Class<?>[] DEFAULT_VALIDATION_GROUP = {Default.class};
 
 	@Autowired
@@ -75,6 +74,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 * Cache with UpdatableProperty annotations
 	 */
 	protected final Map<PropertyDescriptor, UpdatableProperty> updatableProperties;
+	private List<PropertyDescriptor> propertyList;
+	private Set<String> propertyNames;
 
 	public BaseDAOImpl(Class<D> clazz) {
 		super();
@@ -86,7 +87,10 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		 */
 		fieldsToTrim = new ArrayList<Field>();
 		updatableProperties = new HashMap<PropertyDescriptor, UpdatableProperty>();
+		this.propertyList = new ArrayList<PropertyDescriptor>();
+		this.propertyNames = new HashSet<String>();
 		processClazzFieldsRecursive(this.clazz);
+		
 	}
 	
 	/**
@@ -107,7 +111,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 			}
 		}
 		for (final PropertyDescriptor p : PropertyUtils.getPropertyDescriptors(cl)) {
-			
+			propertyList.add(p);
+			propertyNames.add(p.getName());
 			if(p.getReadMethod().getAnnotation(UpdatableProperty.class) != null) {
 				updatableProperties.put(p, p.getReadMethod().getAnnotation(UpdatableProperty.class));
 			} else if(p.getReadMethod().getAnnotation(NotEditableProperty.class) != null || p.getWriteMethod() == null) {
@@ -143,7 +148,25 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		return findByFilter(filter, 0, -1);
 	}
 	
+	/* (non-Javadoc)
+	 * @see dwf.persistence.dao.DAO#findByFilter(java.lang.Object[])
+	 */
+	@Override
+	public List<?> findByFilter(Object... params) {
+		return findByFilter(new ModifiableParsedMap(params));
+	}
 	
+	/* (non-Javadoc)
+	 * @see dwf.persistence.dao.DAO#findFirstByFilter(java.lang.Object[])
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public D findFirstByFilter(Object... params) {
+		List<?> list = findByFilter(params);
+		if(list.isEmpty()) return null;
+		else return (D) list.get(0);
+	}
+
 	/* (non-Javadoc)
 	 * @see dwf.persistence.dao.DAO#findAll()
 	 */
@@ -198,6 +221,16 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 			public Object put(String key, Object value) {
 				return null;
 			}
+
+			/* (non-Javadoc)
+			 * @see dwf.utils.ParsedMap#get(java.lang.String)
+			 */
+			@Override
+			public Object get(String key) {
+				return null;
+			}
+			
+			
 			
 		});
 	}
@@ -348,22 +381,12 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		}
 	}
 
-	protected String createQuery(ParsedMap filter, boolean count, Map<String, Object> params) {
-		StringBuilder query = new StringBuilder();
-		
-		if(count) {
-			query.append("select count(s.id) from " + this.entityName + " s ");
-		} else {
-			query.append("select s from " + this.entityName + " s ");
-		}
-		
-		query.append(" WHERE 1=1 ");
-		if(Boolean.TRUE.equals(filter.getBoolean("includeDisabled"))) {
-		} else {
-//			query.append(" and s.enabled = true ");
-		}
-		
-		return query.toString();
+	/**
+	 * You may choose between override this method or createQuery()
+	 * @return
+	 */
+	protected QueryBuilder createQueryBuilder() {
+		return new BaseQueryBuilder(this);
 	}
 
 	/**
@@ -416,5 +439,40 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 			}
 			return false;
 		}
+	}
+	
+	/**
+	 * The default implementation delegates the query creation to a queryBuilder, created by
+	 * createQueryBuilder().
+	 * @param filter
+	 * @param count
+	 * @param params
+	 * @return
+	 */
+	protected String createQuery(ParsedMap filter, boolean count, Map<String, Object> params) {
+		return createQueryBuilder().createQuery(filter, count, params);
+	}
+
+	/**
+	 * @return the entityName
+	 */
+	public String getEntityName() {
+		return entityName;
+	}
+
+
+	/**
+	 * @return the propertyList
+	 */
+	public List<PropertyDescriptor> getPropertyList() {
+		return propertyList;
+	}
+	
+	public boolean hasPropertyWithName(String name) {
+		return propertyNames.contains(name);
+	}
+	
+	public Set<String> getPropertyNames(){
+		return  this.propertyNames;
 	}
 }

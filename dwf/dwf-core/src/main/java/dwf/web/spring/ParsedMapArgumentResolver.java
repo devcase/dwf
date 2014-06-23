@@ -207,6 +207,14 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 			return requestMap.hashCode();
 		}
 
+		/* (non-Javadoc)
+		 * @see dwf.utils.ParsedMap#get(java.lang.String)
+		 */
+		@Override
+		public Object get(String key) {
+			return get(key);
+		}
+
 		
 		
 		

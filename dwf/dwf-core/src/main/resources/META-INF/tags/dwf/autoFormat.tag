@@ -8,10 +8,12 @@
 		getJspContext().setAttribute("format", "date");
 	} else if (value instanceof Boolean) {
 		getJspContext().setAttribute("format", "boolean");
-	} else {
+	} else if (value instanceof java.util.Collection){
+		getJspContext().setAttribute("format", "collection");
 	}
 %><c:choose><c:when test="${format eq 'string'}"><dwf:escapeHtml value="${value}" /></c:when><c:when 
 	test="${format eq 'boolean'}"><dwf:yesNo value="${value}" /></c:when><c:when 
 	test="${format eq 'date'}"><fmt:formatDate value="${value}" type="date" pattern="${datePatternJava}" /></c:when><c:when 
-	test="${format eq 'number'}"><fmt:formatNumber value="${value}" /></c:when><c:otherwise
+	test="${format eq 'number'}"><fmt:formatNumber value="${value}" /></c:when><c:when 
+	test="${format eq 'collection'}"><c:forEach items="${value}" var="item" varStatus="loopStatus">${loopStatus.count > 1 ? ', ' : ''}${item}</c:forEach></c:when><c:otherwise
 	>${value}</c:otherwise></c:choose>

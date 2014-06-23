@@ -15,6 +15,8 @@ import javax.servlet.ServletRegistration;
 import javax.servlet.annotation.HandlesTypes;
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
@@ -39,6 +41,8 @@ import dwf.web.filter.SetupLocaleFilter;
  */
 @HandlesTypes(DwfConfig.class)
 public class DwfInitializer implements ServletContainerInitializer {
+	private Log log = LogFactory.getLog(getClass());
+	
 	protected DispatcherServlet dispatcherServlet;
 	protected XmlWebApplicationContext webApplicationContext;
 	protected ServletContext servletContext;
@@ -50,6 +54,8 @@ public class DwfInitializer implements ServletContainerInitializer {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onStartup(Set<Class<?>> configImplementations, ServletContext servletContext) throws ServletException {
+		log.info("DWF Initialization - start");
+		
 		this.servletContext = servletContext;
 		
 		//Searching for DwfConfig
@@ -81,7 +87,7 @@ public class DwfInitializer implements ServletContainerInitializer {
 		filterReg.addMappingForServletNames(EnumSet.allOf(DispatcherType.class), false, dwfConfig.getApplicationName());
 		filterReg.setAsyncSupported(true);
 		filterReg = servletContext.addFilter("appPathFilter", AppPathFilter.class);
-		filterReg.addMappingForServletNames(EnumSet.allOf(DispatcherType.class), false, dwfConfig.getApplicationName());
+		filterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
 		filterReg.setAsyncSupported(true);
 		filterReg = servletContext.addFilter("setLocaleFilter", SetupLocaleFilter.class);
 		filterReg.addMappingForServletNames(EnumSet.allOf(DispatcherType.class), false, dwfConfig.getApplicationName());
@@ -90,6 +96,8 @@ public class DwfInitializer implements ServletContainerInitializer {
 		filterReg = servletContext.addFilter("openSessionInViewFilter", OpenSessionInViewFilter.class);
 		filterReg.addMappingForServletNames(EnumSet.allOf(DispatcherType.class), false, dwfConfig.getApplicationName());
 		filterReg.setAsyncSupported(true);
+		
+		log.info("DWF Initialization - finished");
 	}
 
 	/**

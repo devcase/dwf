@@ -15,7 +15,7 @@ $(document).on('click', '[dwf-toggle="remoteload"][dwf-target]', function (evt) 
     	url: href,
     	success: function(data) {
     		$target.html(data);
-    		
+    		$target.trigger('dwf-postupdate');
     	}
     });
 });

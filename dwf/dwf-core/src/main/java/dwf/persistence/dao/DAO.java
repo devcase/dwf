@@ -26,6 +26,9 @@ public interface DAO<D extends BaseEntity<?>> {
 	List<?> findByFilter(ParsedMap filter, int pageNumber, int fetchSize);
 	List<?> findByFilter(ParsedMap filter);
 	List<?> findAll();
+	List<?> findByFilter(Object... params);
+	D findFirstByFilter(Object... params);
+	
 	
 	int countByFilter(ParsedMap filter);
 	D saveNew(D entity) throws ValidationException;

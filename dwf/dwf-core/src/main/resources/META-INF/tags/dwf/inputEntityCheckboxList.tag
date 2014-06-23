@@ -20,7 +20,8 @@ getJspContext().setAttribute("targetEntityList", targetEntityList);
 	<div class="btn-group" >
 		<c:forEach items="${targetEntityList}" var="targetEntity" varStatus="loopStatus">
 			<label class= "btn btn-default">
-				<input type="checkbox" name="${name}[].id" value="${targetEntity.id }" ${value.contains(targetEntity) ? 'checked="checked"' : '' }>${targetEntity.displayText}</input>
+				<input type="checkbox" name="${name}[].id" value="${targetEntity.id }" ${value.contains(targetEntity) ? 'checked="checked"' : '' }>
+					${targetEntity.displayText}</input>
 			</label>
 		</c:forEach>
 	</div>	

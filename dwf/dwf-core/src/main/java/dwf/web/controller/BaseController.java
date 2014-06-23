@@ -89,11 +89,11 @@ public abstract class BaseController implements ApplicationContextAware {
 		redirectAttributes.addFlashAttribute(VALIDATION_EXCEPTION_FLASH_MAP_KEY, validationException);
 		model.addAttribute(VALIDATION_EXCEPTION_FLASH_MAP_KEY, validationException);
 
-		Map<String, ConstraintViolation> violationsMap = new HashMap<String, ConstraintViolation>();
+		Map<String, ConstraintViolation<?>> violationsMap = new HashMap<String, ConstraintViolation<?>>();
 		if (validationException != null && validationException instanceof ConstraintViolationException) {
 			ConstraintViolationException constraintViolationException = (ConstraintViolationException) validationException;
 			if (constraintViolationException.getConstraintViolations() != null) {
-				for (ConstraintViolation constraintViolation : constraintViolationException.getConstraintViolations()) {
+				for (ConstraintViolation<?> constraintViolation : constraintViolationException.getConstraintViolations()) {
 					// path
 					StringBuilder sb = new StringBuilder();
 					for (Path.Node node : constraintViolation.getPropertyPath()) {

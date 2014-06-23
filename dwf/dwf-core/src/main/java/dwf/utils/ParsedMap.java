@@ -7,6 +7,7 @@ public interface ParsedMap  {
 	Boolean getBoolean(String key);
 	Long getLong(String key);
 	boolean containsKey(String key);
+	Object get(String key);
 	
 	Object put(String key, Object value);
 }
