@@ -19,7 +19,7 @@
 		<c:if test="${!empty uploadKey}">
 			<dwf:remoteUrl uploadKey="${uploadKey}" var="url" />
 			<a href="${url}">${url}</a>
-			<img src="${url }" />
+			<img src="${url }" class="update-upload-panel-img"/>
 		</c:if>
 		<form class="form-horizontal validate" method="POST" action="${formaction}" role="form" enctype="multipart/form-data">
 			<div class="form-group ${!empty violation ?  'has-error' : ''}">

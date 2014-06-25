@@ -1,9 +1,8 @@
 package dwf.persistence.dao;
 
 import java.beans.PropertyDescriptor;
+import java.util.Collection;
 import java.util.Map;
-
-import org.apache.commons.lang3.StringEscapeUtils;
 
 import dwf.utils.ParsedMap;
 
@@ -80,9 +79,14 @@ public class BaseQueryBuilder implements QueryBuilder {
 	 * @param query
 	 */
 	protected void appendConditions(ParsedMap filter, boolean count, Map<String, Object> params, StringBuilder query) {
-		for (String pName : dao.getPropertyNames()) {
+		for ( PropertyDescriptor pDescriptor : dao.getPropertyList()) {
+			String pName = pDescriptor.getName();
 			if(filter.containsKey(pName)) {
-				query.append(" and s.").append(pName).append(" = :").append(pName);
+				if(Collection.class.isAssignableFrom(pDescriptor.getPropertyType())) {
+					query.append(" and :").append(pName).append(" member of s.").append(pName);
+				} else {
+					query.append(" and s.").append(pName).append(" = :").append(pName);
+				}
 				params.put(pName, filter.get(pName));
 			}
 		}

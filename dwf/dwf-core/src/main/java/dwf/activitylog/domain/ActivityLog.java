@@ -49,7 +49,7 @@ public class ActivityLog  {
 
 	
 	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE)
+	@GeneratedValue(strategy=GenerationType.TABLE)
 	public Long getId() {
 		return id;
 	}

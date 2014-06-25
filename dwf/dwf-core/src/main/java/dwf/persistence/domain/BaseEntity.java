@@ -26,7 +26,7 @@ public abstract class BaseEntity<ID extends Serializable> {
 	private Date updateTime;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE)
+	@GeneratedValue(strategy=GenerationType.TABLE)
 	@NotEditableProperty()
 	public ID getId() {
 		return id;

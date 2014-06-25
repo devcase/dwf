@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Set;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContainerInitializer;
@@ -19,7 +17,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
@@ -55,49 +52,57 @@ public class DwfInitializer implements ServletContainerInitializer {
 	@Override
 	public void onStartup(Set<Class<?>> configImplementations, ServletContext servletContext) throws ServletException {
 		log.info("DWF Initialization - start");
-		
-		this.servletContext = servletContext;
-		
-		//Searching for DwfConfig
-		if (configImplementations == null || configImplementations.isEmpty()) {
-			throw new ServletException("No DwfConfig implementation found");
-		}
-		Class<DwfConfig> _dwfConfigImplementation = null;
-		for (Class<?> clazz : configImplementations) {
-			if(DwfConfig.class.isAssignableFrom(clazz)) {
-				_dwfConfigImplementation = (Class<DwfConfig>) clazz;
+		try {
+			this.servletContext = servletContext;
+			
+			//Searching for DwfConfig
+			if (configImplementations == null || configImplementations.isEmpty()) {
+				throw new ServletException("No DwfConfig implementation found");
 			}
+			Class<DwfConfig> _dwfConfigImplementation = null;
+			for (Class<?> clazz : configImplementations) {
+				if(DwfConfig.class.isAssignableFrom(clazz)) {
+					_dwfConfigImplementation = (Class<DwfConfig>) clazz;
+				}
+			}
+			if(_dwfConfigImplementation == null) {
+				throw new ServletException("No DwfConfig implementation found");
+			}
+			this.dwfConfig = (DwfConfig) BeanUtils.instantiate(_dwfConfigImplementation);;
+			
+			webApplicationContext = createWebApplicationContext(servletContext, dwfConfig);
+			
+			// configure the spring mvc servlet
+			dispatcherServlet = new DispatcherServlet(webApplicationContext);
+			ServletRegistration.Dynamic servletReg = servletContext.addServlet(dwfConfig.getApplicationName(), dispatcherServlet);
+			servletReg.setAsyncSupported(true);
+			servletReg.setLoadOnStartup(1);
+			servletReg.addMapping("/");
+			
+			//filters não anotados
+			FilterRegistration.Dynamic filterReg = servletContext.addFilter("setUtf8EncodingFilter", SetUtf8EncodingFilter.class);
+			filterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+			filterReg.setAsyncSupported(true);
+			filterReg = servletContext.addFilter("appPathFilter", AppPathFilter.class);
+			filterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+			filterReg.setAsyncSupported(true);
+			filterReg = servletContext.addFilter("setLocaleFilter", SetupLocaleFilter.class);
+			filterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+			filterReg.setAsyncSupported(true);
+			//Filtro que abre a sessão do hibernate a cada request
+			filterReg = servletContext.addFilter("openSessionInViewFilter", OpenSessionInViewFilter.class);
+			filterReg.addMappingForServletNames(EnumSet.allOf(DispatcherType.class), false, dwfConfig.getApplicationName());
+			filterReg.setAsyncSupported(true);
+			//filtro de segurança
+			filterReg = servletContext.addFilter("springSecurityFilterChain", org.springframework.web.filter.DelegatingFilterProxy.class);
+			filterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+			filterReg.setAsyncSupported(true);
+		} catch(Exception ex) {
+			log.fatal("DWF Initialization Error", ex);
+		} finally {
+			log.info("DWF Initialization - finished");
 		}
-		if(_dwfConfigImplementation == null) {
-			throw new ServletException("No DwfConfig implementation found");
-		}
-		this.dwfConfig = (DwfConfig) BeanUtils.instantiate(_dwfConfigImplementation);;
-		
-		webApplicationContext = createWebApplicationContext(servletContext, dwfConfig);
-		
-		// configure the spring mvc servlet
-		dispatcherServlet = new DispatcherServlet(webApplicationContext);
-		ServletRegistration.Dynamic servletReg = servletContext.addServlet(dwfConfig.getApplicationName(), dispatcherServlet);
-		servletReg.setAsyncSupported(true);
-		servletReg.setLoadOnStartup(1);
-		servletReg.addMapping("/");
-		
-		//filters não anotados
-		FilterRegistration.Dynamic filterReg = servletContext.addFilter("setUtf8EncodingFilter", SetUtf8EncodingFilter.class);
-		filterReg.addMappingForServletNames(EnumSet.allOf(DispatcherType.class), false, dwfConfig.getApplicationName());
-		filterReg.setAsyncSupported(true);
-		filterReg = servletContext.addFilter("appPathFilter", AppPathFilter.class);
-		filterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
-		filterReg.setAsyncSupported(true);
-		filterReg = servletContext.addFilter("setLocaleFilter", SetupLocaleFilter.class);
-		filterReg.addMappingForServletNames(EnumSet.allOf(DispatcherType.class), false, dwfConfig.getApplicationName());
-		filterReg.setAsyncSupported(true);
-		//Filtro que abre a sessão do hibernate a cada request
-		filterReg = servletContext.addFilter("openSessionInViewFilter", OpenSessionInViewFilter.class);
-		filterReg.addMappingForServletNames(EnumSet.allOf(DispatcherType.class), false, dwfConfig.getApplicationName());
-		filterReg.setAsyncSupported(true);
-		
-		log.info("DWF Initialization - finished");
+			
 	}
 
 	/**
@@ -121,18 +126,7 @@ public class DwfInitializer implements ServletContainerInitializer {
 				beanFactory.registerSingleton("dwfConfig", dwfConfig);
 				
 				//Datasource: search into JNDI
-				DataSource dataSource;
-				try {
-					InitialContext initialContext = new InitialContext();
-					try {
-						//Search for DataSource
-						dataSource = (DataSource) initialContext.lookup(dwfConfig.getDataSourceJNDIName());
-					} catch (NamingException ex) {
-						throw new FatalBeanException("Could not find the datasource named " + dwfConfig.getDataSourceJNDIName(), ex);
-					}
-				} catch (NamingException ex) {
-					throw new FatalBeanException("Could not create the InitialContext", ex);
-				}
+				DataSource dataSource = dwfConfig.getDataSource();
 				beanFactory.registerSingleton("dataSource", dataSource);
 				
 				//SessionFactory setup
@@ -148,7 +142,7 @@ public class DwfInitializer implements ServletContainerInitializer {
 				ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanFactory);
 				scanner.setEnvironment(getEnvironment());
 				//dwf default components
-				scanner.scan(new String[] {"dwf.persistence", "dwf.activitylog.service", "dwf.utils", "dwf.web"});
+				scanner.scan(new String[] {"dwf.persistence", "dwf.activitylog.service", "dwf.utils", "dwf.web", "dwf.security"});
 				//application components
 				scanner.scan(dwfConfig.getApplicationComponentPackages());
 				

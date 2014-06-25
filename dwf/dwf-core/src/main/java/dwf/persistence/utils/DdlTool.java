@@ -9,7 +9,9 @@ import javax.sql.DataSource;
 
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
-import org.hibernate.dialect.Oracle10gDialect;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.jdbc.dialect.internal.StandardDialectResolver;
+import org.hibernate.engine.jdbc.dialect.spi.DatabaseMetaDataDialectResolutionInfoAdapter;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.hibernate.tool.hbm2ddl.SchemaUpdateScript;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,22 +37,23 @@ public class DdlTool {
 		StringBuilder sql = new StringBuilder();
 		String originalDefaultSchema = cfg.getProperty(Environment.DEFAULT_SCHEMA);
 		try {
-			DatabaseMetadata database = new DatabaseMetadata(conn, new Oracle10gDialect(), cfg);
+			Dialect dialect = new StandardDialectResolver().resolveDialect(new DatabaseMetaDataDialectResolutionInfoAdapter(conn.getMetaData()));
+			DatabaseMetadata database = new DatabaseMetadata(conn, dialect, cfg);
 			cfg.getProperties().put( Environment.DEFAULT_SCHEMA , dwfConfig.getDatabaseSchema());
 			
-			String[] dropSchemaScript = cfg.generateDropSchemaScript(new Oracle10gDialect());
+			String[] dropSchemaScript = cfg.generateDropSchemaScript(dialect);
 			sql.append("/* DROP SCHEMA */\n");
 	    	for (String script : dropSchemaScript) {
     			sql.append(script + ";\n");
 			}
 	    	
-			String[] schemaCreationScript = cfg.generateSchemaCreationScript(new Oracle10gDialect());
+			String[] schemaCreationScript = cfg.generateSchemaCreationScript(dialect);
 			sql.append("\n/* SCHEMA CREATION */\n");
 	    	for (String script : schemaCreationScript) {
     			sql.append(script + ";\n");
 			}
 	    	
-			List<SchemaUpdateScript> schemaUpdateScript = cfg.generateSchemaUpdateScriptList(new Oracle10gDialect(), database);
+			List<SchemaUpdateScript> schemaUpdateScript = cfg.generateSchemaUpdateScriptList(dialect, database);
 			sql.append("\n/* SCHEMA UPDATE */\n");
 	    	for (SchemaUpdateScript script : schemaUpdateScript) {
     			sql.append(script.getScript() + ";\n");

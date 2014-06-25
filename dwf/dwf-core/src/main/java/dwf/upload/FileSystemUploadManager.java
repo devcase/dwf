@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContextAware;
@@ -18,6 +19,7 @@ import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.support.WebApplicationObjectSupport;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
@@ -41,6 +43,14 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 		resourceHttpRequestHandler = new ResourceHttpRequestHandler();
 		resourceHttpRequestHandler.setApplicationContext(this.getApplicationContext());
 		FileSystemResourceLoader resourceLoader = new FileSystemResourceLoader();
+		
+		File rootDir = new File(getDirectory());
+		if(!rootDir.exists()) {
+			rootDir.mkdir();
+		} else if(!rootDir.isDirectory()) {
+			throw new IOException("Caminho de diretório configurado não é válido! " + getDirectory());
+		}
+		
 		Resource fileDir = resourceLoader.getResource(getDirectory());
 		resourceHttpRequestHandler.setLocations(Collections.singletonList(fileDir));
 	}
@@ -63,6 +73,10 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 			throw new IOException("Caminho de diretório configurado não é válido! " + folder.getAbsolutePath());
 		}
 		
+		if(StringUtils.isBlank(fileName)) {
+			fileName = String.valueOf(System.currentTimeMillis());
+		}
+		
 		File savedFile = new File(folder, fileName);
 		if(savedFile.exists()) {
 			savedFile.delete();
@@ -78,13 +92,12 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 	 */
 	@Override
 	public String remoteUrl(String uploadKey) {
-		return getWebApplicationContext().getServletContext().getContextPath() + "/upload" + uploadKey;
+		return getWebApplicationContext().getServletContext().getContextPath() + "/dl" + uploadKey;
 	}
 	
-	@RequestMapping("/upload/**")
+	@RequestMapping("/dl/**")
 	public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, request.getServletPath().substring("/upload".length()));
+		request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, request.getServletPath().substring("/dl/".length()));
 		resourceHttpRequestHandler.handleRequest(request, response);
 	}
-
 }

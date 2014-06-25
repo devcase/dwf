@@ -1,5 +1,7 @@
 package dwf.config;
 
+import javax.sql.DataSource;
+
 public interface DwfConfig {
 	/**
 	 * 
@@ -19,7 +21,7 @@ public interface DwfConfig {
 	 * 
 	 * @return
 	 */
-	String getDataSourceJNDIName();
+	DataSource getDataSource();
 	
 	String getDatabaseSchema();
 }

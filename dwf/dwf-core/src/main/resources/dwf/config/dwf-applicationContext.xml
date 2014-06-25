@@ -96,23 +96,26 @@
 
 	<!-- SEGURANÇA -->
 	<bean class="dwf.security.DwfUserDetailsServiceImpl" id="userDetailsService">
-		<property name="dataSource" ref="dataSource"></property>
 	</bean>
 	<!-- Password encoder -->
 	<bean class="org.springframework.security.crypto.password.StandardPasswordEncoder" id="passwordEncoder">
 	</bean>
 	<!-- Authentication Manager -->
-	<security:authentication-manager id="authenticationManager">
+	<security:authentication-manager id="authenticationManager" >
 		<security:authentication-provider user-service-ref="userDetailsService">
 			<security:password-encoder ref="passwordEncoder" />
 		</security:authentication-provider>
 	</security:authentication-manager>
+	
 	<!-- Segurança - HTTP -->
+	<bean id="flashMapManager" class="org.springframework.web.servlet.support.SessionFlashMapManager"/><!-- Usado pelo DwfAuthenticationFailureHandler -->
 	<security:http pattern="/resources/**" security="none" authentication-manager-ref="authenticationManager" />
-	<security:http pattern="/login.jsp*" security="none" authentication-manager-ref="authenticationManager" />
-	<security:http auto-config="true" use-expressions="true" authentication-manager-ref="authenticationManager">
-		<security:intercept-url pattern="/**" access="isAuthenticated()" />
-		<security:form-login login-page="/login.jsp" />
+	<security:http pattern="/login*" security="none" authentication-manager-ref="authenticationManager" />
+	<security:global-method-security secured-annotations="enabled" authentication-manager-ref="authenticationManager" pre-post-annotations="enabled" />
+	<!-- Utiliza anotações @PreAuthorize -->
+	<security:http auto-config="true" use-expressions="true" authentication-manager-ref="authenticationManager" >
+		<security:anonymous enabled="true" granted-authority="ROLE_ANONYMOUS"/>
+		<security:form-login login-page="/login" authentication-failure-handler-ref="dwfAuthenticationFailureHandler"/>
 	</security:http>
 
 

@@ -1,6 +1,9 @@
 package dwf.user.domain;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -13,8 +16,13 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import dwf.persistence.annotations.HideActivityLogValues;
 import dwf.persistence.annotations.UniqueValue;
@@ -40,7 +48,12 @@ import dwf.validation.ValidationGroups;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING, length = 100)
 @UniqueValue(field = "username")
-public abstract class User extends BaseEntity<Long> {
+public abstract class User extends BaseEntity<Long> implements UserDetails {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7061887279574488319L;
+
 	static final String TABLE_NAME = "us_user";
 
 	private String username;
@@ -83,4 +96,55 @@ public abstract class User extends BaseEntity<Long> {
 	public void setRoles(List<String> roles) {
 		this.roles = roles;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.springframework.security.core.userdetails.UserDetails#getAuthorities()
+	 */
+	@Override
+	@Transient
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+        Set<GrantedAuthority> dbAuthsSet = new HashSet<GrantedAuthority>();
+        for (String userRole : this.getRoles()) {
+			dbAuthsSet.add(new SimpleGrantedAuthority(userRole));
+		}
+		return dbAuthsSet;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.springframework.security.core.userdetails.UserDetails#getPassword()
+	 */
+	@Override
+	@Transient
+	public String getPassword() {
+		return getHashedPassword();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.springframework.security.core.userdetails.UserDetails#isAccountNonExpired()
+	 */
+	@Override
+	@Transient
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.springframework.security.core.userdetails.UserDetails#isAccountNonLocked()
+	 */
+	@Override
+	@Transient
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.springframework.security.core.userdetails.UserDetails#isCredentialsNonExpired()
+	 */
+	@Override
+	@Transient
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	
 }

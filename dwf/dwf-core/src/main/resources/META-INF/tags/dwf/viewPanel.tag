@@ -5,7 +5,7 @@
 <%@ tag dynamic-attributes="attrMap"%>
 <c:set var="formLayout" value="horizontal" scope="request"/>
 <dwf:resolveEL el='${entityName}' var="entity"/>
-<h1><i class="fa fa-edit"></i><spring:message code="label.viewPanel.header"/>: ${entity.displayText}</h1>
+<h1><i class="fa fa-edit"></i><spring:message code="domain.${entityName}"/>: ${entity.displayText}</h1>
 <div class="panel panel-default">
 	<div class="panel-body">
 		<form class="form-horizontal" method="POST" action="${appPath}/${entityName}/edit/${entity.id}" role="form">
