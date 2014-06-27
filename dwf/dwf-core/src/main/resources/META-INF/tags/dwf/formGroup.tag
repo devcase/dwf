@@ -7,7 +7,7 @@
 <dwf:findViolation constraintViolationException="${validationException}" path="${attrMap.property}" var="violation"/>
 <dwf:simpleLabel parentAttrMap="${attrMap}" var="labelText"/>
 <%@ variable name-given="name" scope="AT_BEGIN" %>
-
+<%@ variable name-given="value" scope="AT_BEGIN" variable-class="java.lang.Object"%>
 <%-- VALOR PADRÃO E NOME DO INPUT --%>
 <c:choose>
 	<c:when test="${!empty attrMap.name}">
