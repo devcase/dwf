@@ -4,14 +4,15 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
 <dwf:resolveEL el="${entityName}" var="entity" />
-<dwf:resolveEL el="${entityName}.${attrMap.property}" var="uploadKey" />
+<c:if test="${!empty attrMap.property}">
+	<dwf:resolveEL el="${entityName}.${attrMap.property}" var="uploadKey" />
+</c:if>
 <h2>
-	<dwf:simpleLabel textOnly="true" property="${attrMap.property}" />
+	<dwf:simpleLabel textOnly="true" property="${attrMap.property}" labelKey="${attrMap.labelKey }" />
 </h2>
 <c:set var="formaction" value="${attrMap.formaction}"/>
 <c:if test="${empty attrMap.formaction}">
-	<c:set var="formaction" value="${appPath}/${entityName}/update${attrMap.property.substring(0,1).toUpperCase()}${attrMap.property.substring(1)}/${entity.id}"/>
-
+	<c:set var="formaction" value="${appPath}/${entityName}/updateUpload/${entity.id}"/>
 </c:if>
 
 <div class="panel panel-default">
@@ -19,9 +20,10 @@
 		<c:if test="${!empty uploadKey}">
 			<dwf:remoteUrl uploadKey="${uploadKey}" var="url" />
 			<a href="${url}">${url}</a>
-			<img src="${url }" class="update-upload-panel-img"/>
+			<img src="${url }" class="img-responsive"/>
 		</c:if>
 		<form class="form-horizontal validate" method="POST" action="${formaction}" role="form" enctype="multipart/form-data">
+			<input type="hidden" name="propertyName" value="${attrMap.property}"/>
 			<div class="form-group ${!empty violation ?  'has-error' : ''}">
 				<div class="col-sm-12">
 					<input type="file" name="file" />

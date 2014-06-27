@@ -4,6 +4,7 @@ import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,10 +33,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dwf.activitylog.domain.UpdatedProperty;
 import dwf.activitylog.service.ActivityLogService;
+import dwf.persistence.annotations.FillWithCurrentUser;
 import dwf.persistence.annotations.HideActivityLogValues;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.domain.BaseEntity;
+import dwf.security.DwfUserUtils;
+import dwf.user.domain.User;
 import dwf.utils.ModifiableParsedMap;
 import dwf.utils.ParsedMap;
 import dwf.validation.ValidationGroups;
@@ -74,6 +78,10 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 * Cache with UpdatableProperty annotations
 	 */
 	protected final Map<PropertyDescriptor, UpdatableProperty> updatableProperties;
+	/**
+	 * Cache com os setters anotados com @FillWithCurrentUser
+	 */
+	protected final Map<PropertyDescriptor, FillWithCurrentUser> filledWithUser;
 	private List<PropertyDescriptor> propertyList;
 	private Set<String> propertyNames;
 
@@ -87,8 +95,10 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		 */
 		fieldsToTrim = new ArrayList<Field>();
 		updatableProperties = new HashMap<PropertyDescriptor, UpdatableProperty>();
-		this.propertyList = new ArrayList<PropertyDescriptor>();
+		this.propertyList = new ArrayList<PropertyDescriptor>();	
 		this.propertyNames = new HashSet<String>();
+		this.filledWithUser = new HashMap<PropertyDescriptor, FillWithCurrentUser>();
+		
 		processClazzFieldsRecursive(this.clazz);
 		
 	}
@@ -113,9 +123,16 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		for (final PropertyDescriptor p : PropertyUtils.getPropertyDescriptors(cl)) {
 			propertyList.add(p);
 			propertyNames.add(p.getName());
-			if(p.getReadMethod().getAnnotation(UpdatableProperty.class) != null) {
-				updatableProperties.put(p, p.getReadMethod().getAnnotation(UpdatableProperty.class));
-			} else if(p.getReadMethod().getAnnotation(NotEditableProperty.class) != null || p.getWriteMethod() == null) {
+			
+			Method writeMethod = p.getWriteMethod();
+			Method readMethod = p.getReadMethod();
+			if(writeMethod != null && readMethod.getAnnotation(FillWithCurrentUser.class) != null) {
+				filledWithUser.put(p, readMethod.getAnnotation(FillWithCurrentUser.class));
+			}
+			
+			if(readMethod.getAnnotation(UpdatableProperty.class) != null) {
+				updatableProperties.put(p, readMethod.getAnnotation(UpdatableProperty.class));
+			} else if(readMethod.getAnnotation(NotEditableProperty.class) != null || writeMethod == null) {
 				//propriedade readonly ou anotada com NotEditableProperty
 			} else {
 				updatableProperties.put(p, null);
@@ -269,7 +286,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	@Override
 	@Transactional(rollbackFor=ValidationException.class)
 	public D saveNew(D entity) throws ValidationException {
-		trimAllStringFields(entity);
+		prepareEntity(entity);
 		validate(entity,ValidationGroups.MergePersist.class);
 		validate(entity); //valida campos sem grupos definidos
 		entity.setUpdateTime(new Date());
@@ -282,7 +299,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	@Override
 	@Transactional(rollbackFor=ValidationException.class)
 	public D merge(D entity) throws ValidationException {
-		trimAllStringFields(entity);
+		prepareEntity(entity);
 		validate(entity,ValidationGroups.MergePersist.class);
 		validate(entity); //valida campos sem grupos definidos
 		entity.setUpdateTime(new Date());
@@ -295,7 +312,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	@Override
 	@Transactional(rollbackFor=ValidationException.class)
 	public D updateByAnnotation(D entity, Class<?>... groups) throws ValidationException {
-		trimAllStringFields(entity);
+		prepareEntity(entity);
 		validate(entity, groups);
 
 		D x = findById(entity.getId());
@@ -390,13 +407,15 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	}
 
 	/**
-	 * 
+	 * Called before any validation or persistence
 	 * @param entity
 	 */
-	protected void trimAllStringFields(D entity) {
-		for (final Field fieldToTrim : fieldsToTrim) {
-			String propertyValue;
-			try {
+	protected void prepareEntity(D entity) {
+		try {
+		
+			//Trim string fields
+			for (final Field fieldToTrim : fieldsToTrim) {
+				String propertyValue;
 				propertyValue = (String) BeanUtils.getProperty(entity, fieldToTrim.getName());
 				if(propertyValue == null) {
 					continue;
@@ -406,11 +425,22 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 						propertyValue = null;
 				}
 				BeanUtils.setProperty(entity, fieldToTrim.getName(), propertyValue);
-			} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignore) {
-				throw new RuntimeException(ignore);
 			}
-
+				
+			//@FillWithCurrentUser
+			User currentUser = DwfUserUtils.getCurrentUser();
+			if(currentUser != null) {
+				for (Map.Entry<PropertyDescriptor, FillWithCurrentUser> prop : this.filledWithUser.entrySet()) {
+					System.out.println("BeanUtils.getProperty(entity, prop.getKey().getName())" + BeanUtils.getProperty(entity, prop.getKey().getName()));
+					if(prop.getValue().force() || BeanUtils.getProperty(entity, prop.getKey().getName()) == null) {
+						BeanUtils.setProperty(entity, prop.getKey().getName(), currentUser);
+					}
+				}
+			}
+		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
+			throw new RuntimeException(ex);
 		}
+		
 	}
 	
 	/**
@@ -459,7 +489,6 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	public String getEntityName() {
 		return entityName;
 	}
-
 
 	/**
 	 * @return the propertyList

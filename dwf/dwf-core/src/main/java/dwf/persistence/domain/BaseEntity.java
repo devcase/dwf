@@ -18,7 +18,13 @@ import dwf.persistence.annotations.NotEditableProperty;
 
 @MappedSuperclass
 @Access(AccessType.PROPERTY)
-public abstract class BaseEntity<ID extends Serializable> {
+public abstract class BaseEntity<ID extends Serializable> implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6441974999647599671L;
+
 	private ID id;
 	
 	private boolean enabled = true;

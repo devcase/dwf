@@ -1,14 +1,23 @@
 package dwf.web.controller;
 
+import java.beans.PropertyDescriptor;
+import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ValidationException;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -18,11 +27,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import dwf.activitylog.service.ActivityLogService;
+import dwf.persistence.annotations.NotEditableProperty;
+import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.dao.DAO;
 import dwf.persistence.domain.BaseEntity;
+import dwf.security.DwfUserUtils;
+import dwf.upload.UploadManager;
 import dwf.utils.ParsedMap;
 import dwf.web.message.UserMessageType;
 
@@ -38,14 +52,32 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 
 	@Autowired
 	private ActivityLogService activityLogService;
+	@Autowired(required=false)
+	private UploadManager uploadManager;
 
 	protected final Class<D> clazz;
 	protected final String entityName;
+	protected final Map<String, PropertyDescriptor> entityProperties;
 
 	public BaseCrudController(Class<D> clazz) {
 		super();
 		this.clazz = clazz;
 		this.entityName = StringUtils.uncapitalize(clazz.getSimpleName());
+		this.entityProperties = new HashMap<String, PropertyDescriptor>();
+		processClazzFieldsRecursive(clazz);
+	}
+	
+	/**
+	 * Builds the entityProperties map
+	 * @param cl
+	 */
+	private void processClazzFieldsRecursive(Class<?> cl) {
+		if(cl.getSuperclass() != null) {
+			processClazzFieldsRecursive(cl.getSuperclass());
+		}
+		for (final PropertyDescriptor p : PropertyUtils.getPropertyDescriptors(cl)) {
+			entityProperties.put(p.getName(), p);
+		}
 	}
 
 	/**
@@ -209,6 +241,35 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 			return "/generic/log";
 		}
 	}
+	
+	@RequestMapping(value = { "/updateUpload/{id}" }, method = RequestMethod.POST)
+	public Callable<String> updateUpload(@PathVariable final Long id, final String propertyName, final MultipartFile file) {
+		final BaseCrudController<D, ID> controller = this;
+		return new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				if(file == null) {
+					return "/" + entityName + "/view";
+				}
+				//get the UpdateGroup for the property
+				PropertyDescriptor pd = entityProperties.get(propertyName);
+				if(pd != null) {
+					UpdatableProperty annot = pd.getReadMethod().getAnnotation(UpdatableProperty.class);
+					if(annot != null) {
+						Class<?>[] upgroup = annot.groups();
+						String uploadKey = uploadManager.saveFile(file.getInputStream(), file.getContentType(), file.getOriginalFilename(), entityName + "/" + id);
+						D form = clazz.newInstance();
+						form.setId((ID) id);
+						BeanUtils.setProperty(form, propertyName, uploadKey);
+						return controller.saveByGroup(form, upgroup);
+					}
+				}
+				//If it's an invalid propertyName
+				throw new IllegalArgumentException("Invalid propertyName");
+			}
+		};
+	}
+
 
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public Callable<String> save(final D form, final BindingResult bindingResult) {
@@ -253,7 +314,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 				setupNavCrud(OPERATION_CREATE, null);
 			else
 				setupNavCrud(OPERATION_EDIT, form);
-			return "/" + entityName + "/edit";
+			return "/" + entityName + "/view";
 		}
 	}
 
@@ -473,5 +534,6 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 			return backButton;
 		}
 	}
+
 
 }

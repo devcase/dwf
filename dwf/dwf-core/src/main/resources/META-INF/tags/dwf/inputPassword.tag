@@ -4,7 +4,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
 <dwf:formGroup parentAttrMap="${attrMap}">
-	<input type="password" value="${value}" name="${name}"
+	<input type="password" value="" name="${name}"
 		<c:if test="${!empty attrMap.pattern}">pattern="${attrMap.pattern}"</c:if>
 		<c:if test="${attrMap.required}">required="required"</c:if>
 		<c:if test="${!empty attrMap.maxlength}">maxlength="${attrMap.maxlength}"</c:if>

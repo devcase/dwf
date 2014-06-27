@@ -6,6 +6,7 @@ $(document).on('dwf-postupdate', function() {
 	$(this).find("[dwf-toggle='horizontal-scroller']").each(function() {
 
 		var scrollTarget = $(this).find('ul');
+		scrollTarget.css({'position' : 'absolute'});
 		var domJQ = $(this);
 		var startPosition = scrollTarget.position().left;
 		
@@ -13,7 +14,18 @@ $(document).on('dwf-postupdate', function() {
 			evt.preventDefault();
 			
 			var dir = $(this).hasClass('right') ? -1 : 1;
-			var deltaXStep = $(scrollTarget.find('li')[1]).position().left - $(scrollTarget.find('li')[0]).position().left;
+			
+			var deltaXStep;
+			if(scrollTarget.find('li').length > 2) {
+				deltaXStep = $(scrollTarget.find('li')[2]).position().left - $(scrollTarget.find('li')[1]).position().left;
+			}
+			else if(scrollTarget.find('li').length > 1) {
+				deltaXStep = $(scrollTarget.find('li')[1]).position().left - $(scrollTarget.find('li')[0]).position().left;
+			}
+			else {
+				deltaXStep = $(scrollTarget.find('li')[0]).width();
+			} 
+			
 			var deltaX = Math.max(Math.floor(domJQ.width() / deltaXStep), 1) * deltaXStep * dir;
 			var startLeft = scrollTarget.position().left;
 			var finalLeft = startLeft + deltaX; 
@@ -29,7 +41,6 @@ $(document).on('dwf-postupdate', function() {
 			} else if (startLeft == minLeft && startLeft == finalLeft) {
 				finalLeft = startPosition;
 			}
-			
 			
 			domJQ.find('.horizontal-scroller-control').hide();
 			scrollTarget.animate({

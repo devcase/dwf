@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import dwf.activitylog.domain.ActivityLog;
 import dwf.activitylog.domain.UpdatedProperty;
 import dwf.persistence.domain.BaseEntity;
+import dwf.security.DwfUserUtils;
 
 /**
  * @author Hirata
@@ -65,6 +66,9 @@ public class ActivityLogServiceImpl implements ActivityLogService {
 		newLog.setTimestamp(new Date());
 		newLog.setEntityDescription(StringUtils.abbreviate(entity.toString(), 200));
 		newLog.setUpdatedProperties(updatedProperties);
+		newLog.setUser(DwfUserUtils.getCurrentUser());
+		
+		
 		
 		if(entity.getParent() != null) {
 			newLog.setParentEntityId(String.valueOf(entity.getParent().getId()));

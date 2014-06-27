@@ -108,8 +108,25 @@ public abstract class BaseController implements ApplicationContextAware {
 
 		redirectAttributes.addFlashAttribute(VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY, violationsMap);
 		model.addAttribute(VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY, violationsMap);
-
 	}
+	
+	/**
+	 * 
+	 * @param errors
+	 */
+	protected void addValidationErrorMessage(Object... violations) {
+		Map<String, ConstraintViolation<?>> violationsMap = new HashMap<String, ConstraintViolation<?>>();
+		for (int i = 0; i < violations.length; i+=2) {
+			Object path = violations[i];
+			Object violationObj = violations[i+1];
+			ConstraintViolation<?> violation = null;
+			
+			violationsMap.put((String) path, violation);
+		}
+
+		redirectAttributes.addFlashAttribute(VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY, violationsMap);
+		model.addAttribute(VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY, violationsMap);
+	}	
 
 	protected void setBackButton(String path) {
 		if (path != null && path.length() > 0 && path.startsWith("/")) {

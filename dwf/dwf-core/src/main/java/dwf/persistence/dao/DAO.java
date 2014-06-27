@@ -50,4 +50,6 @@ public interface DAO<D extends BaseEntity<?>> {
 	void delete(D entity, String comments);
 	D restore(D entity, String comments);
 	void validate(D entity, Class<?>... groups) throws ValidationException;
+	
+	
 }
