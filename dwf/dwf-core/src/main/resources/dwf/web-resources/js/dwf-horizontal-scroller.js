@@ -9,22 +9,51 @@ $(document).on('dwf-postupdate', function() {
 		scrollTarget.css({'position' : 'absolute'});
 		var domJQ = $(this);
 		var startPosition = scrollTarget.position().left;
+		 
 		
+		
+		var getElementWidthFunction = function() {
+			var visibleItems = scrollTarget.find('li:visible');
+			if(visibleItems.length > 2) {
+				return $(visibleItems[2]).position().left - $(visibleItems[1]).position().left;
+			}
+			else if(visibleItems.length == 2) {
+				return $(visibleItems[1]).position().left - $(visibleItems[0]).position().left;
+			}
+			else if((visibleItems.length ==1 )) {
+				return $(visibleItems[0]).width();
+			} else {
+				return 0;
+			}
+			
+		};
+		
+		//check when the controllers should be displayed
+		var checkControlVisibilityFunction = function() {
+			var itemCount = scrollTarget.find('li:visible').length;
+			if(itemCount <= 1) {
+				domJQ.find('.horizontal-scroller-control').hide();
+			} else if(scrollTarget) {
+				var contentWidth = getElementWidthFunction() * itemCount;
+				if(contentWidth > domJQ.width()) {
+					domJQ.find('.horizontal-scroller-control').show();
+				} else {
+					domJQ.find('.horizontal-scroller-control').hide();
+				}
+			}
+		};
+		
+		checkControlVisibilityFunction();
+		$(window).on('resize', checkControlVisibilityFunction);
+		
+		
+		//handler for clicking on a control
 		domJQ.on('click', '.horizontal-scroller-control', function(evt) {
 			evt.preventDefault();
 			
 			var dir = $(this).hasClass('right') ? -1 : 1;
 			
-			var deltaXStep;
-			if(scrollTarget.find('li').length > 2) {
-				deltaXStep = $(scrollTarget.find('li')[2]).position().left - $(scrollTarget.find('li')[1]).position().left;
-			}
-			else if(scrollTarget.find('li').length > 1) {
-				deltaXStep = $(scrollTarget.find('li')[1]).position().left - $(scrollTarget.find('li')[0]).position().left;
-			}
-			else {
-				deltaXStep = $(scrollTarget.find('li')[0]).width();
-			} 
+			var deltaXStep = getElementWidthFunction();
 			
 			var deltaX = Math.max(Math.floor(domJQ.width() / deltaXStep), 1) * deltaXStep * dir;
 			var startLeft = scrollTarget.position().left;

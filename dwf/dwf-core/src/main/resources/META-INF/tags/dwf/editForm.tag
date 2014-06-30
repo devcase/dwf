@@ -10,9 +10,16 @@
 	<c:set var="formaction" value="${appPath}/${entityName}/save"/>
 </c:if>
 
-
+<c:if test="${empty attrMap.labelKey}">
+	<spring:message code="label.editForm.header.${empty entity.id ? 'create' : 'edit'}" var="panelTitle"/>
+	<spring:message code="domain.${entityName}" var="entityDisplayName"/>
+	<c:set var="panelTitle" value="${panelTitle} ${entityDisplayName }"/>
+</c:if>
+<c:if test="${!empty attrMap.labelKey}">
+	<spring:message code="${attrMap.labelKey}" var="panelTitle"/>
+</c:if>
 <c:set var="formLayout" value="horizontal" scope="request"/>
-<h1><spring:message code="label.editForm.header.${empty entity.id ? 'create' : 'edit'}"/> <spring:message code="domain.${entityName}"/></h1>
+<h1>${panelTitle} </h1>
 <div class="panel panel-default">
 	<div class="panel-body">
 		<form class="form-horizontal validate" method="POST" action="${formaction}" role="form">

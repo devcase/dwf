@@ -97,7 +97,9 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 	
 	@RequestMapping("/dl/**")
 	public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, request.getServletPath().substring("/dl/".length()));
-		resourceHttpRequestHandler.handleRequest(request, response);
+		if(request.getServletPath().startsWith("/dl/")) {
+			request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, request.getServletPath().substring("/dl/".length()));
+			resourceHttpRequestHandler.handleRequest(request, response);
+		}
 	}
 }
