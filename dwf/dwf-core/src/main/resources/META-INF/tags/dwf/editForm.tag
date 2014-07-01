@@ -9,15 +9,23 @@
 <c:if test="${empty attrMap.formaction}">
 	<c:set var="formaction" value="${appPath}/${entityName}/save"/>
 </c:if>
+<%-- DETERMINAR TÍTULO --%>
+<c:choose>
+	<c:when test="${!empty attrMap.title}">
+		<c:set var="panelTitle" value="${attrMap.title}"/>
+	</c:when>
+	<c:when test="${!empty attrMap.labelKey}">
+		<spring:message code="${attrMap.labelKey}" var="panelTitle"/>
+	</c:when>
+	<c:otherwise>
+		<spring:message code="label.editForm.header.${empty entity.id ? 'create' : 'edit'}" var="panelTitle"/>
+		<spring:message code="domain.${entityName}" var="entityDisplayName"/>
+		<c:set var="panelTitle" value="${panelTitle} ${entityDisplayName }"/>
+	</c:otherwise>
+</c:choose><%-- /DETERMINAR TÍTULO --%>
+<%-- DETERMINAR LABEL DO BOTÃO --%>
+<c:set var="buttonLabelKey" value="${!empty attrMap.buttonLabelKey ? attrMap.buttonLabelKey : 'action.save'}"/>
 
-<c:if test="${empty attrMap.labelKey}">
-	<spring:message code="label.editForm.header.${empty entity.id ? 'create' : 'edit'}" var="panelTitle"/>
-	<spring:message code="domain.${entityName}" var="entityDisplayName"/>
-	<c:set var="panelTitle" value="${panelTitle} ${entityDisplayName }"/>
-</c:if>
-<c:if test="${!empty attrMap.labelKey}">
-	<spring:message code="${attrMap.labelKey}" var="panelTitle"/>
-</c:if>
 <c:set var="formLayout" value="horizontal" scope="request"/>
 <h1>${panelTitle} </h1>
 <div class="panel panel-default">
@@ -27,8 +35,7 @@
 			<jsp:doBody />
 			<div class="text-right">
 				<button type="submit" class="btn btn-primary" data-loading-text="<spring:message code="action.wait"/>" formaction="${formaction}">
-			 		<span class="glyphicon glyphicon-floppy-disk"></span>
-			 		<spring:message code="action.save"/>
+			 		<spring:message code="${buttonLabelKey}"/>
 				</button>
 			</div>
 		</form>

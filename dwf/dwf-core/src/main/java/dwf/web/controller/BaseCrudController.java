@@ -261,7 +261,14 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 						D form = clazz.newInstance();
 						form.setId((ID) id);
 						BeanUtils.setProperty(form, propertyName, uploadKey);
-						return controller.saveByGroup(form, upgroup);
+						try {
+							getDAO().updateByAnnotation(form, upgroup);
+							addUserMessage("crud.save.update.success", UserMessageType.SUCCESS);
+							return "redirect:/" + entityName + "/" + form.getId();
+						} catch (ValidationException ex) {
+							addValidationExceptionMessage(ex);
+							return "redirect:/" + entityName + "/" + form.getId();
+						}
 					}
 				}
 				//If it's an invalid propertyName

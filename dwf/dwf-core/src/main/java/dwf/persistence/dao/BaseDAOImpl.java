@@ -1,5 +1,6 @@
 package dwf.persistence.dao;
 
+import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -33,11 +34,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dwf.activitylog.domain.UpdatedProperty;
 import dwf.activitylog.service.ActivityLogService;
+import dwf.persistence.annotations.ConditionalGroup;
+import dwf.persistence.annotations.EntityStateValidator;
 import dwf.persistence.annotations.FillWithCurrentUser;
 import dwf.persistence.annotations.HideActivityLogValues;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.domain.BaseEntity;
+import dwf.persistence.utils.NotSyncPropertyDescriptor;
 import dwf.security.DwfUserUtils;
 import dwf.user.domain.User;
 import dwf.utils.ModifiableParsedMap;
@@ -77,15 +81,15 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	/**
 	 * Cache with UpdatableProperty annotations
 	 */
-	protected final Map<PropertyDescriptor, UpdatableProperty> updatableProperties;
+	protected final Map<NotSyncPropertyDescriptor, UpdatableProperty> updatableProperties;
 	/**
 	 * Cache com os setters anotados com @FillWithCurrentUser
 	 */
-	protected final Map<PropertyDescriptor, FillWithCurrentUser> filledWithUser;
-	private List<PropertyDescriptor> propertyList;
+	protected final Map<NotSyncPropertyDescriptor, FillWithCurrentUser> filledWithUser;
+	private List<NotSyncPropertyDescriptor> propertyList;
 	private Set<String> propertyNames;
 
-	public BaseDAOImpl(Class<D> clazz) {
+	public BaseDAOImpl(Class<D> clazz)  {
 		super();
 		this.clazz = clazz;
 		this.entityName = clazz.getName();
@@ -94,12 +98,16 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		 * Find all string fields
 		 */
 		fieldsToTrim = new ArrayList<Field>();
-		updatableProperties = new HashMap<PropertyDescriptor, UpdatableProperty>();
-		this.propertyList = new ArrayList<PropertyDescriptor>();	
+		updatableProperties = new HashMap<NotSyncPropertyDescriptor, UpdatableProperty>();
+		this.propertyList = new ArrayList<NotSyncPropertyDescriptor>();	
 		this.propertyNames = new HashSet<String>();
-		this.filledWithUser = new HashMap<PropertyDescriptor, FillWithCurrentUser>();
+		this.filledWithUser = new HashMap<NotSyncPropertyDescriptor, FillWithCurrentUser>();
 		
-		processClazzFieldsRecursive(this.clazz);
+		try {
+			processClazzFieldsRecursive(this.clazz);
+		} catch (IllegalAccessException | InvocationTargetException | IntrospectionException e) {
+			throw new RuntimeException("Couldn't create the DAO. Check the Entity configuration.", e);
+		}
 		
 	}
 	
@@ -107,8 +115,11 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 * Search for String fields to build the fieldsToTrim list.
 	 * <p>Search for annotated fields with @{@link UpdatableProperty} annotation.
 	 * @param cl
+	 * @throws IntrospectionException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
 	 */
-	private void processClazzFieldsRecursive(Class<?> cl) {
+	private void processClazzFieldsRecursive(Class<?> cl) throws IllegalAccessException, InvocationTargetException, IntrospectionException {
 		if(cl.getSuperclass() != null) {
 			processClazzFieldsRecursive(cl.getSuperclass());
 		}
@@ -120,7 +131,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 				}
 			}
 		}
-		for (final PropertyDescriptor p : PropertyUtils.getPropertyDescriptors(cl)) {
+		for (PropertyDescriptor p1 : PropertyUtils.getPropertyDescriptors(cl)) {
+			NotSyncPropertyDescriptor p = new NotSyncPropertyDescriptor(p1);
 			propertyList.add(p);
 			propertyNames.add(p.getName());
 			
@@ -295,18 +307,17 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		return entity;
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	@Transactional(rollbackFor=ValidationException.class)
-	public D merge(D entity) throws ValidationException {
-		prepareEntity(entity);
-		validate(entity,ValidationGroups.MergePersist.class);
-		validate(entity); //valida campos sem grupos definidos
-		entity.setUpdateTime(new Date());
-		entity = (D) getSession().merge(entity);
-		activityLogService.log(entity, "merge");
-		return entity;
-	}
+//	@SuppressWarnings("unchecked")
+//	@Transactional(rollbackFor=ValidationException.class)
+//	public D merge(D entity) throws ValidationException {
+//		prepareEntity(entity);
+//		validate(entity,ValidationGroups.MergePersist.class);
+//		validate(entity); //valida campos sem grupos definidos
+//		entity.setUpdateTime(new Date());
+//		entity = (D) getSession().merge(entity);
+//		activityLogService.log(entity, "merge");
+//		return entity;
+//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -315,14 +326,34 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		prepareEntity(entity);
 		validate(entity, groups);
 
-		D x = findById(entity.getId());
-		if(x == null)
+		D connectedDomain = findById(entity.getId());
+		if(connectedDomain == null) {
 			throw new IllegalArgumentException("Id must be not-null");
-		//getSession().evict(retrievedEntity);
+		}
+		
+		if(groups != null) {
+			for (Class<?> validGrpClazz : groups) {
+				if(validGrpClazz.isAnnotationPresent(ConditionalGroup.class)) {
+					try {
+						ConditionalGroup cg = validGrpClazz.getAnnotation(ConditionalGroup.class);
+						if(cg.validatedBy() != null) {
+							for (Class<? extends EntityStateValidator<?>> stateValidator : cg.validatedBy()) {
+								EntityStateValidator<BaseEntity<?>> instance = (EntityStateValidator<BaseEntity<?>>) stateValidator.newInstance();
+								instance.validateState(connectedDomain);
+							}
+						}
+						
+					} catch (InstantiationException | IllegalAccessException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+		}
+
 		D retrievedEntity;
 		try {
 			retrievedEntity = clazz.newInstance();
-			BeanUtils.copyProperties(retrievedEntity, x);
+			BeanUtils.copyProperties(retrievedEntity, connectedDomain);
 		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e1) {
 			throw new RuntimeException(e1);
 		}
@@ -337,6 +368,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 				if(checkUpdateGroup(annotation, groups)) {
 					Object value = PropertyUtils.getSimpleProperty(entity, property.getName());
 					Object oldValue = PropertyUtils.getSimpleProperty(retrievedEntity, property.getName());
+					
 					
 					if(value == null) {
 						if(oldValue == null) continue; //dois nulos - não troca
@@ -430,7 +462,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 			//@FillWithCurrentUser
 			User currentUser = DwfUserUtils.getCurrentUser();
 			if(currentUser != null) {
-				for (Map.Entry<PropertyDescriptor, FillWithCurrentUser> prop : this.filledWithUser.entrySet()) {
+				for (Map.Entry<NotSyncPropertyDescriptor, FillWithCurrentUser> prop : this.filledWithUser.entrySet()) {
 					System.out.println("BeanUtils.getProperty(entity, prop.getKey().getName())" + BeanUtils.getProperty(entity, prop.getKey().getName()));
 					if(prop.getValue().force() || BeanUtils.getProperty(entity, prop.getKey().getName()) == null) {
 						BeanUtils.setProperty(entity, prop.getKey().getName(), currentUser);
@@ -491,9 +523,9 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	}
 
 	/**
-	 * @return the propertyList
+	 * @return the propertyList. 
 	 */
-	public List<PropertyDescriptor> getPropertyList() {
+	public List<NotSyncPropertyDescriptor> getPropertyList() {
 		return propertyList;
 	}
 	

@@ -33,13 +33,6 @@ public interface DAO<D extends BaseEntity<?>> {
 	int countByFilter(ParsedMap filter);
 	D saveNew(D entity) throws ValidationException;
 	/**
-	 * Merge the passed entity (hibernate does the job)
-	 * @param entity
-	 * @return
-	 * @throws ValidationException
-	 */
-	D merge(D entity) throws ValidationException;
-	/**
 	 * Merge only the annotated fields
 	 * @param entity
 	 * @param groups Empty will update fields with @{@link UpdatableProperty} without any group

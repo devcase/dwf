@@ -8,10 +8,8 @@
 	</head>
 	<body>
 		<dwf:editForm>
-#foreach( $method in $entityClass.methods )
-#if($method.name.startsWith('set'))
-		<dwf:inputText property="${method.name.substring(3,1).toLowerCase()}${method.name.substring(4).toLowerCase()}" required="true" maxlength="200"/>
-#end
+#foreach( $field in $entityClass.fields )
+		<dwf:inputText property="${field.name}" required="true"/>
 #end
 		</dwf:editForm>
 	</body>

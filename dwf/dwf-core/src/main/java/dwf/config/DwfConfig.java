@@ -24,4 +24,11 @@ public interface DwfConfig {
 	DataSource getDataSource();
 	
 	String getDatabaseSchema();
+	
+	/**
+	 * 
+	 * @param className
+	 * @return
+	 */
+	String tablePrefix(String className);
 }

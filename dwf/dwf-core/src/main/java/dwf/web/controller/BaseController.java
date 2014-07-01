@@ -31,6 +31,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
+import dwf.security.DwfUserUtils;
+import dwf.user.domain.User;
 import dwf.web.filter.SetupLocaleFilter;
 import dwf.web.message.UserMessage;
 import dwf.web.message.UserMessageType;
@@ -151,6 +153,10 @@ public abstract class BaseController implements ApplicationContextAware {
 		CustomDateEditor orderDateEditor = new CustomDateEditor(dateFormat, true);
 		binder.registerCustomEditor(Date.class, orderDateEditor);
 		binder.registerCustomEditor(Double.class, new CustomNumberEditor(Double.class, new DecimalFormat("0.0", new DecimalFormatSymbols(locale)), true));
+	}
+	
+	protected User getCurrentUser(){
+		return DwfUserUtils.getCurrentUser();
 	}
 
 }

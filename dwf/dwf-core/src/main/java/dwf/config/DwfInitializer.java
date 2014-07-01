@@ -25,6 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import dwf.persistence.utils.DwfNamingStrategy;
 import dwf.web.DefaultLocaleResolver;
 import dwf.web.filter.AppPathFilter;
 import dwf.web.filter.SetUtf8EncodingFilter;
@@ -133,7 +134,9 @@ public class DwfInitializer implements ServletContainerInitializer {
 				LocalSessionFactoryBean localSessionFactory = new LocalSessionFactoryBean();
 				localSessionFactory.setDataSource(dataSource);
 				localSessionFactory.setPackagesToScan("dwf.user.domain", "dwf.activitylog.domain", dwfConfig.getEntityPackage());
+				localSessionFactory.setNamingStrategy(new DwfNamingStrategy(dwfConfig));
 				localSessionFactory.afterPropertiesSet();
+				
 				beanFactory.registerSingleton("sessionFactory", localSessionFactory);
 				
 				beanFactory.registerSingleton("entityPackage", dwfConfig.getEntityPackage());

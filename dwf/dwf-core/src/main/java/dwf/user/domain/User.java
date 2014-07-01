@@ -14,10 +14,8 @@ import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -42,9 +40,9 @@ import dwf.validation.ValidationGroups;
  * 
  */
 @Entity
-@Table(name = User.TABLE_NAME, indexes={
-		@Index(name = "ix_" + User.TABLE_NAME + "_dtype", columnList = "dtype"),
-		@Index(name = "ix_" + User.TABLE_NAME + "_enabled", columnList = "enabled") })
+@Table(indexes={
+		@Index(columnList = "dtype"),
+		@Index(columnList = "enabled") })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING, length = 100)
 @UniqueValue(field = "username")
@@ -54,14 +52,12 @@ public abstract class User extends BaseEntity<Long> implements UserDetails {
 	 */
 	private static final long serialVersionUID = 7061887279574488319L;
 
-	static final String TABLE_NAME = "us_user";
-
 	private String username;
 	private String hashedPassword;
 
 	private List<String> roles;
 
-	@Column(name = "username", length = 50, nullable = false, unique = true, updatable = false)
+	@Column(length = 50, nullable = false, unique = true, updatable = false)
 	@NotNull(groups = { ValidationGroups.MergePersist.class})
 	@UpdatableProperty(groups = { ValidationGroups.MergePersist.class, })
 	public String getUsername() {
@@ -72,7 +68,7 @@ public abstract class User extends BaseEntity<Long> implements UserDetails {
 		this.username = username;
 	}
 
-	@Column(name = "password", length = 200, nullable = true)
+	@Column(length = 200, nullable = true)
 	@NotNull(groups = { ValidationGroups.MergePersist.class,
 			ValidationGroups.ChangePassword.class })
 	@UpdatableProperty(groups = { ValidationGroups.MergePersist.class,
@@ -87,8 +83,8 @@ public abstract class User extends BaseEntity<Long> implements UserDetails {
 	}
 
 	@ElementCollection
-	@CollectionTable(name = "us_authority", joinColumns = @JoinColumn(name = "user_id"), uniqueConstraints=@UniqueConstraint(columnNames={"user_id", "authority"}))
-	@Column(name = "authority", length = 50, nullable = false)
+	@CollectionTable()
+	@Column(length = 50, nullable = false)
 	public List<String> getRoles() {
 		return roles;
 	}

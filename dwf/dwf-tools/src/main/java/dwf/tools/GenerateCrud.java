@@ -18,7 +18,7 @@ public class GenerateCrud {
 
 	public static void main(String[] args) throws Exception {
 		String[] entityClassesName = new String[] {
-				"travenup.persistence.domain.TravenUpUser"
+				"travenup.persistence.domain.Order"
 		};
 		
 		for (String entityClassName : entityClassesName) {

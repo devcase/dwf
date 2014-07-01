@@ -23,14 +23,12 @@ import javax.persistence.TemporalType;
 import dwf.user.domain.User;
 
 @Entity
-@Table(name=ActivityLog.TABLE_NAME, indexes = {
-		@Index(name = "ix_" + ActivityLog.TABLE_NAME + "_entity", columnList = "entityid, entityname"),
-		@Index(name = "ix_" + ActivityLog.TABLE_NAME + "_parententity", columnList = "parententityid, parententityname")
+@Table(indexes = {
+		@Index(columnList = "entityid, entityname"),
+		@Index(columnList = "parententityid, parententityname")
 		})
 @Access(AccessType.PROPERTY)
 public class ActivityLog  {
-	protected static final String TABLE_NAME = "lo_activity";
-	protected static final String TABLE_NAME_PROPERTY = "lo_activity_property";
 	private Long id;
 	private User user;
 	private String operation;
@@ -149,7 +147,7 @@ public class ActivityLog  {
 	}
 	
 	@ElementCollection
-	@JoinTable(name=TABLE_NAME_PROPERTY)
+	@JoinTable()
 	@OrderColumn
 	public List<UpdatedProperty> getUpdatedProperties() {
 		if(updatedProperties == null) updatedProperties = new ArrayList<UpdatedProperty>();

@@ -3,6 +3,15 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
 
+<c:choose> <%--_entityName--%>
+	<c:when test="${empty attrMap.entityName}">
+		<dwf:resolveEL el="${entityName}" var="entity"/>
+	</c:when>
+	<c:otherwise>
+		<dwf:resolveEL el="${attrMap.entityName}" var="entity"/>
+	</c:otherwise>
+</c:choose><%--/_entityName--%>
+
 <c:choose> <%--_formAction--%>
 	<c:when test="${empty attrMap.formaction}">
 		<c:set var="_formAction" value="${appPath}/${entityName}/delete/${entity.id}"/>
@@ -12,14 +21,6 @@
 	</c:otherwise>
 </c:choose><%--/_formAction--%>
 
-<c:choose> <%--_entityName--%>
-	<c:when test="${empty attrMap.entityName}">
-		<dwf:resolveEL el="${entityName}" var="entity"/>
-	</c:when>
-	<c:otherwise>
-		<dwf:resolveEL el="${attrMap.entityName}" var="entity"/>
-	</c:otherwise>
-</c:choose><%--/_formAction--%>
 
 
 <h1><spring:message code="label.deleteForm.header" /> <spring:message code="domain.${entityName}"/>: ${entity}</h1>

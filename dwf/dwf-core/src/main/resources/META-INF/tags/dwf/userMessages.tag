@@ -14,17 +14,24 @@
 <c:if test="${!empty validationException}">
 	<div class="alert alert-danger alert-dismissable  fade in">
 		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-		<spring:message code="validationexception.message" />
-		<ul>
-			<c:forEach items="${validationException.constraintViolations}" var="violation" varStatus="loopStatus">
-				<li>
-					<dwf:violationNodePath constraintViolation="${violation}" var="nodePath"></dwf:violationNodePath>
-					<strong><spring:message code="${entityName}.${nodePath}" /></strong>:
-					<dwf:escapeHtml value="${violation.message }"/>
-				</li>
-			</c:forEach>
-		</ul>
-	
+		<c:choose>
+			<c:when test="${validationException.getClass().name eq 'javax.validation.ConstraintViolationException' }">
+				<spring:message code="validationexception.message" />
+				<ul>
+					<c:forEach items="${validationException.constraintViolations}" var="violation" varStatus="loopStatus">
+						<li>
+							<dwf:violationNodePath constraintViolation="${violation}" var="nodePath"></dwf:violationNodePath>
+							<strong><spring:message code="${entityName}.${nodePath}" /></strong>:
+							<dwf:escapeHtml value="${violation.message }"/>
+						</li>
+					</c:forEach>
+				</ul>
+			</c:when>
+			<c:otherwise>
+				${validationException.message }
+			</c:otherwise>
+		</c:choose>
+		
 	</div>
 	
 </c:if>

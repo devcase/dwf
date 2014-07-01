@@ -4,7 +4,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
 <c:set var="attrMap" value="${!empty attrMap.parentAttrMap ? attrMap.parentAttrMap : attrMap}"/><%-- opção para uso em outras tags --%>
-<dwf:findViolation constraintViolationException="${validationException}" path="${attrMap.property}" var="violation"/>
+<dwf:findViolation path="${attrMap.property}" var="violation"/>
 <dwf:simpleLabel parentAttrMap="${attrMap}" var="labelText"/>
 <%@ variable name-given="name" scope="AT_BEGIN" %>
 <%@ variable name-given="value" scope="AT_BEGIN" variable-class="java.lang.Object"%>
@@ -22,6 +22,14 @@
 
 <div class="form-group ${!empty violation ?  'has-error' : ''}">
 	<c:choose>
+		<c:when test="${attrMap.withoutLabel}"><%-- WITHOU LABEL--%>
+			<div class="col-xs-12">
+				<jsp:doBody/>
+				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
+					<span class="help-block">${violation.message}</span>
+				</c:if>
+			</div>
+		</c:when>
 		<c:when test="${formLayout eq 'horizontal'}"><%-- LAYOUT HORIZONTAL --%>
 			<label class="col-sm-3 control-label ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${labelText}<c:if test="${attrMap.required}">*</c:if></strong> </label>
 			<div class="col-sm-9">
@@ -32,11 +40,14 @@
 			</div>
 		</c:when>
 		<c:otherwise><%-- LAYOUT PADRÃO --%>
-			<label class="control-label ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${labelText}<c:if test="${attrMap.required}">*</c:if></strong> </label>
-			<jsp:doBody/>
-			<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
-				<span class="help-block">${violation.message}</span>
-			</c:if>
+			<label class="col-sm-12 control-label text-left ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${labelText}<c:if test="${attrMap.required}">*</c:if></strong> </label>
+			<div class="col-sm-12">
+				<jsp:doBody/>
+				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
+					<span class="help-block">${violation.message}</span>
+				</c:if>
+			</div>
+		
 		</c:otherwise>
 	</c:choose>
 </div>
