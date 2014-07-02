@@ -21,7 +21,7 @@
 					<c:forEach items="${validationException.constraintViolations}" var="violation" varStatus="loopStatus">
 						<li>
 							<dwf:violationNodePath constraintViolation="${violation}" var="nodePath"></dwf:violationNodePath>
-							<strong><spring:message code="${entityName}.${nodePath}" /></strong>:
+							<strong><dwf:simpleLabel property="${nodePath}" /></strong>:
 							<dwf:escapeHtml value="${violation.message }"/>
 						</li>
 					</c:forEach>

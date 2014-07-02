@@ -5,14 +5,14 @@
 	uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%><%@ attribute name="path"
 	required="true" %><%@ attribute name="var" rtexprvalue="false"  
 	required="true" %><%@ variable alias="result" name-from-attribute="var" variable-class="java.lang.Object" scope="AT_BEGIN" %>
-<%
+<c:set var="validationException" value="${validationException}"/><%
 ValidationException validationException = (ValidationException) getJspContext().getAttribute("validationException");
 String path = (String) getJspContext().getAttribute("path") + ".";
 
+ConstraintViolation found = null; 
 if(validationException != null && validationException instanceof ConstraintViolationException) {
 	ConstraintViolationException el = (ConstraintViolationException) validationException;
 	if(el.getConstraintViolations() != null) {
-		ConstraintViolation found = null; 
 		for (ConstraintViolation violation : el.getConstraintViolations()) {
 			StringBuilder pathComparer = new StringBuilder();
 			Path vioPath = violation.getPropertyPath();
@@ -24,12 +24,10 @@ if(validationException != null && validationException instanceof ConstraintViola
 			
 			if(pathComparer.toString().equals(path)) {
 				found = violation;
+				break;
 			}
 		}
-		getJspContext().setAttribute("result", found, PageContext.PAGE_SCOPE);
-		return;	
 	}
 }
-getJspContext().setAttribute("result", null, PageContext.REQUEST_SCOPE);
-return;
+getJspContext().setAttribute("result", found, PageContext.PAGE_SCOPE);
 %>

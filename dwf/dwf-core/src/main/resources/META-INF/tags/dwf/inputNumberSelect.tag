@@ -4,7 +4,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
 <dwf:formGroup parentAttrMap="${attrMap}">
-	<select name="${name}.id"
+	<select name="${name}"
 		<c:if test="${attrMap.required}">required="required"</c:if> class="form-control">
 		<c:forEach begin="${attrMap.min }" end="${attrMap.max}" varStatus="loopStatus">
 			<option value="${loopStatus.index}"

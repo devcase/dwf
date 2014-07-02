@@ -24,6 +24,7 @@ import javax.validation.groups.Default;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -326,8 +327,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		prepareEntity(entity);
 		validate(entity, groups);
 
-		D connectedDomain = findById(entity.getId());
-		if(connectedDomain == null) {
+		D retrievedEntity = findById(entity.getId());
+		if(retrievedEntity == null) {
 			throw new IllegalArgumentException("Id must be not-null");
 		}
 		
@@ -339,10 +340,9 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 						if(cg.validatedBy() != null) {
 							for (Class<? extends EntityStateValidator<?>> stateValidator : cg.validatedBy()) {
 								EntityStateValidator<BaseEntity<?>> instance = (EntityStateValidator<BaseEntity<?>>) stateValidator.newInstance();
-								instance.validateState(connectedDomain);
+								instance.validateState(retrievedEntity);
 							}
 						}
-						
 					} catch (InstantiationException | IllegalAccessException e) {
 						throw new RuntimeException(e);
 					}
@@ -350,25 +350,29 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 			}
 		}
 
-		D retrievedEntity;
-		try {
-			retrievedEntity = clazz.newInstance();
-			BeanUtils.copyProperties(retrievedEntity, connectedDomain);
-		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e1) {
-			throw new RuntimeException(e1);
+		//initializes properties before eviction
+		for (final PropertyDescriptor property : this.updatableProperties.keySet()) {
+			UpdatableProperty annotation = this.updatableProperties.get(property);
+			if(checkUpdateGroup(annotation, groups)) {
+				try {
+					Object value = PropertyUtils.getSimpleProperty(retrievedEntity, property.getName());
+					Hibernate.initialize(value);
+				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+					//Error copying the property
+					throw new RuntimeException(e);
+				}
+			}
 		}
+		getSession().evict(retrievedEntity);
 		
 		List<UpdatedProperty> updatedProperties = new ArrayList<UpdatedProperty>();
 		
 		for (final PropertyDescriptor property : this.updatableProperties.keySet()) {
 			try {
 				UpdatableProperty annotation = this.updatableProperties.get(property);
-				
-				
 				if(checkUpdateGroup(annotation, groups)) {
 					Object value = PropertyUtils.getSimpleProperty(entity, property.getName());
 					Object oldValue = PropertyUtils.getSimpleProperty(retrievedEntity, property.getName());
-					
 					
 					if(value == null) {
 						if(oldValue == null) continue; //dois nulos - não troca
@@ -463,7 +467,6 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 			User currentUser = DwfUserUtils.getCurrentUser();
 			if(currentUser != null) {
 				for (Map.Entry<NotSyncPropertyDescriptor, FillWithCurrentUser> prop : this.filledWithUser.entrySet()) {
-					System.out.println("BeanUtils.getProperty(entity, prop.getKey().getName())" + BeanUtils.getProperty(entity, prop.getKey().getName()));
 					if(prop.getValue().force() || BeanUtils.getProperty(entity, prop.getKey().getName()) == null) {
 						BeanUtils.setProperty(entity, prop.getKey().getName(), currentUser);
 					}
