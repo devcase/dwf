@@ -9,6 +9,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.view.JstlView;
 
 import com.opensymphony.module.sitemesh.PageParser;
@@ -69,8 +70,8 @@ public class SitemeshView extends JstlView {
 					request.setAttribute(RequestConstants.PAGE, page);
 					request.setAttribute("dwf_decoratedPage", page);
 					String decorator = exposedRequest.getParameter("decorator");
-					if(decorator == null) {
-						page.getProperty("meta.decorator");
+					if(StringUtils.isBlank(decorator)) {
+						decorator = page.getProperty("meta.decorator");
 					}
 					if(decorator == null) {
 						decorator = (String) exposedRequest.getAttribute("decorator");
