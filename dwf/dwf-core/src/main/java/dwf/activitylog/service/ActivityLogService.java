@@ -8,6 +8,14 @@ import dwf.persistence.domain.BaseEntity;
 
 
 public interface ActivityLogService {
+	static String OPERATION_UPDATE = "update";
+	static String OPERATION_SUBMIT = "submit";
+	static String OPERATION_CREATE = "create";
+	static String OPERATION_RESTORE = "restore";
+	static String OPERATION_DELETE = "delete";
+	static String OPERATION_CANCEL = "cancel";
+	static String OPERATION_CONFIRM = "confirm";
+	
 	void log(BaseEntity<?> entity, String operationId);
 	void log(BaseEntity<?> entity, String operationId, String comments);
 	void logEntityUpdate(BaseEntity<?> entity, Object newInstance, List<UpdatedProperty> updatedProperties,  Class<?>... groups);

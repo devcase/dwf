@@ -8,6 +8,6 @@ public interface ParsedMap  {
 	Long getLong(String key);
 	boolean containsKey(String key);
 	Object get(String key);
-	
 	Object put(String key, Object value);
+	public <T> Object get(String key, Class<T> expectedClass);
 }

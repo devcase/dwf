@@ -1,11 +1,7 @@
 package dwf.web.controller;
 
 import java.beans.PropertyDescriptor;
-import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,11 +27,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import dwf.activitylog.service.ActivityLogService;
-import dwf.persistence.annotations.NotEditableProperty;
 import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.dao.DAO;
 import dwf.persistence.domain.BaseEntity;
-import dwf.security.DwfUserUtils;
 import dwf.upload.UploadManager;
 import dwf.utils.ParsedMap;
 import dwf.web.message.UserMessageType;
@@ -244,7 +238,6 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	
 	@RequestMapping(value = { "/updateUpload/{id}" }, method = RequestMethod.POST)
 	public Callable<String> updateUpload(@PathVariable final Long id, final String propertyName, final MultipartFile file) {
-		final BaseCrudController<D, ID> controller = this;
 		return new Callable<String>() {
 			@Override
 			public String call() throws Exception {

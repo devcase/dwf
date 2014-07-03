@@ -3,14 +3,14 @@ package dwf.utils;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ModifiableParsedMap implements ParsedMap {
+public class SimpleParsedMap implements ParsedMap {
 	private final Map<String, Object> values;
 
-	public ModifiableParsedMap(Map<String, ?> values) {
+	public SimpleParsedMap(Map<String, ?> values) {
 		this.values = new HashMap<String, Object>(values);
 	}
 	
-	public ModifiableParsedMap(Object... values) {
+	public SimpleParsedMap(Object... values) {
 		this.values = new HashMap<String, Object>(values.length/2);
 		for (int i = 0; i < values.length; i+=2) {
 			this.values.put((String) values[i], values[i+1]);
@@ -101,5 +101,13 @@ public class ModifiableParsedMap implements ParsedMap {
 		return values.get(key);
 	}
 	
+
+	/* (non-Javadoc)
+	 * @see dwf.utils.ParsedMap#get(java.lang.String, java.lang.Class)
+	 */
+	@Override
+	public <T> Object get(String key, Class<T> expectedClass) {
+		return get(key);
+	}
 	
 }

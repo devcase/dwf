@@ -36,6 +36,7 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 
 import dwf.security.DwfUserUtils;
 import dwf.user.domain.User;
+import dwf.web.DwfCustomDateEditor;
 import dwf.web.filter.SetupLocaleFilter;
 import dwf.web.message.UserMessage;
 import dwf.web.message.UserMessageType;
@@ -152,8 +153,7 @@ public abstract class BaseController implements ApplicationContextAware {
 	@InitBinder
 	public void bindingPreparation(WebDataBinder binder, HttpServletRequest request) {
 		Locale locale = RequestContextUtils.getLocale(request);
-		DateFormat dateFormat = new SimpleDateFormat((String) request.getAttribute(SetupLocaleFilter.DATE_PATTERN_JAVA_ATTRIBUTE));
-		CustomDateEditor orderDateEditor = new CustomDateEditor(dateFormat, true);
+		DwfCustomDateEditor orderDateEditor = new DwfCustomDateEditor(locale);
 		binder.registerCustomEditor(Date.class, orderDateEditor);
 		binder.registerCustomEditor(Double.class, new CustomNumberEditor(Double.class, new DecimalFormat("0.0", new DecimalFormatSymbols(locale)), true));
 	}

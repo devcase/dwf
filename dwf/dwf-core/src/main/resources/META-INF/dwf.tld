@@ -86,6 +86,23 @@
 		<path>/META-INF/tags/dwf/inputEntityCheckboxList.tag</path>
 	</tag-file>
 	<tag-file>
+		<name>inputTimeCheckboxList</name>
+		<path>/META-INF/tags/dwf/inputTimeCheckboxList.tag</path>
+	</tag-file>
+	<tag-file>
+		<name>inputTimeSelect</name>
+		<path>/META-INF/tags/dwf/inputTimeSelect.tag</path>
+	</tag-file>
+	<tag-file>
+		<name>inputBooleanCheckbox</name>
+		<path>/META-INF/tags/dwf/inputBooleanCheckbox.tag</path>
+	</tag-file>
+	<tag-file>
+		<name>inputCurrencyCodeCombo</name>
+		<path>/META-INF/tags/dwf/inputCurrencyCodeCombo.tag</path>
+	</tag-file>
+	
+	<tag-file>
 		<name>viewPanel</name>
 		<path>/META-INF/tags/dwf/viewPanel.tag</path>
 	</tag-file>	

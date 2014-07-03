@@ -19,7 +19,7 @@ getJspContext().setAttribute("targetEntityList", targetEntityList);
 <dwf:formGroup parentAttrMap="${attrMap}">
 	<div class="btn-group" >
 		<c:forEach items="${targetEntityList}" var="targetEntity" varStatus="loopStatus">
-			<label class= "btn btn-default">
+			<label class= "btn btn-borderless">
 				<input type="checkbox" name="${name}[].id" value="${targetEntity.id }" ${value.contains(targetEntity) ? 'checked="checked"' : '' }>
 					${targetEntity.displayText}</input>
 			</label>

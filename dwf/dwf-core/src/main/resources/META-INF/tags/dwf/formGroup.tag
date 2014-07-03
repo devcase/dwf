@@ -3,11 +3,11 @@
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
+<%@ variable name-given="name" scope="AT_BEGIN" %>
+<%@ variable name-given="value" scope="AT_BEGIN" variable-class="java.lang.Object"%>
 <c:set var="attrMap" value="${!empty attrMap.parentAttrMap ? attrMap.parentAttrMap : attrMap}"/><%-- opção para uso em outras tags --%>
 <dwf:findViolation path="${attrMap.property}" var="violation"/>
 <dwf:simpleLabel parentAttrMap="${attrMap}" var="labelText"/>
-<%@ variable name-given="name" scope="AT_BEGIN" %>
-<%@ variable name-given="value" scope="AT_BEGIN" variable-class="java.lang.Object"%>
 <%-- VALOR PADRÃO E NOME DO INPUT --%>
 <c:choose>
 	<c:when test="${!empty attrMap.name}">

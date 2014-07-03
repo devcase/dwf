@@ -1,15 +1,16 @@
 package dwf.persistence.dao;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 
 import dwf.utils.ParsedMap;
 
-public class BaseQueryBuilder implements QueryBuilder {
+public class DefaultQueryBuilder implements QueryBuilder {
 	protected BaseDAOImpl<?> dao;
 	
-	public BaseQueryBuilder(BaseDAOImpl<?> dao) {
+	public DefaultQueryBuilder(BaseDAOImpl<?> dao) {
 		super();
 		this.dao = dao;
 	}
@@ -82,12 +83,21 @@ public class BaseQueryBuilder implements QueryBuilder {
 		for ( PropertyDescriptor pDescriptor : dao.getPropertyList()) {
 			String pName = pDescriptor.getName();
 			if(filter.containsKey(pName)) {
-				if(Collection.class.isAssignableFrom(pDescriptor.getPropertyType())) {
-					query.append(" and :").append(pName).append(" member of s.").append(pName);
+				
+				Object value = filter.get(pName, pDescriptor.getPropertyType());
+				if(value != null && (value.getClass().isArray()) && Array.getLength(value) > 0) {
+					//chegou array
+					query.append(" and s.").append(pName).append(" in (:").append(pName).append(") ");
+				} else if(value != null && (value instanceof Collection<?>)) {
+					query.append(" and s.").append(pName).append(" in (:").append(pName).append(") ");
 				} else {
-					query.append(" and s.").append(pName).append(" = :").append(pName);
+					if(Collection.class.isAssignableFrom(pDescriptor.getPropertyType())) {
+						query.append(" and :").append(pName).append(" member of s.").append(pName);
+					} else {
+						query.append(" and s.").append(pName).append(" = :").append(pName);
+					}
 				}
-				params.put(pName, filter.get(pName));
+				params.put(pName, value);
 			}
 		}
 		

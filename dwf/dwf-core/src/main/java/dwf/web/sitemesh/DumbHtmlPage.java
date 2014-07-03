@@ -45,7 +45,7 @@ public class DumbHtmlPage extends AbstractPage implements HTMLPage {
 		final int headEndIndex = indexOf(page, HEAD_END_TAG, headStartIndex, pageLength);
 		final int bodyStartIndex = indexOf(page, BODY_START_TAG, headEndIndex + HEAD_END_TAG.length, pageLength) + BODY_START_TAG.length;
 		final int bodyEndIndex = indexOf(page, BODY_END_TAG, bodyStartIndex, pageLength);
-		final int scriptStartIndex = indexOf(page, SCRIPT_START_TAG, bodyEndIndex + BODY_END_TAG.length, pageLength);
+		final int scriptStartIndex = indexOf(page, SCRIPT_START_TAG, bodyStartIndex + BODY_START_TAG.length, pageLength);
 		final int scriptEndIndex = lastIndexOf(page, SCRIPT_END_TAG, pageLength) + SCRIPT_END_TAG.length;
 		
 		
@@ -81,8 +81,18 @@ public class DumbHtmlPage extends AbstractPage implements HTMLPage {
 
 	@Override
 	public void writeBody(Writer out) throws IOException {
-		if(bodyStartIndex > 0 && bodyEndIndex - bodyStartIndex > 0)
-			out.write(pageData, bodyStartIndex, bodyEndIndex - bodyStartIndex);
+		
+		if(bodyStartIndex > 0 && bodyEndIndex - bodyStartIndex > 0) {
+			if(scriptStartIndex > 0 && scriptEndIndex - scriptStartIndex > 0) {
+				//se tiver scripts dentro do corpo, dá um jeito de não desenhar!
+				out.write(pageData, bodyStartIndex, scriptStartIndex - bodyStartIndex);
+				out.write(pageData, scriptEndIndex, bodyEndIndex - scriptEndIndex);
+				
+			} else {
+				out.write(pageData, bodyStartIndex, bodyEndIndex - bodyStartIndex);
+			}
+
+		}
 	}
 
 	

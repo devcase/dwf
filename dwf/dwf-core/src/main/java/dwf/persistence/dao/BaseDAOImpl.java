@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,7 +46,7 @@ import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.utils.NotSyncPropertyDescriptor;
 import dwf.security.DwfUserUtils;
 import dwf.user.domain.User;
-import dwf.utils.ModifiableParsedMap;
+import dwf.utils.SimpleParsedMap;
 import dwf.utils.ParsedMap;
 import dwf.validation.ValidationGroups;
 
@@ -183,12 +184,12 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 */
 	@Override
 	public List<?> findByFilter(Object... params) {
-		return findByFilter(new ModifiableParsedMap(params));
+		return findByFilter(new SimpleParsedMap(params));
 	}
 	
 	@Override
 	public int countByFilter(Object... params) {
-		return countByFilter(new ModifiableParsedMap(params));
+		return countByFilter(new SimpleParsedMap(params));
 	}
 
 	
@@ -265,6 +266,14 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 			public Object get(String key) {
 				return null;
 			}
+
+			/* (non-Javadoc)
+			 * @see dwf.utils.ParsedMap#get(java.lang.String, java.lang.Class)
+			 */
+			@Override
+			public <T> Object get(String key, Class<T> expectedClass) {
+				return null;
+			}
 			
 			
 			
@@ -282,7 +291,14 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 			Map<String, Object> params) {
 		Query query = getSession().createQuery(hql);
 		for (Entry<String, Object> entry : params.entrySet()) {
-			query.setParameter(entry.getKey(), entry.getValue());
+			Object value = entry.getValue();
+			if(value != null && value.getClass().isArray()) {
+				query.setParameterList(entry.getKey(), (Object[]) value);
+			} else if(value != null && (value instanceof Collection<?>)) {
+				query.setParameterList(entry.getKey(), (Collection<?>) value);
+			} else {
+				query.setParameter(entry.getKey(), value);
+			}
 		}
 		query.setFirstResult(offset);
 		if(fetchSize >= 0)
@@ -290,10 +306,17 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		return query.list();
 	}
 
-	public final int count(String hql, Map<String, Object> values) {
+	public final int count(String hql, Map<String, Object> params) {
 		Query query = getSession().createQuery(hql);
-		for (Entry<String, Object> entry : values.entrySet()) {
-			query.setParameter(entry.getKey(), entry.getValue());
+		for (Entry<String, Object> entry : params.entrySet()) {
+			Object value = entry.getValue();
+			if(value != null && value.getClass().isArray()) {
+				query.setParameterList(entry.getKey(), (Object[]) value);
+			} else if(value != null && (value instanceof Collection<?>)) {
+				query.setParameterList(entry.getKey(), (Collection<?>) value);
+			} else {
+				query.setParameter(entry.getKey(), value);
+			}
 		}
 		Object count = query.uniqueResult();
 		if (count != null && count instanceof Number) {
@@ -310,7 +333,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		validate(entity); //valida campos sem grupos definidos
 		entity.setUpdateTime(new Date());
 		getSession().persist(entity);
-		activityLogService.log(entity, "saveNew");
+		activityLogService.log(entity, ActivityLogService.OPERATION_CREATE);
 		return entity;
 	}
 
@@ -445,7 +468,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 * @return
 	 */
 	protected QueryBuilder createQueryBuilder() {
-		return new BaseQueryBuilder(this);
+		return new DefaultQueryBuilder(this);
 	}
 
 	/**
@@ -491,25 +514,24 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 * @return
 	 */
 	private boolean checkUpdateGroup(UpdatableProperty annotation, Class<?>... selectedGroups) {
-		if(annotation == null) {
-			return selectedGroups == null || selectedGroups.length == 0;
-		}
-		if((annotation.groups() == null || annotation.groups().length == 0) && 
-				(selectedGroups == null || selectedGroups.length == 0)) { 
-			return true;
+		Class<?>[] propertyGroups = null;
+		
+		if(annotation == null || annotation.groups() == null || annotation.groups().length == 0) {
+			propertyGroups = DEFAULT_VALIDATION_GROUP;
 		} else {
-			if(selectedGroups == null) {
-				selectedGroups = DEFAULT_VALIDATION_GROUP;
-			}
-			for (Class<?> selectedGroup : selectedGroups) {
-				for (Class<?> annotationGroup : annotation.groups()) {
-					if(selectedGroup.equals(annotationGroup)) {
-						return true;
-					}
+			propertyGroups = annotation.groups();
+		}
+		if(selectedGroups == null || selectedGroups.length == 0) {
+			selectedGroups = DEFAULT_VALIDATION_GROUP;
+		}
+		for (Class<?> selectedGroup : selectedGroups) {
+			for (Class<?> annotationGroup : propertyGroups) {
+				if(selectedGroup.equals(annotationGroup)) {
+					return true;
 				}
 			}
-			return false;
 		}
+		return false;
 	}
 	
 	/**

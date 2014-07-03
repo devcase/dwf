@@ -45,7 +45,7 @@ public class ActivityLogServiceImpl implements ActivityLogService {
 	@Override
 	@Transactional
 	public void logEntityUpdate(BaseEntity<?> entity, Object newInstance, List<UpdatedProperty> updatedProperties, Class<?>... groups) {
-		getSession().save(createActivityLog(entity, "update", null, updatedProperties)); //TODO - colocar as modificações aqui
+		getSession().save(createActivityLog(entity, OPERATION_UPDATE, null, updatedProperties)); //TODO - colocar as modificações aqui
 	}
 
 	/**

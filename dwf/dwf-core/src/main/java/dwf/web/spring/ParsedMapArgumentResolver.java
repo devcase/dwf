@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -33,16 +34,16 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 	
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return ParsedMap.class.isAssignableFrom(parameter.getParameterType());
+		return RequestParsedMap.class.isAssignableFrom(parameter.getParameterType()) || ParsedMap.class.isAssignableFrom(parameter.getParameterType());
 	}
 
 	@Override
 	public Object resolveArgument(MethodParameter parameter,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
 			WebDataBinderFactory binderFactory) throws Exception {
-		String parameterPrefix = parameter.getParameterName().concat(".");
+		//String parameterPrefix = parameter.getParameterName().concat(".");
 		Map<String, String[]> parameterMap = webRequest.getParameterMap();
-		return new RequestMapWrapper(parameterMap, parameterPrefix, webRequest.getLocale());
+		return new RequestParsedMap(parameterMap, "", webRequest.getLocale());
 	}
 
 	/**
@@ -52,12 +53,12 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 	 * @author Hirata
 	 *
 	 */
-	protected static class RequestMapWrapper implements ParsedMap, Map<String, Object> {
+	public static class RequestParsedMap implements ParsedMap, Map<String, Object> {
 		private final Map<String, String[]> requestMap;
 		private final Map<String, Object> newObjectMap; //mapa para colocar itens extras
 		private final String keyPrefix;
 		private final Locale locale;
-		public RequestMapWrapper(Map<String, String[]> requestMap,
+		public RequestParsedMap(Map<String, String[]> requestMap,
 				String keyPrefix, Locale locale) {
 			super();
 			this.requestMap = Collections.unmodifiableMap(requestMap);
@@ -85,16 +86,24 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 				return (Double) newObjectMap.get(key);
 			}
 			if(keyPrefix != null) key = keyPrefix + key;
-			if(requestMap.containsKey(key) && requestMap.get(key).length != 0 && !StringUtils.isBlank(requestMap.get(key)[0])) {
-				try {
-					return NumberFormat.getInstance(this.locale).parse(requestMap.get(key)[0]).doubleValue();
-				} catch (ParseException e) {
-					throw new IllegalArgumentException("Passed key can't be parsed into a Double", e);
-				}
-			} else {
+			if(!requestMap.containsKey(key) || requestMap.get(key).length == 0 || StringUtils.isBlank(requestMap.get(key)[0])) {
 				return null;
-			}			
+			} else {
+				String paramValue = requestMap.get(key)[0];
+				return convertToDouble(paramValue);
+			}
+		
 		}
+		
+
+		protected double convertToDouble(String paramValue) {
+			try {
+				return NumberFormat.getInstance(this.locale).parse(paramValue).doubleValue();
+			} catch (ParseException e) {
+				throw new IllegalArgumentException("Value at provided key can't be parsed into a Long", e);
+			}
+		}
+
 
 		@Override
 		public Long getLong(String key) {
@@ -103,15 +112,20 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 			}
 			
 			if(keyPrefix != null) key = keyPrefix + key;
-			if(requestMap.containsKey(key) && requestMap.get(key).length != 0 && !StringUtils.isBlank(requestMap.get(key)[0])) {
-				try {
-					return NumberFormat.getInstance(this.locale).parse(requestMap.get(key)[0]).longValue();
-				} catch (ParseException e) {
-					throw new IllegalArgumentException("Passed key can't be parsed into a Long", e);
-				}
-			} else {
+			if(!requestMap.containsKey(key) || requestMap.get(key).length == 0 || StringUtils.isBlank(requestMap.get(key)[0])) {
 				return null;
-			}			
+			} else {
+				String paramValue = requestMap.get(key)[0];
+				return convertToLong(paramValue);
+			}
+		}
+
+		protected long convertToLong(String paramValue) {
+			try {
+				return NumberFormat.getInstance(this.locale).parse(paramValue).longValue();
+			} catch (ParseException e) {
+				throw new IllegalArgumentException("Value at provided key can't be parsed into a Long", e);
+			}
 		}
 
 		
@@ -124,14 +138,19 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 			if(!requestMap.containsKey(key) || requestMap.get(key).length == 0 || StringUtils.isBlank(requestMap.get(key)[0])) {
 				return null;
 			} else {
-				String paramValue = requestMap.get(key)[0].toLowerCase().trim();
-				if ("true".equals(paramValue) || "yes".equals(paramValue)) {
-					return Boolean.TRUE;
-				} else if ("false".equals(paramValue) || "no".equals(paramValue)) { 
-					return Boolean.FALSE;
-				} else {
-					throw new IllegalArgumentException("Passed key can't be parsed into a Boolean");
-				}
+				String paramValue = requestMap.get(key)[0];
+				return convertToBoolean(paramValue);
+			}
+		}
+
+		protected boolean convertToBoolean(String paramValue) {
+			paramValue = paramValue.toLowerCase().trim();
+			if ("true".equals(paramValue) || "yes".equals(paramValue)) {
+				return true;
+			} else if ("false".equals(paramValue) || "no".equals(paramValue)) { 
+				return false;
+			} else {
+				throw new IllegalArgumentException("Value at provided key can't be parsed into a Boolean");
 			}
 		}
 
@@ -212,9 +231,55 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 		 */
 		@Override
 		public Object get(String key) {
-			return get(key);
+			if(newObjectMap.containsKey(key)) {
+				return newObjectMap.get(key);
+			}
+			if(keyPrefix != null) key = keyPrefix + key;
+			if(requestMap.containsKey(key) && requestMap.get(key).length != 0) {
+				return requestMap.get(key)[0];
+			} else {
+				return null;
+			}
 		}
 
+		/* (non-Javadoc)
+		 * @see dwf.utils.ParsedMap#get(java.lang.String, java.lang.Class)
+		 */
+		@Override
+		public <T> Object get(String key, Class<T> expectedClass) {
+			if(newObjectMap.containsKey(key)) {
+				return newObjectMap.get(key);
+			}
+			if(keyPrefix != null) key = keyPrefix + key;
+			if(requestMap.containsKey(key)) {
+				//check if it is a array or a single value
+				List<Object> convertedValues = new ArrayList<Object>();
+				for (String submittedValue : requestMap.get(key)) {
+					if(expectedClass == boolean.class) {
+						convertedValues.add(convertToBoolean(submittedValue));
+					} else if(Boolean.class.isAssignableFrom(expectedClass)) {
+						convertedValues.add(convertToBoolean(submittedValue));
+					} else if(Long.class.isAssignableFrom(expectedClass)) {
+						convertedValues.add(convertToLong(submittedValue));
+					} else if(Double.class.isAssignableFrom(expectedClass)) {
+						convertedValues.add(convertToDouble(submittedValue));
+					} else if(expectedClass.isEnum()){
+						convertedValues.add(Enum.valueOf((Class<? extends Enum>) expectedClass, submittedValue));
+					} else {
+						convertedValues.add(submittedValue);
+					}
+				}
+				
+				if(convertedValues.size() == 1) {
+					return convertedValues.get(0);
+				} else {
+					return convertedValues;
+				}
+			}
+			return null;
+		}
+
+		
 		
 		
 		

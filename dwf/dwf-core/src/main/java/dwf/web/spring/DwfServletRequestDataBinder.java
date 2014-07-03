@@ -31,9 +31,18 @@ public class DwfServletRequestDataBinder extends ExtendedServletRequestDataBinde
 	protected void addBindValues(MutablePropertyValues mpvs, ServletRequest request) {
 		super.addBindValues(mpvs, request);
 		
+		transformArraysToIndexedValues(mpvs);
 		
-		//renomear propriedades que contém [] no nome
-		//ex: categories[].id={1,2} vira categories[0].id=1 e categories[1].id=2
+		
+	}
+
+	/**
+	 * Transforma um parâmetro do tipo array com [] no nome para vários parâmetros
+	 * indexados.
+	 * ex: categories[].id={1,2} vira categories[0].id=1 e categories[1].id=2
+	 * @param mpvs
+	 */
+	protected void transformArraysToIndexedValues(MutablePropertyValues mpvs) {
 		Set<String> renamedList = new HashSet<String>();
 		PropertyValue[] values = mpvs.getPropertyValues();
 		for (int i = 0; i < values.length; i++) {
@@ -68,8 +77,6 @@ public class DwfServletRequestDataBinder extends ExtendedServletRequestDataBinde
 				}
 			}
 		}
-		
-		values = mpvs.getPropertyValues();
 	}
 
 	
