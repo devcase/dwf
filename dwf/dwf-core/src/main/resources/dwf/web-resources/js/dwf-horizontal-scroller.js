@@ -58,7 +58,7 @@ $(document).on('dwf-postupdate', function() {
 			var deltaX = Math.max(Math.floor(domJQ.width() / deltaXStep), 1) * deltaXStep * dir;
 			var startLeft = scrollTarget.position().left;
 			var finalLeft = startLeft + deltaX; 
-			var minLeft = startPosition - deltaXStep * (scrollTarget.find('li').length - Math.max(Math.floor(domJQ.width() / deltaXStep), 1)) ; 
+			var minLeft = startPosition -  (deltaXStep * scrollTarget.find('li').length - domJQ.width() ) ; 
 			
 			if(finalLeft > startPosition) {
 				finalLeft = startPosition;
