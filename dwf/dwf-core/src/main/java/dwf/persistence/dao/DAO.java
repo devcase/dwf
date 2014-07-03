@@ -28,9 +28,9 @@ public interface DAO<D extends BaseEntity<?>> {
 	List<?> findAll();
 	List<?> findByFilter(Object... params);
 	D findFirstByFilter(Object... params);
-	
-	
 	int countByFilter(ParsedMap filter);
+	int countByFilter(Object... params);
+
 	D saveNew(D entity) throws ValidationException;
 	/**
 	 * Merge only the annotated fields

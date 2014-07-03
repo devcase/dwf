@@ -186,6 +186,12 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		return findByFilter(new ModifiableParsedMap(params));
 	}
 	
+	@Override
+	public int countByFilter(Object... params) {
+		return countByFilter(new ModifiableParsedMap(params));
+	}
+
+	
 	/* (non-Javadoc)
 	 * @see dwf.persistence.dao.DAO#findFirstByFilter(java.lang.Object[])
 	 */

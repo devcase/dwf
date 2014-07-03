@@ -32,6 +32,11 @@ public @interface UniqueValue {
 
 	String field();
 
+	/**
+	 * Used by hibernate validator. Spring will use the UniqueValueValidator implementation
+	 * @author Hirata
+	 *
+	 */
 	public class Validator implements ConstraintValidator<UniqueValue, BaseEntity<?>> {
 		@Override
 		public void initialize(UniqueValue constraintAnnotation) {

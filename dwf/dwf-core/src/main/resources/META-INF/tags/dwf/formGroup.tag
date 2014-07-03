@@ -16,9 +16,13 @@
 	</c:when>
 	<c:otherwise><%-- PROPERTY --%>
 		<dwf:resolveEL el="${entityName}.${attrMap.property}" var="value" />
-		<c:set var="name" value="${attrMap.property}"/>		
+		<c:set var="name" value="${attrMap.property}"/>
 	</c:otherwise>
 </c:choose>
+<c:if test="${!attrMap.ignoreParams and !empty param[name]}"><%-- usa o parâmetro do request no lugar da propriedade--%>
+	<c:set var="value" value="${param[name]}"/>
+</c:if>
+
 
 <div class="form-group ${!empty violation ?  'has-error' : ''}">
 	<c:choose>
@@ -28,16 +32,14 @@
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
 					<span class="help-block">${violation.message}</span>
 				</c:if>
-			</div>
 		</c:when>
 		<c:when test="${formLayout eq 'horizontal'}"><%-- LAYOUT HORIZONTAL --%>
-			<label class="col-sm-3 control-label ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${labelText}<c:if test="${attrMap.required}">*</c:if></strong> </label>
-			<div class="col-sm-9">
+			<label class="col-sm-4 control-label ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${labelText}<c:if test="${attrMap.required}">*</c:if></strong> </label>
+			<div class="col-sm-8">
 				<jsp:doBody/>
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
 					<span class="help-block">${violation.message}</span>
 				</c:if>
-			</div>
 		</c:when>
 		<c:otherwise><%-- LAYOUT PADRÃO --%>
 			<label class="col-sm-12 control-label text-left ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${labelText}<c:if test="${attrMap.required}">*</c:if></strong> </label>
@@ -46,8 +48,10 @@
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
 					<span class="help-block">${violation.message}</span>
 				</c:if>
-			</div>
-		
 		</c:otherwise>
 	</c:choose>
+	<c:if test="${!empty attrMap.helpText}">
+		<p class="help-block">${!empty attrMap.helpText}</p>
+	</c:if>
+	</div>
 </div>

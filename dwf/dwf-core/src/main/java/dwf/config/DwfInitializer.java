@@ -145,7 +145,7 @@ public class DwfInitializer implements ServletContainerInitializer {
 				ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanFactory);
 				scanner.setEnvironment(getEnvironment());
 				//dwf default components
-				scanner.scan(new String[] {"dwf.persistence", "dwf.activitylog.service", "dwf.utils", "dwf.web", "dwf.security"});
+				scanner.scan(new String[] {"dwf.persistence", "dwf.activitylog.service", "dwf.utils", "dwf.web", "dwf.security", "dwf.validation"});
 				//application components
 				scanner.scan(dwfConfig.getApplicationComponentPackages());
 				

@@ -19,7 +19,6 @@
 	<div class="panel-body">
 		<c:if test="${!empty uploadKey}">
 			<dwf:remoteUrl uploadKey="${uploadKey}" var="url" />
-			<a href="${url}">${url}</a>
 			<img src="${url }" class="img-responsive"/>
 		</c:if>
 		<form class="form-horizontal validate" method="POST" action="${formaction}" role="form" enctype="multipart/form-data">
@@ -33,7 +32,6 @@
 			<div class="form-group">
 				<div class=" col-sm-12 text-right">
 					<button type="submit" class="btn btn-primary" data-loading-text="<spring:message code="action.wait"/>" formaction="${formaction}">
-						<span class="glyphicon glyphicon-floppy-disk"></span>
 						<spring:message code="action.update" />
 					</button>
 				</div>

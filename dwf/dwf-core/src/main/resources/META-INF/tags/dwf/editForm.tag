@@ -3,7 +3,7 @@
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
-<%@ variable name-given="entity" scope="AT_BEGIN" variable-class="java.lang.Object"%>
+<%@ variable name-given="entity" scope="NESTED" variable-class="java.lang.Object"%>
 <dwf:resolveEL el="${entityName}" var="entity"/>
 <c:set var="formaction" value="${attrMap.formaction}"/>
 <c:if test="${empty attrMap.formaction}">
@@ -26,8 +26,8 @@
 <%-- DETERMINAR LABEL DO BOTÃO --%>
 <c:set var="buttonLabelKey" value="${!empty attrMap.buttonLabelKey ? attrMap.buttonLabelKey : 'action.save'}"/>
 
-<c:set var="formLayout" value="horizontal" scope="request"/>
-<h1>${panelTitle} </h1>
+<c:set var="formLayout" value="${!empty formLayout ? formLayout : 'horizontal'}" scope="request"/>
+<c:if test="${!empty panelTitle and panelTitle ne 'none'}"><h1>${panelTitle} </h1></c:if>
 <div class="panel panel-default">
 	<div class="panel-body">
 		<form class="form-horizontal validate" method="POST" action="${formaction}" role="form">

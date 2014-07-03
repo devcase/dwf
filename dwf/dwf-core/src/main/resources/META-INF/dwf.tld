@@ -69,10 +69,13 @@
 		<name>inputNumberSelect</name>
 		<path>/META-INF/tags/dwf/inputNumberSelect.tag</path>
 	</tag-file>
-	
 	<tag-file>
 		<name>inputEntitySelect</name>
 		<path>/META-INF/tags/dwf/inputEntitySelect.tag</path>
+	</tag-file>
+	<tag-file>
+		<name>inputCountryCodeCombo</name>
+		<path>/META-INF/tags/dwf/inputCountryCodeCombo.tag</path>
 	</tag-file>
 	<tag-file>
 		<name>inputPassword</name>

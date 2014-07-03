@@ -59,7 +59,7 @@ public abstract class User extends BaseEntity<Long> implements UserDetails {
 
 	@Column(length = 50, nullable = false, unique = true, updatable = false)
 	@NotNull(groups = { ValidationGroups.MergePersist.class})
-	@UpdatableProperty(groups = { ValidationGroups.MergePersist.class, })
+	@UpdatableProperty(groups = { ValidationGroups.MergePersist.class})
 	public String getUsername() {
 		return username;
 	}
