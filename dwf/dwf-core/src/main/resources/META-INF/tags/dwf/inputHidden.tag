@@ -3,16 +3,19 @@
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
-
-<%-- VALUE --%>
+<%-- VALOR PADRÃO E NOME DO INPUT --%>
 <c:choose>
 	<c:when test="${!empty attrMap.name}">
-		<dwf:resolveEL el="${attrMap.name}" var="_value" />
-		<c:set value="${attrMap.name}" var="_name" />		
+		<dwf:resolveEL el="${attrMap.name}" var="value" />
+		<c:set var="name" value="${attrMap.name}"/>		
 	</c:when>
-	<c:otherwise><%-- LABEL PADRÃO --%>
-		<dwf:resolveEL el="${entityName}.${attrMap.property}" var="_value" />
-		<c:set value="${attrMap.property}" var="_name" />
+	<c:otherwise><%-- PROPERTY --%>
+		<dwf:resolveEL el="${entityName}.${attrMap.property}" var="value" />
+		<c:set var="name" value="${attrMap.property}"/>
 	</c:otherwise>
 </c:choose>
-<input type="hidden" value="${_value}" name="${_name}"/>
+<c:if test="${!attrMap.ignoreParams and !empty param[name]}"><%-- usa o parâmetro do request no lugar da propriedade--%>
+	<c:set var="value" value="${param[name]}"/>
+</c:if>
+
+<input type="hidden" name="${name}" value="${value}"/>

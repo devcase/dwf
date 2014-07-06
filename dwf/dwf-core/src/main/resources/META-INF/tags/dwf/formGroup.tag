@@ -5,9 +5,10 @@
 <%@ tag dynamic-attributes="attrMap"%>
 <%@ variable name-given="name" scope="AT_BEGIN" %>
 <%@ variable name-given="value" scope="AT_BEGIN" variable-class="java.lang.Object"%>
-<c:set var="attrMap" value="${!empty attrMap.parentAttrMap ? attrMap.parentAttrMap : attrMap}"/><%-- opção para uso em outras tags --%>
+<%@ variable name-given="label" scope="AT_BEGIN" variable-class="java.lang.String"%>
+<dwf:mergeMaps map1="${attrMap}" map2="${attrMap.parentAttrMap}" var="attrMap"/>
 <dwf:findViolation path="${attrMap.property}" var="violation"/>
-<dwf:simpleLabel parentAttrMap="${attrMap}" var="labelText"/>
+<dwf:simpleLabel parentAttrMap="${attrMap}" var="label"/>
 <%-- VALOR PADRÃO E NOME DO INPUT --%>
 <c:choose>
 	<c:when test="${!empty attrMap.name}">
@@ -26,7 +27,7 @@
 
 <div class="form-group ${!empty violation ?  'has-error' : ''}">
 	<c:choose>
-		<c:when test="${attrMap.withoutLabel}"><%-- WITHOU LABEL--%>
+		<c:when test="${attrMap.withoutLabel || label eq 'none'}"><%-- WITHOU LABEL--%>
 			<div class="col-xs-12">
 				<jsp:doBody/>
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
@@ -34,7 +35,7 @@
 				</c:if>
 		</c:when>
 		<c:when test="${formLayout eq 'horizontal'}"><%-- LAYOUT HORIZONTAL --%>
-			<label class="col-sm-4 control-label ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${labelText}<c:if test="${attrMap.required}">*</c:if></strong> </label>
+			<label class="col-sm-4 control-label ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${label}<c:if test="${attrMap.required}">*</c:if></strong> </label>
 			<div class="col-sm-8">
 				<jsp:doBody/>
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
@@ -42,7 +43,7 @@
 				</c:if>
 		</c:when>
 		<c:otherwise><%-- LAYOUT PADRÃO --%>
-			<label class="col-sm-12 control-label text-left ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${labelText}<c:if test="${attrMap.required}">*</c:if></strong> </label>
+			<label class="col-sm-12 control-label text-left ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${label}<c:if test="${attrMap.required}">*</c:if></strong> </label>
 			<div class="col-sm-12">
 				<jsp:doBody/>
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>

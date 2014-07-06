@@ -1,10 +1,7 @@
 package dwf.web.controller;
 
-import java.io.IOException;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,25 +16,24 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Path;
 import javax.validation.ValidationException;
 
-import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Scope;
-import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
+import org.springframework.web.servlet.view.RedirectView;
 
 import dwf.security.DwfUserUtils;
 import dwf.user.domain.User;
 import dwf.web.DwfCustomDateEditor;
-import dwf.web.filter.SetupLocaleFilter;
 import dwf.web.message.UserMessage;
 import dwf.web.message.UserMessageType;
 
@@ -83,7 +79,7 @@ public abstract class BaseController implements ApplicationContextAware {
 			list = new ArrayList<UserMessage>();
 			redirectAttributes.addFlashAttribute(USER_MESSAGES_FLASH_MAP_KEY, list);
 		}
-		model.addAttribute(USER_MESSAGES_FLASH_MAP_KEY, list);
+		request.setAttribute(USER_MESSAGES_FLASH_MAP_KEY, list);
 		list.add(new UserMessage(key, userMessageType));
 	}
 
@@ -93,7 +89,7 @@ public abstract class BaseController implements ApplicationContextAware {
 	 */
 	protected void addValidationExceptionMessage(ValidationException validationException) {
 		redirectAttributes.addFlashAttribute(VALIDATION_EXCEPTION_FLASH_MAP_KEY, validationException);
-		model.addAttribute(VALIDATION_EXCEPTION_FLASH_MAP_KEY, validationException);
+		request.setAttribute(VALIDATION_EXCEPTION_FLASH_MAP_KEY, validationException);
 
 		Map<String, ConstraintViolation<?>> violationsMap = new HashMap<String, ConstraintViolation<?>>();
 		if (validationException != null && validationException instanceof ConstraintViolationException) {
@@ -113,7 +109,7 @@ public abstract class BaseController implements ApplicationContextAware {
 		}
 
 		redirectAttributes.addFlashAttribute(VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY, violationsMap);
-		model.addAttribute(VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY, violationsMap);
+		request.setAttribute(VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY, violationsMap);
 	}
 	
 	/**
@@ -131,7 +127,7 @@ public abstract class BaseController implements ApplicationContextAware {
 		}
 
 		redirectAttributes.addFlashAttribute(VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY, violationsMap);
-		model.addAttribute(VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY, violationsMap);
+		request.setAttribute(VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY, violationsMap);
 	}	
 
 	protected void setBackButton(String path) {
@@ -160,6 +156,23 @@ public abstract class BaseController implements ApplicationContextAware {
 	
 	protected User getCurrentUser(){
 		return DwfUserUtils.getCurrentUser();
+	}
+	
+	/**
+	 * 
+	 * @param ex
+	 * @return
+	 */
+	@ExceptionHandler(ValidationException.class)
+	public ModelAndView validationExceptionDefaultHandler(ValidationException ex) {
+		addValidationExceptionMessage(ex);
+		if(request.getParameter("callbackPath") != null) {
+			ModelAndView mav = new ModelAndView();
+			mav.getModelMap().addAllAttributes(model.asMap());
+			mav.setView(new RedirectView("/", true, true, true));
+			return mav;
+		}
+		return null;
 	}
 
 }

@@ -78,6 +78,7 @@
 
 
 	<bean id="requestMappingHandlerAdapter" class="dwf.web.spring.DwfRequestMappingHandlerAdapter">
+		<property name="ignoreDefaultModelOnRedirect" value="true"/>
 		<property name="customArgumentResolvers">
 			<list>
 				<bean class="dwf.web.spring.ParsedMapArgumentResolver" />

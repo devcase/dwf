@@ -1,8 +1,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%><%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%><%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%><%@taglib uri="http://www.springframework.org/tags" prefix="spring"%><%@ tag dynamic-attributes="attrMap"%>
 <c:set var="var" value="${attrMap.var}"/>
 
-<c:set var="attrMap" value="${!empty attrMap.parentAttrMap ? attrMap.parentAttrMap : attrMap}"/><%-- opção para uso em outras tags --%>
+<dwf:mergeMaps map1="${attrMap}" map2="${attrMap.parentAttrMap}" var="attrMap"/>
 
+<c:if test="${!empty attrMap.label}"><%-- LABEL DEFINIDA NA TAG --%>
+	<c:set var="_labelText" value="${attrMap.label }"/>
+</c:if>
 <c:if test="${!empty attrMap.labelKey}"><%-- LABEL DEFINIDA NA TAG --%>
 	<spring:message code="${attrMap.labelKey}" var="_labelText" text=""/>
 </c:if>

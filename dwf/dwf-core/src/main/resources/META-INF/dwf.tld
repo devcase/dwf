@@ -50,6 +50,10 @@
 		<path>/META-INF/tags/dwf/editForm.tag</path>
 	</tag-file>	
 	<tag-file>
+		<name>inputHidden</name>
+		<path>/META-INF/tags/dwf/inputHidden.tag</path>
+	</tag-file>
+	<tag-file>
 		<name>inputText</name>
 		<path>/META-INF/tags/dwf/inputText.tag</path>
 	</tag-file>
@@ -67,6 +71,10 @@
 	</tag-file>
 	<tag-file>
 		<name>inputNumberSelect</name>
+		<path>/META-INF/tags/dwf/inputNumberSelect.tag</path>
+	</tag-file>
+	<tag-file>
+		<name>inputNumberCombo</name>
 		<path>/META-INF/tags/dwf/inputNumberSelect.tag</path>
 	</tag-file>
 	<tag-file>
@@ -105,10 +113,6 @@
 	<tag-file>
 		<name>viewPanel</name>
 		<path>/META-INF/tags/dwf/viewPanel.tag</path>
-	</tag-file>	
-	<tag-file>
-		<name>formItemLabel</name>
-		<path>/META-INF/tags/dwf/formItemLabel.tag</path>
 	</tag-file>	
 	<tag-file>
 		<name>yesNo</name>
@@ -153,5 +157,9 @@
 	<tag-file>
 		<name>autoFormat</name>
 		<path>/META-INF/tags/dwf/autoFormat.tag</path>
+	</tag-file>
+	<tag-file>
+		<name>mergeMaps</name>
+		<path>/META-INF/tags/dwf/mergeMaps.tag</path>
 	</tag-file>
 </taglib>
