@@ -1,7 +1,10 @@
 package dwf.persistence.dao;
 
+import java.awt.image.BufferedImage;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -17,6 +20,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
@@ -25,10 +29,13 @@ import javax.validation.groups.Default;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.imgscalr.Scalr;
+import org.imgscalr.Scalr.Mode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -40,14 +47,16 @@ import dwf.persistence.annotations.ConditionalGroup;
 import dwf.persistence.annotations.EntityStateValidator;
 import dwf.persistence.annotations.FillWithCurrentUser;
 import dwf.persistence.annotations.HideActivityLogValues;
+import dwf.persistence.annotations.Image;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.utils.NotSyncPropertyDescriptor;
 import dwf.security.DwfUserUtils;
+import dwf.upload.UploadManager;
 import dwf.user.domain.User;
-import dwf.utils.SimpleParsedMap;
 import dwf.utils.ParsedMap;
+import dwf.utils.SimpleParsedMap;
 import dwf.validation.ValidationGroups;
 
 /**
@@ -68,12 +77,15 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	protected ActivityLogService activityLogService;
 	@Autowired
 	protected Validator beanValidator;
-
+	@Autowired(required=false)
+	private UploadManager uploadManager;
+	
 	protected Session getSession() {
 		return sessionFactory.getCurrentSession();
 	}
 
 	protected final Class<D> clazz;
+	protected final String entityFullName;
 	protected final String entityName;
 
 	/**
@@ -84,6 +96,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 * Cache with UpdatableProperty annotations
 	 */
 	protected final Map<NotSyncPropertyDescriptor, UpdatableProperty> updatableProperties;
+	protected final Map<String, PropertyDescriptor> entityProperties;
+
 	/**
 	 * Cache com os setters anotados com @FillWithCurrentUser
 	 */
@@ -94,7 +108,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	public BaseDAOImpl(Class<D> clazz)  {
 		super();
 		this.clazz = clazz;
-		this.entityName = clazz.getName();
+		this.entityFullName = clazz.getName();
+		this.entityName = StringUtils.uncapitalize(clazz.getSimpleName());
 		
 		/**
 		 * Find all string fields
@@ -104,7 +119,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		this.propertyList = new ArrayList<NotSyncPropertyDescriptor>();	
 		this.propertyNames = new HashSet<String>();
 		this.filledWithUser = new HashMap<NotSyncPropertyDescriptor, FillWithCurrentUser>();
-		
+		this.entityProperties = new HashMap<String, PropertyDescriptor>();
+
 		try {
 			processClazzFieldsRecursive(this.clazz);
 		} catch (IllegalAccessException | InvocationTargetException | IntrospectionException e) {
@@ -133,10 +149,12 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 				}
 			}
 		}
+
 		for (PropertyDescriptor p1 : PropertyUtils.getPropertyDescriptors(cl)) {
 			NotSyncPropertyDescriptor p = new NotSyncPropertyDescriptor(p1);
 			propertyList.add(p);
 			propertyNames.add(p.getName());
+			entityProperties.put(p.getName(), p);
 			
 			Method writeMethod = p.getWriteMethod();
 			Method readMethod = p.getReadMethod();
@@ -332,6 +350,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		validate(entity,ValidationGroups.MergePersist.class);
 		validate(entity); //valida campos sem grupos definidos
 		entity.setUpdateTime(new Date());
+		entity.setCreationTime(new Date());
 		getSession().persist(entity);
 		activityLogService.log(entity, ActivityLogService.OPERATION_CREATE);
 		return entity;
@@ -534,6 +553,79 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		return false;
 	}
 	
+	
+	
+	/* (non-Javadoc)
+	 * @see dwf.persistence.dao.DAO#updateUpload(java.io.Serializable, java.io.InputStream, java.lang.String)
+	 */
+	@Override
+	public D updateUpload(Serializable id, InputStream inputStream, String contentType, String originalFilename, String propertyName) throws IOException {
+		D form = findById(id);
+		//get the UpdateGroup for the property
+		PropertyDescriptor pd = entityProperties.get(propertyName);
+		if(pd != null) {
+			Image imageAnnotation = pd.getReadMethod().getAnnotation(Image.class);
+			try {
+				if(imageAnnotation == null) {
+					String uploadKey = uploadManager.saveFile(inputStream, contentType, originalFilename, entityName + "/" + id);
+					BeanUtils.setProperty(form, propertyName, uploadKey);
+				} else {
+					//é imagem! fazer resize
+					BufferedImage srcImg = ImageIO.read(inputStream);
+					BufferedImage resizedImg = null;
+					BufferedImage croppedImg = null;
+					try {
+						Mode resizeMode = (srcImg.getHeight() / srcImg.getWidth()) < (imageAnnotation.targetHeight() / imageAnnotation.targetWidth()) ? Mode.FIT_TO_HEIGHT : Mode.FIT_TO_WIDTH;
+
+						resizedImg = Scalr.resize(srcImg, org.imgscalr.Scalr.Method.ULTRA_QUALITY, resizeMode, imageAnnotation.targetWidth(), imageAnnotation.targetHeight(), Scalr.OP_ANTIALIAS);
+						int cropStartX = (resizedImg.getWidth() - imageAnnotation.targetWidth()) /2;
+						int cropStartY = (resizedImg.getHeight() - imageAnnotation.targetHeight()) /2;
+						
+						croppedImg = Scalr.crop(resizedImg, cropStartX, cropStartY, imageAnnotation.targetWidth(), imageAnnotation.targetHeight(), Scalr.OP_ANTIALIAS);
+						String uploadKey = uploadManager.saveImage(croppedImg, "img/jpeg", propertyName + ".jpg", entityName + "/" + id);
+						BeanUtils.setProperty(form, propertyName, uploadKey);
+						
+						for(String thumbProperty  : imageAnnotation.thumbnail()) {
+							//thumbnail
+							PropertyDescriptor thumbPd = entityProperties.get(thumbProperty);
+							if(thumbPd != null) {
+								Image thumbAnnotation = thumbPd.getReadMethod().getAnnotation(Image.class);
+								int thumbWidth = thumbAnnotation != null ? thumbAnnotation.targetWidth() : 100;
+								int thumbHeight = thumbAnnotation != null ? thumbAnnotation.targetHeight() : 100;
+								
+								resizeMode = (srcImg.getHeight() / srcImg.getWidth()) < (thumbHeight / thumbWidth) ? Mode.FIT_TO_HEIGHT : Mode.FIT_TO_WIDTH;
+								
+								BufferedImage thumbImg = null;
+								BufferedImage croppedThumbImg = null;
+								try {
+									thumbImg = Scalr.resize(srcImg, org.imgscalr.Scalr.Method.ULTRA_QUALITY, resizeMode, thumbWidth, thumbHeight, Scalr.OP_ANTIALIAS);
+									cropStartX = (thumbImg.getWidth() - thumbWidth) /2;
+									cropStartY = (thumbImg.getHeight() - thumbHeight) /2;
+
+									croppedThumbImg = Scalr.crop(thumbImg, thumbWidth, thumbHeight, Scalr.OP_ANTIALIAS);
+									String thumbUpKey = uploadManager.saveImage(croppedThumbImg, "img/jpeg", thumbProperty + ".jpg", entityName + "/" + id);
+									BeanUtils.setProperty(form, thumbProperty, thumbUpKey);
+								} finally {
+									if(thumbImg != null) resizedImg.flush();
+									if(croppedThumbImg != null) croppedThumbImg.flush();
+								}
+							}
+						}
+					} finally {
+						//limpa (?) dados da memória - TODO estudar mais
+						if(srcImg != null) srcImg.flush();
+						if(resizedImg != null) resizedImg.flush();
+						if(croppedImg != null) croppedImg.flush();
+					}
+				}
+			} catch (IllegalAccessException | InvocationTargetException  e) {
+				//Error copying the property
+				throw new RuntimeException(e);
+			}
+		}
+		return form;
+	}
+
 	/**
 	 * The default implementation delegates the query creation to a queryBuilder, created by
 	 * createQueryBuilder().
@@ -550,7 +642,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 * @return the entityName
 	 */
 	public String getEntityName() {
-		return entityName;
+		return entityFullName;
 	}
 
 	/**

@@ -1,19 +1,14 @@
 package dwf.web.controller;
 
-import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ValidationException;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -27,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import dwf.activitylog.service.ActivityLogService;
-import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.dao.DAO;
 import dwf.persistence.domain.BaseEntity;
 import dwf.upload.UploadManager;
@@ -51,27 +45,11 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 
 	protected final Class<D> clazz;
 	protected final String entityName;
-	protected final Map<String, PropertyDescriptor> entityProperties;
 
 	public BaseCrudController(Class<D> clazz) {
 		super();
 		this.clazz = clazz;
 		this.entityName = StringUtils.uncapitalize(clazz.getSimpleName());
-		this.entityProperties = new HashMap<String, PropertyDescriptor>();
-		processClazzFieldsRecursive(clazz);
-	}
-	
-	/**
-	 * Builds the entityProperties map
-	 * @param cl
-	 */
-	private void processClazzFieldsRecursive(Class<?> cl) {
-		if(cl.getSuperclass() != null) {
-			processClazzFieldsRecursive(cl.getSuperclass());
-		}
-		for (final PropertyDescriptor p : PropertyUtils.getPropertyDescriptors(cl)) {
-			entityProperties.put(p.getName(), p);
-		}
 	}
 
 	/**
@@ -244,28 +222,15 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 				if(file == null) {
 					return "/" + entityName + "/view";
 				}
-				//get the UpdateGroup for the property
-				PropertyDescriptor pd = entityProperties.get(propertyName);
-				if(pd != null) {
-					UpdatableProperty annot = pd.getReadMethod().getAnnotation(UpdatableProperty.class);
-					if(annot != null) {
-						Class<?>[] upgroup = annot.groups();
-						String uploadKey = uploadManager.saveFile(file.getInputStream(), file.getContentType(), file.getOriginalFilename(), entityName + "/" + id);
-						D form = clazz.newInstance();
-						form.setId((ID) id);
-						BeanUtils.setProperty(form, propertyName, uploadKey);
-						try {
-							getDAO().updateByAnnotation(form, upgroup);
-							addUserMessage("crud.save.update.success", UserMessageType.SUCCESS);
-							return "redirect:/" + entityName + "/" + form.getId();
-						} catch (ValidationException ex) {
-							addValidationExceptionMessage(ex);
-							return "redirect:/" + entityName + "/" + form.getId();
-						}
-					}
+				
+				try {
+					getDAO().updateUpload(id, file.getInputStream(), file.getContentType(), file.getOriginalFilename(), propertyName);
+					return "redirect:/" + entityName + "/" + id;
+				} catch (ValidationException ex) {
+					addValidationExceptionMessage(ex);
+					return "redirect:/" + entityName + "/" + id;
 				}
-				//If it's an invalid propertyName
-				throw new IllegalArgumentException("Invalid propertyName");
+				
 			}
 		};
 	}

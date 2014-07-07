@@ -1,10 +1,17 @@
 package dwf.upload;
 
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.Iterator;
 
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,7 +26,6 @@ import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.support.WebApplicationObjectSupport;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
@@ -55,10 +61,41 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 		resourceHttpRequestHandler.setLocations(Collections.singletonList(fileDir));
 	}
 
-
+	@Override
+	public String saveImage(RenderedImage image, String contentType, String fileName, String folderName) throws IOException {
+		if(StringUtils.isBlank(fileName)) {
+			fileName = String.valueOf(System.currentTimeMillis());
+		}
+		File savedFile = getFileDestination(fileName, folderName);
+		
+		ImageOutputStream ios = ImageIO.createImageOutputStream(savedFile);
+		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
+		ImageWriter writer = iter.next();
+		ImageWriteParam iwp = writer.getDefaultWriteParam();
+		iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+		iwp.setCompressionQuality(0.85f);
+		writer.setOutput(ios);
+		writer.write(null, new IIOImage(image, null, null), iwp);
+		writer.dispose();
+		
+		return (folderName.startsWith("/") ? "" : "/")   + folderName + (folderName.endsWith("/") ? "" : "/") + fileName;
+		
+	}
 
 	@Override
 	public String saveFile(InputStream is, String contentType, String fileName, String folderName) throws IOException {
+		if(StringUtils.isBlank(fileName)) {
+			fileName = String.valueOf(System.currentTimeMillis());
+		}
+		File savedFile = getFileDestination(fileName, folderName);
+		
+		FileUtils.copyInputStreamToFile(is, savedFile);
+		
+		return (folderName.startsWith("/") ? "" : "/")   + folderName + (folderName.endsWith("/") ? "" : "/") + fileName;
+	}
+
+
+	protected File getFileDestination(String fileName, String folderName) throws IOException {
 		File rootDir = new File(getDirectory());
 		if(!rootDir.exists()) {
 			rootDir.mkdir();
@@ -67,24 +104,18 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 		}
 		
 		File folder = new File(rootDir, folderName);
+		
 		if(!folder.exists()) {
-			folder.mkdir();
+			folder.mkdirs();
 		} else if(!folder.isDirectory()) {
 			throw new IOException("Caminho de diretório configurado não é válido! " + folder.getAbsolutePath());
-		}
-		
-		if(StringUtils.isBlank(fileName)) {
-			fileName = String.valueOf(System.currentTimeMillis());
 		}
 		
 		File savedFile = new File(folder, fileName);
 		if(savedFile.exists()) {
 			savedFile.delete();
 		}
-		
-		FileUtils.copyInputStreamToFile(is, savedFile);
-		
-		return savedFile.getAbsolutePath().substring(rootDir.getAbsolutePath().length()).replaceAll("\\\\", "\\/");
+		return savedFile;
 	}
 
 	/* (non-Javadoc)

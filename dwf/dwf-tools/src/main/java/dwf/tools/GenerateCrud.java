@@ -9,21 +9,18 @@ import org.apache.commons.io.FileUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.tools.ToolContext;
-import org.apache.velocity.tools.ToolManager;
-import org.apache.velocity.tools.config.EasyFactoryConfiguration;
 import org.apache.velocity.tools.generic.ClassTool;
 
 public class GenerateCrud {
 
 	public static void main(String[] args) throws Exception {
 		String[] entityClassesName = new String[] {
-				"travenup.persistence.domain.Quote"
+				"travenup.persistence.domain.Photo"
 		};
 		
 		for (String entityClassName : entityClassesName) {
 
-			Class entityClass = Class.forName(entityClassName);
+			Class<?> entityClass = Class.forName(entityClassName);
 			String daopackage = "travenup.persistence.dao";
 			String controllerpackage = "travenup.backoffice.controller";
 			String javaSrcPath = "/src/main/java";

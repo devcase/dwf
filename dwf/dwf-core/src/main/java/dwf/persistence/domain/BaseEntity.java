@@ -28,7 +28,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	private ID id;
 	
 	private boolean enabled = true;
-	
+	private Date creationTime;
 	private Date updateTime;
 
 	@Id
@@ -82,7 +82,23 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 		this.updateTime = updateDate;
 	}
 	
-	
+	/**
+	 * @return the creationTime
+	 */
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(nullable=false, updatable=false)
+	@NotEditableProperty()
+	public Date getCreationTime() {
+		return creationTime;
+	}
+
+	/**
+	 * @param creationTime the creationTime to set
+	 */
+	public void setCreationTime(Date creationTime) {
+		this.creationTime = creationTime;
+	}
+
 	/**
 	 * Override this method if this entity has a parent. For instance - a shopping cart item's parent
 	 * should be the shopping cart itself. Used by the activityLog - a entity's activityLog will

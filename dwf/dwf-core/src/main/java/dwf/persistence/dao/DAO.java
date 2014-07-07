@@ -1,10 +1,13 @@
 package dwf.persistence.dao;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 
 import javax.validation.ValidationException;
 
+import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.domain.BaseEntity;
 import dwf.utils.ParsedMap;
 
@@ -44,5 +47,6 @@ public interface DAO<D extends BaseEntity<?>> {
 	D restore(D entity, String comments);
 	void validate(D entity, Class<?>... groups) throws ValidationException;
 	
+	D updateUpload(Serializable id, InputStream inputStream, String contentType, String originalFilename, String propertyName) throws IOException;
 	
 }
