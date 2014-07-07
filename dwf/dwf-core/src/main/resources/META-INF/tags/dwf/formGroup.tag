@@ -28,7 +28,7 @@
 <div class="form-group ${!empty violation ?  'has-error' : ''}">
 	<c:choose>
 		<c:when test="${attrMap.withoutLabel || label eq 'none'}"><%-- WITHOU LABEL--%>
-			<div class="col-xs-12">
+			<div class="${formLayout eq 'horizontal' ? 'col-sm-8 col-sm-offset-4' : 'col-xs-12'}">
 				<jsp:doBody/>
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
 					<span class="help-block">${violation.message}</span>

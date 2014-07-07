@@ -86,7 +86,7 @@
 		</property>
 	</bean>
 	<mvc:annotation-driven validator="validator" >
-		<mvc:async-support default-timeout="30000"></mvc:async-support>
+		<mvc:async-support default-timeout="1000" ></mvc:async-support>
 		<mvc:argument-resolvers>
 			<bean class="dwf.web.spring.ParsedMapArgumentResolver" />
 		</mvc:argument-resolvers>

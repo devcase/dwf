@@ -575,13 +575,14 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 					BufferedImage resizedImg = null;
 					BufferedImage croppedImg = null;
 					try {
-						Mode resizeMode = (srcImg.getHeight() / srcImg.getWidth()) < (imageAnnotation.targetHeight() / imageAnnotation.targetWidth()) ? Mode.FIT_TO_HEIGHT : Mode.FIT_TO_WIDTH;
+						Mode resizeMode = (((double)srcImg.getHeight() / (double)srcImg.getWidth()) < ((double)imageAnnotation.targetHeight() / (double)imageAnnotation.targetWidth())) ? Mode.FIT_TO_HEIGHT : Mode.FIT_TO_WIDTH;
 
-						resizedImg = Scalr.resize(srcImg, org.imgscalr.Scalr.Method.ULTRA_QUALITY, resizeMode, imageAnnotation.targetWidth(), imageAnnotation.targetHeight(), Scalr.OP_ANTIALIAS);
-						int cropStartX = (resizedImg.getWidth() - imageAnnotation.targetWidth()) /2;
-						int cropStartY = (resizedImg.getHeight() - imageAnnotation.targetHeight()) /2;
+						resizedImg = Scalr.resize(srcImg, org.imgscalr.Scalr.Method.ULTRA_QUALITY, resizeMode, imageAnnotation.targetWidth(), imageAnnotation.targetHeight());
 						
-						croppedImg = Scalr.crop(resizedImg, cropStartX, cropStartY, imageAnnotation.targetWidth(), imageAnnotation.targetHeight(), Scalr.OP_ANTIALIAS);
+						int cropStartX = Math.max((resizedImg.getWidth() - imageAnnotation.targetWidth()) /2, 0);
+						int cropStartY = Math.max((resizedImg.getHeight() - imageAnnotation.targetHeight()) /2, 0);
+						
+						croppedImg = Scalr.crop(resizedImg, cropStartX, cropStartY, imageAnnotation.targetWidth(), imageAnnotation.targetHeight());
 						String uploadKey = uploadManager.saveImage(croppedImg, "img/jpeg", propertyName + ".jpg", entityName + "/" + id);
 						BeanUtils.setProperty(form, propertyName, uploadKey);
 						
@@ -593,16 +594,16 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 								int thumbWidth = thumbAnnotation != null ? thumbAnnotation.targetWidth() : 100;
 								int thumbHeight = thumbAnnotation != null ? thumbAnnotation.targetHeight() : 100;
 								
-								resizeMode = (srcImg.getHeight() / srcImg.getWidth()) < (thumbHeight / thumbWidth) ? Mode.FIT_TO_HEIGHT : Mode.FIT_TO_WIDTH;
+								resizeMode = ((double)croppedImg.getHeight() / (double)croppedImg.getWidth()) <  ((double)thumbHeight / (double)thumbWidth) ? Mode.FIT_TO_HEIGHT : Mode.FIT_TO_WIDTH;
 								
 								BufferedImage thumbImg = null;
 								BufferedImage croppedThumbImg = null;
 								try {
-									thumbImg = Scalr.resize(srcImg, org.imgscalr.Scalr.Method.ULTRA_QUALITY, resizeMode, thumbWidth, thumbHeight, Scalr.OP_ANTIALIAS);
+									thumbImg = Scalr.resize(croppedImg, org.imgscalr.Scalr.Method.ULTRA_QUALITY, resizeMode, thumbWidth, thumbHeight);
 									cropStartX = (thumbImg.getWidth() - thumbWidth) /2;
 									cropStartY = (thumbImg.getHeight() - thumbHeight) /2;
 
-									croppedThumbImg = Scalr.crop(thumbImg, thumbWidth, thumbHeight, Scalr.OP_ANTIALIAS);
+									croppedThumbImg = Scalr.crop(thumbImg, cropStartX, cropStartY, thumbWidth, thumbHeight);
 									String thumbUpKey = uploadManager.saveImage(croppedThumbImg, "img/jpeg", thumbProperty + ".jpg", entityName + "/" + id);
 									BeanUtils.setProperty(form, thumbProperty, thumbUpKey);
 								} finally {
