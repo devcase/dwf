@@ -12,7 +12,9 @@ $(document).on('click', '[dwf-toggle="paginator"]', function (evt) {
     	url: href,
     	success: function(data) {
     		$target.html(data);
-    		$target.trigger('dwf-postupdate');    		
+    		$target.trigger('dwf-postupdate');
+    		var top = $target.scrollTop(); //Getting Y of target element
+    	    window.scrollTo(0, top);
     	}
     });
 });
