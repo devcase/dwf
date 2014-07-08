@@ -12,7 +12,7 @@ $(document).on('click', '[dwf-toggle="paginator"]', function (evt) {
     	url: href,
     	success: function(data) {
     		$target.html(data);
-    		
+    		$target.trigger('dwf-postupdate');    		
     	}
     });
 });

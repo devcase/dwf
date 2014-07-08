@@ -280,8 +280,21 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 		}
 
 		
+		public String getQueryString() {
+			StringBuilder queryStringBuilder = new StringBuilder();
+			for (Map.Entry<String, String[]> requestParam : requestMap.entrySet()) {
+				if(requestParam.getValue() != null && !requestParam.getKey().equals("pageNumber") && !requestParam.getKey().equals("fetchSize") && !requestParam.getKey().equals("decorator")) {
+					for (String str : requestParam.getValue()) {
+						queryStringBuilder.append("&");
+						queryStringBuilder.append(requestParam.getKey()).append("=").append(str);
+					}
+				}
+			}
+			return queryStringBuilder.toString();
+		}
 		
 		
 		
 	}
 }
+ 

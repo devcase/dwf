@@ -17,7 +17,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate4.support.OpenSessionInViewFilter;
@@ -30,6 +32,7 @@ import dwf.web.DefaultLocaleResolver;
 import dwf.web.filter.AppPathFilter;
 import dwf.web.filter.SetUtf8EncodingFilter;
 import dwf.web.filter.SetupLocaleFilter;
+import dwf.web.filter.TimestampFilter;
 
 /**
  * Configura o framework
@@ -84,6 +87,9 @@ public class DwfInitializer implements ServletContainerInitializer {
 			FilterRegistration.Dynamic filterReg = servletContext.addFilter("setUtf8EncodingFilter", SetUtf8EncodingFilter.class);
 			filterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
 			filterReg.setAsyncSupported(true);
+			filterReg = servletContext.addFilter("timestampFilter", TimestampFilter.class);
+			filterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+			filterReg.setAsyncSupported(true);
 			filterReg = servletContext.addFilter("appPathFilter", AppPathFilter.class);
 			filterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
 			filterReg.setAsyncSupported(true);
@@ -114,7 +120,7 @@ public class DwfInitializer implements ServletContainerInitializer {
 	 */
 	private XmlWebApplicationContext createWebApplicationContext(ServletContext servletContext, final DwfConfig dwfConfig) {
 		final DwfInitializer dwfInitializer = this;
-		
+		servletContext.setAttribute("dwfInitializer", dwfInitializer);
 
 		// configure the webapplicationcontext
 		XmlWebApplicationContext wac = new XmlWebApplicationContext() {
@@ -131,15 +137,22 @@ public class DwfInitializer implements ServletContainerInitializer {
 				beanFactory.registerSingleton("dataSource", dataSource);
 				
 				//SessionFactory setup
-				LocalSessionFactoryBean localSessionFactory = new LocalSessionFactoryBean();
-				localSessionFactory.setDataSource(dataSource);
-				localSessionFactory.setPackagesToScan("dwf.user.domain", "dwf.activitylog.domain", dwfConfig.getEntityPackage());
-				localSessionFactory.setNamingStrategy(new DwfNamingStrategy(dwfConfig));
-				localSessionFactory.afterPropertiesSet();
+				GenericBeanDefinition localSessionFactoryDefinition =  new GenericBeanDefinition();
+				localSessionFactoryDefinition.setBeanClass(LocalSessionFactoryBean.class);
+				localSessionFactoryDefinition.setPropertyValues(new MutablePropertyValues());
+				localSessionFactoryDefinition.getPropertyValues().add("packagesToScan", new String [] {"dwf.user.domain", "dwf.activitylog.domain", dwfConfig.getEntityPackage()});
+				localSessionFactoryDefinition.getPropertyValues().add("namingStrategy", new DwfNamingStrategy(dwfConfig));
+				localSessionFactoryDefinition.getPropertyValues().add("dataSource", dataSource);
+				localSessionFactoryDefinition.setScope(SCOPE_APPLICATION);
+				beanFactory.registerBeanDefinition("sessionFactory", localSessionFactoryDefinition);
 				
-				beanFactory.registerSingleton("sessionFactory", localSessionFactory);
 				
-				beanFactory.registerSingleton("entityPackage", dwfConfig.getEntityPackage());
+//				LocalSessionFactoryBean localSessionFactory = new LocalSessionFactoryBean();
+//				localSessionFactory.setDataSource(dataSource);
+//				localSessionFactory.setPackagesToScan("dwf.user.domain", "dwf.activitylog.domain", dwfConfig.getEntityPackage());
+//				localSessionFactory.setNamingStrategy(new DwfNamingStrategy(dwfConfig));
+//				localSessionFactory.afterPropertiesSet();
+//				beanFactory.registerSingleton("sessionFactory", localSessionFactory);
 				
 				//Scan for components!
 				ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanFactory);
