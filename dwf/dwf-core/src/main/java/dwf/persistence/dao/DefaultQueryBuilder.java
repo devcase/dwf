@@ -58,6 +58,8 @@ public class DefaultQueryBuilder implements QueryBuilder {
 				//avoiding append to the hql the content directly from the filter
 				query.append(" ").append(filter.getString("orderByDirection").toLowerCase().equals("desc") ? " DESC " : " ASC ");
 			}
+		} else {
+			query.append(" order by s2.autocompleteText");
 		}
 		
 	}

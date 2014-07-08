@@ -8,14 +8,20 @@ $(document).on('click', '[dwf-toggle="remoteload"][dwf-target]', function (evt) 
     var $this   = $(this);
     var href    = $this.attr('href');
     var $target = $($this.attr('dwf-target')); //strip for ie7
-
     evt.preventDefault();
 
-    $.ajax({
-    	url: href,
-    	success: function(data) {
-    		$target.html(data);
-    		$target.trigger('dwf-postupdate');
+    $target.fadeOut({
+    	always: function() {
+    	    $.ajax({
+    	    	url: href,
+    	    	success: function(data) {
+    	    		$target.html(data);
+    	    		$target.find('[dwf-toggle="remoteload"]').not('[dwf-target]').attr('dwf-target', '#' + $target.attr('id'))
+    	    		$target.trigger('dwf-postupdate');
+    	    	    $target.fadeIn();
+    	    	}
+    	    });
     	}
     });
+
 });

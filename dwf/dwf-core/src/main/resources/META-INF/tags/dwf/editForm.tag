@@ -27,9 +27,14 @@
 <c:set var="buttonLabelKey" value="${!empty attrMap.buttonLabelKey ? attrMap.buttonLabelKey : 'action.save'}"/>
 
 <c:set var="formLayout" value="${!empty formLayout ? formLayout : 'horizontal'}" scope="request"/>
-<c:if test="${!empty panelTitle and panelTitle ne 'none'}"><h1>${panelTitle} </h1></c:if>
-<div class="panel panel-default">
-	<div class="panel-body">
+
+<c:if test="${!attrMap.panelless}">
+	<c:if test="${!empty panelTitle and panelTitle ne 'none'}"><h1>${panelTitle} </h1></c:if>
+	<div class="panel panel-default">
+		<div class="panel-body">
+</c:if>
+
+
 		<form class="form-horizontal validate" method="POST" action="${formaction}" role="form">
 			<input type="hidden" name="id" value="${entity.id}"/>
 			<jsp:doBody />
@@ -39,6 +44,9 @@
 				</button>
 			</div>
 		</form>
-	</div><!-- /.box-content -->
-</div>
+		
+<c:if test="${!attrMap.panelless}">
+		</div><!-- /.box-content -->
+	</div>
+</c:if>
 <c:set var="formLayout" value="" scope="request"/>
