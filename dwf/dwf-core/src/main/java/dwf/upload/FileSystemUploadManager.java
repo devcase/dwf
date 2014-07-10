@@ -4,6 +4,8 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -17,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContextAware;
@@ -34,6 +35,7 @@ import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public abstract class FileSystemUploadManager extends WebApplicationObjectSupport implements UploadManager, InitializingBean, ApplicationContextAware {
 	
+	private SecureRandom random = new SecureRandom();
 
 	private ResourceHttpRequestHandler resourceHttpRequestHandler;
 	
@@ -63,9 +65,9 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 
 	@Override
 	public String saveImage(RenderedImage image, String contentType, String fileName, String folderName) throws IOException {
-		if(StringUtils.isBlank(fileName)) {
-			fileName = String.valueOf(System.currentTimeMillis());
-		}
+		String randomString = new BigInteger(16, random).toString(32);
+		fileName = randomString + fileName;
+		
 		File savedFile = getFileDestination(fileName, folderName);
 		
 		ImageOutputStream ios = ImageIO.createImageOutputStream(savedFile);
@@ -73,7 +75,7 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 		ImageWriter writer = iter.next();
 		ImageWriteParam iwp = writer.getDefaultWriteParam();
 		iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-		iwp.setCompressionQuality(0.85f);
+		iwp.setCompressionQuality(0.9f);
 		writer.setOutput(ios);
 		writer.write(null, new IIOImage(image, null, null), iwp);
 		writer.dispose();
@@ -81,12 +83,12 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 		return (folderName.startsWith("/") ? "" : "/")   + folderName + (folderName.endsWith("/") ? "" : "/") + fileName;
 		
 	}
+	
 
 	@Override
 	public String saveFile(InputStream is, String contentType, String fileName, String folderName) throws IOException {
-		if(StringUtils.isBlank(fileName)) {
-			fileName = String.valueOf(System.currentTimeMillis());
-		}
+		String randomString = new BigInteger(16, random).toString(32);
+		fileName = randomString + fileName;
 		File savedFile = getFileDestination(fileName, folderName);
 		
 		FileUtils.copyInputStreamToFile(is, savedFile);
@@ -110,6 +112,7 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 		} else if(!folder.isDirectory()) {
 			throw new IOException("Caminho de diretório configurado não é válido! " + folder.getAbsolutePath());
 		}
+		
 		
 		File savedFile = new File(folder, fileName);
 		if(savedFile.exists()) {

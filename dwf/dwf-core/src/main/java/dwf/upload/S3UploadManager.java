@@ -4,6 +4,8 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Iterator;
 
 import javax.imageio.IIOImage;
@@ -24,18 +26,22 @@ public abstract class S3UploadManager implements UploadManager {
 	protected abstract String getBucketName();
 
 	private final AmazonS3Client awsS3Client;
-
+	private SecureRandom random = new SecureRandom();
+	
 	public S3UploadManager() {
 		super();
 		this.awsS3Client = new AmazonS3Client();
+		
 	}
 	
 	protected String generateKey(String fileName, String folderName) {
 		if(folderName == null) folderName ="default";
 		
+		String randomString = new BigInteger(16, random).toString(32);
+		
 		if(fileName == null) return String.valueOf(System.currentTimeMillis());
 		
-		return (folderName.startsWith("/") ? folderName.substring(1) : folderName )  + (folderName.endsWith("/") ? "" : "/") + fileName;
+		return (folderName.startsWith("/") ? folderName.substring(1) : folderName )  + (folderName.endsWith("/") ? "" : "/") + randomString + fileName;
 	}
 
 	@Override
