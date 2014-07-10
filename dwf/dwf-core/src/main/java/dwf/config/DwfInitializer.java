@@ -105,6 +105,7 @@ public class DwfInitializer implements ServletContainerInitializer {
 			filterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
 			filterReg.setAsyncSupported(true);
 		} catch(Exception ex) {
+			ex.printStackTrace();
 			log.fatal("DWF Initialization Error", ex);
 		} finally {
 			log.info("DWF Initialization - finished");
@@ -145,14 +146,6 @@ public class DwfInitializer implements ServletContainerInitializer {
 				localSessionFactoryDefinition.getPropertyValues().add("dataSource", dataSource);
 				localSessionFactoryDefinition.setScope(SCOPE_APPLICATION);
 				beanFactory.registerBeanDefinition("sessionFactory", localSessionFactoryDefinition);
-				
-				
-//				LocalSessionFactoryBean localSessionFactory = new LocalSessionFactoryBean();
-//				localSessionFactory.setDataSource(dataSource);
-//				localSessionFactory.setPackagesToScan("dwf.user.domain", "dwf.activitylog.domain", dwfConfig.getEntityPackage());
-//				localSessionFactory.setNamingStrategy(new DwfNamingStrategy(dwfConfig));
-//				localSessionFactory.afterPropertiesSet();
-//				beanFactory.registerSingleton("sessionFactory", localSessionFactory);
 				
 				//Scan for components!
 				ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanFactory);

@@ -123,7 +123,7 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 	 */
 	@Override
 	public String remoteUrl(String uploadKey) {
-		return getWebApplicationContext().getServletContext().getContextPath() + "/dl" + uploadKey;
+		return getWebApplicationContext().getServletContext().getContextPath() + "/dl" + (uploadKey.startsWith("/") ? "" : "/") + uploadKey;
 	}
 	
 	@RequestMapping("/dl/**")
