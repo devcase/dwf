@@ -75,7 +75,7 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 		ImageWriter writer = iter.next();
 		ImageWriteParam iwp = writer.getDefaultWriteParam();
 		iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-		iwp.setCompressionQuality(0.9f);
+		iwp.setCompressionQuality(0.95f);
 		writer.setOutput(ios);
 		writer.write(null, new IIOImage(image, null, null), iwp);
 		writer.dispose();
@@ -98,7 +98,7 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 
 
 	protected File getFileDestination(String fileName, String folderName) throws IOException {
-		File rootDir = new File(getDirectory());
+		File rootDir = new File(getDirectory().endsWith("/") ? getDirectory() : getDirectory() + "/");
 		if(!rootDir.exists()) {
 			rootDir.mkdir();
 		} else if(!rootDir.isDirectory()) {
@@ -129,6 +129,20 @@ public abstract class FileSystemUploadManager extends WebApplicationObjectSuppor
 		return getWebApplicationContext().getServletContext().getContextPath() + "/dl" + (uploadKey.startsWith("/") ? "" : "/") + uploadKey;
 	}
 	
+	
+	/* (non-Javadoc)
+	 * @see dwf.upload.UploadManager#deleteFile(java.lang.String)
+	 */
+	@Override
+	public void deleteFile(String uploadKey) {
+		File rootDir = new File(getDirectory().endsWith("/") ? getDirectory() : getDirectory() + "/");
+		File deletedFile = new File(rootDir, uploadKey);
+		if(deletedFile.exists()) {
+			deletedFile.delete();
+		}
+	}
+
+
 	@RequestMapping("/dl/**")
 	public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		if(request.getServletPath().startsWith("/dl/")) {

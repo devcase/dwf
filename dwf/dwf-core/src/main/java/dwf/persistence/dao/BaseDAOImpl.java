@@ -560,15 +560,20 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 */
 	@Override
 	public D updateUpload(Serializable id, InputStream inputStream, String contentType, String originalFilename, String propertyName) throws IOException {
-		D form = findById(id);
+		D entity = findById(id);
 		//get the UpdateGroup for the property
 		PropertyDescriptor pd = entityProperties.get(propertyName);
 		if(pd != null) {
 			Image imageAnnotation = pd.getReadMethod().getAnnotation(Image.class);
 			try {
+				String oldValue = (String) BeanUtils.getProperty(entity, propertyName);
+				
 				if(imageAnnotation == null) {
 					String uploadKey = uploadManager.saveFile(inputStream, contentType, originalFilename, entityName + "/" + id);
-					BeanUtils.setProperty(form, propertyName, uploadKey);
+					if(oldValue != null && !oldValue.equals(uploadKey)) {
+						uploadManager.deleteFile(oldValue);
+					}
+					BeanUtils.setProperty(entity, propertyName, uploadKey);
 				} else {
 					//é imagem! fazer resize
 					BufferedImage srcImg = ImageIO.read(inputStream);
@@ -584,12 +589,18 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 						
 						croppedImg = Scalr.crop(resizedImg, cropStartX, cropStartY, imageAnnotation.targetWidth(), imageAnnotation.targetHeight());
 						String uploadKey = uploadManager.saveImage(croppedImg, "img/jpeg", propertyName + ".jpg", entityName + "/" + id);
-						BeanUtils.setProperty(form, propertyName, uploadKey);
+						if(oldValue != null && !oldValue.equals(uploadKey)) {
+							uploadManager.deleteFile(oldValue);
+						}
+						BeanUtils.setProperty(entity, propertyName, uploadKey);
 						
 						for(String thumbProperty  : imageAnnotation.thumbnail()) {
 							//thumbnail
 							PropertyDescriptor thumbPd = entityProperties.get(thumbProperty);
 							if(thumbPd != null) {
+								String oldThumbValue = (String) BeanUtils.getProperty(entity, thumbProperty);
+								
+								
 								Image thumbAnnotation = thumbPd.getReadMethod().getAnnotation(Image.class);
 								int thumbWidth = thumbAnnotation != null ? thumbAnnotation.targetWidth() : 100;
 								int thumbHeight = thumbAnnotation != null ? thumbAnnotation.targetHeight() : 100;
@@ -605,7 +616,11 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 
 									croppedThumbImg = Scalr.crop(thumbImg, cropStartX, cropStartY, thumbWidth, thumbHeight);
 									String thumbUpKey = uploadManager.saveImage(croppedThumbImg, "img/jpeg", thumbProperty + ".jpg", entityName + "/" + id);
-									BeanUtils.setProperty(form, thumbProperty, thumbUpKey);
+									if(oldThumbValue != null && !oldThumbValue.equals(thumbUpKey)) {
+										uploadManager.deleteFile(oldThumbValue);
+									}
+									
+									BeanUtils.setProperty(entity, thumbProperty, thumbUpKey);
 								} finally {
 									if(thumbImg != null) resizedImg.flush();
 									if(croppedThumbImg != null) croppedThumbImg.flush();
@@ -619,12 +634,12 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 						if(croppedImg != null) croppedImg.flush();
 					}
 				}
-			} catch (IllegalAccessException | InvocationTargetException  e) {
+			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException  e) {
 				//Error copying the property
 				throw new RuntimeException(e);
 			}
 		}
-		return form;
+		return entity;
 	}
 
 	/**

@@ -18,4 +18,5 @@ public interface UploadManager {
 	String saveFile(InputStream is, String contentType, String fileName, String folderName) throws IOException;
 	String saveImage(RenderedImage image, String contentType, String fileName, String folderName) throws IOException;
 	String remoteUrl(String uploadKey);
+	void deleteFile(String uploadKey);
 }

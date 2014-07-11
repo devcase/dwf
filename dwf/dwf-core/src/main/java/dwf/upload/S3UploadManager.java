@@ -83,7 +83,7 @@ public abstract class S3UploadManager implements UploadManager {
 			ImageWriter writer = iter.next();
 			ImageWriteParam iwp = writer.getDefaultWriteParam();
 			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-			iwp.setCompressionQuality(0.85f);
+			iwp.setCompressionQuality(0.9f);
 			writer.setOutput(ios);
 			writer.write(null, new IIOImage(image, null, null), iwp);
 			writer.dispose();
@@ -93,6 +93,15 @@ public abstract class S3UploadManager implements UploadManager {
 			tmpFile.delete();
 		}
 	}
+
+	/* (non-Javadoc)
+	 * @see dwf.upload.UploadManager#deleteFile(java.lang.String)
+	 */
+	@Override
+	public void deleteFile(String uploadKey) {
+		awsS3Client.deleteObject(getBucketName(), uploadKey);
+	}
+	
 	
 	
 }
