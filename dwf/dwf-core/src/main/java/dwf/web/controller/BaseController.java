@@ -1,5 +1,6 @@
 package dwf.web.controller;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -151,7 +152,9 @@ public abstract class BaseController implements ApplicationContextAware {
 		Locale locale = RequestContextUtils.getLocale(request);
 		DwfCustomDateEditor orderDateEditor = new DwfCustomDateEditor(locale);
 		binder.registerCustomEditor(Date.class, orderDateEditor);
-		binder.registerCustomEditor(Double.class, new CustomNumberEditor(Double.class, new DecimalFormat("0.0", new DecimalFormatSymbols(locale)), true));
+		DecimalFormat df = new DecimalFormat("0.0", new DecimalFormatSymbols(locale));
+		binder.registerCustomEditor(Double.class, new CustomNumberEditor(Double.class, df, true));
+		binder.registerCustomEditor(BigDecimal.class, new CustomNumberEditor(BigDecimal.class, df, true));
 	}
 	
 	protected User getCurrentUser(){

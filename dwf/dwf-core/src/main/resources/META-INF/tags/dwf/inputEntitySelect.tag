@@ -1,3 +1,6 @@
+<%--
+<dwf:inputEntitySelect  property="city" [targetEntity="city"] [required="true"] /> 
+ --%>
 <%@tag import="java.util.List"%>
 <%@tag import="dwf.persistence.dao.DAO"%>
 <%@tag import="java.util.Map"%>

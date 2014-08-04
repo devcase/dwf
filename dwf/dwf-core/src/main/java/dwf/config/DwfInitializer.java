@@ -93,7 +93,7 @@ public class DwfInitializer implements ServletContainerInitializer {
 			filterReg = servletContext.addFilter("appPathFilter", AppPathFilter.class);
 			filterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
 			filterReg.setAsyncSupported(true);
-			filterReg = servletContext.addFilter("setLocaleFilter", SetupLocaleFilter.class);
+			filterReg = servletContext.addFilter("setupLocaleFilter", SetupLocaleFilter.class);
 			filterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
 			filterReg.setAsyncSupported(true);
 			//Filtro que abre a sessão do hibernate a cada request

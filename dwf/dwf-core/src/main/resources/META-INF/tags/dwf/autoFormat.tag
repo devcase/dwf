@@ -28,7 +28,7 @@
 	test="${format eq 'date'}"><fmt:formatDate value="${value}" type="date"  pattern="${datePatternJava}" /></c:when><c:when 
 	test="${format eq 'time'}"><fmt:formatDate value="${value}" type="time" timeStyle="SHORT" /></c:when><c:when 
 	test="${format eq 'datetime'}"><fmt:formatDate value="${value}" type="date"  pattern="${datePatternJava}" /> <fmt:formatDate value="${value}" type="time" timeStyle="SHORT" /></c:when><c:when 
-	test="${format eq 'number'}"><fmt:formatNumber value="${value}" /></c:when><c:when 
+	test="${format eq 'number'}"><fmt:formatNumber value="${value}" maxFractionDigits="6"/></c:when><c:when 
 	test="${format eq 'collection'}"><c:forEach items="${value}" var="item" varStatus="loopStatus">${loopStatus.count > 1 ? ', ' : ''}<dwf:autoFormat value="${item}"/></c:forEach></c:when><c:when 
 	test="${format eq 'enum'}"><spring:message code="${enumClassName}.${value}" text="${enumClassName}.${value}"/></c:when><c:otherwise
 	>${value}</c:otherwise></c:choose>
