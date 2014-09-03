@@ -1,5 +1,6 @@
 package dwf.web.controller;
 
+import java.beans.PropertyEditor;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -35,6 +36,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import dwf.security.DwfUserUtils;
 import dwf.user.domain.User;
 import dwf.web.DwfCustomDateEditor;
+import dwf.web.conversion.CustomPropertyEditorFactory;
 import dwf.web.message.UserMessage;
 import dwf.web.message.UserMessageType;
 
@@ -155,6 +157,14 @@ public abstract class BaseController implements ApplicationContextAware {
 		DecimalFormat df = new DecimalFormat("0.0", new DecimalFormatSymbols(locale));
 		binder.registerCustomEditor(Double.class, new CustomNumberEditor(Double.class, df, true));
 		binder.registerCustomEditor(BigDecimal.class, new CustomNumberEditor(BigDecimal.class, df, true));
+		
+		Map<String, CustomPropertyEditorFactory> editorFactories = applicationContext.getBeansOfType(CustomPropertyEditorFactory.class);
+		for (CustomPropertyEditorFactory customEditorFactory : editorFactories.values()) {
+			PropertyEditor customEditor = customEditorFactory.getPropertyEditor(request);
+			for (Class<?> targetClass : customEditorFactory.getTargetClasses()) {
+				binder.registerCustomEditor(targetClass, customEditor);
+			}
+		}
 	}
 	
 	protected User getCurrentUser(){

@@ -7,7 +7,7 @@ import $entityClass.fullName;
 import dwf.web.controller.BaseCrudController;
 
 @Controller
-@RequestMapping("/${entityClass.name.toLowerCase()}/")
+@RequestMapping("/${entityClass.name.substring(0,1).toLowerCase()}${entityClass.name.substring(1)}/")
 public class ${entityClass.name}Controller extends BaseCrudController<${entityClass.name}, Long> {
 
 	public ${entityClass.name}Controller() {

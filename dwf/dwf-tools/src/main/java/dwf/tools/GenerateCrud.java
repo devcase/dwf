@@ -14,17 +14,16 @@ import org.apache.velocity.tools.generic.ClassTool;
 public class GenerateCrud {
 
 	public static void main(String[] args) throws Exception {
-		String[] entityClassesName = new String[] {
-				"travenup.persistence.domain.Photo"
-		};
-		
+		String[] entityClassesName = { "systemagiclabs.smservices.persistence.domain.Airline", "systemagiclabs.smservices.persistence.domain.CarPark", "systemagiclabs.smservices.persistence.domain.AirportTerminal" };
+		String daopackage = "systemagiclabs.smservices.persistence.dao";
+		String controllerpackage = "systemagiclabs.smservices.backoffice.controller";
+		String javaSrcPath = "/target/generated/main/java";
+		String viewSrcPath = "/target/generated/main/webapp/WEB-INF/jsp/";
+
+
 		for (String entityClassName : entityClassesName) {
 
 			Class<?> entityClass = Class.forName(entityClassName);
-			String daopackage = "travenup.persistence.dao";
-			String controllerpackage = "travenup.backoffice.controller";
-			String javaSrcPath = "/src/main/java";
-			String viewSrcPath = "/src/main/webapp/WEB-INF/jsp/";
 			
 			
 			Properties p = new Properties();
@@ -44,9 +43,9 @@ public class GenerateCrud {
 			generateFile(ve, context, new File(srcDir, daopackage.replaceAll("\\.", "/") + "/" + entityClass.getSimpleName() + "DAO.java"), "DAOTemplate.template");
 			generateFile(ve, context, new File(srcDir, daopackage.replaceAll("\\.", "/") + "/" + entityClass.getSimpleName() + "DAOImpl.java"), "DAOImplTemplate.template");
 			generateFile(ve, context, new File(srcDir, controllerpackage.replaceAll("\\.", "/") + "/" + entityClass.getSimpleName() + "Controller.java"), "ControllerTemplate.template");
-			generateFile(ve, context, new File(viewSrcDir, "/" + entityClass.getSimpleName().toLowerCase() + "/edit.jsp"), "editTemplate.template");
-			generateFile(ve, context, new File(viewSrcDir, "/" + entityClass.getSimpleName().toLowerCase() + "/list.jsp"), "listTemplate.template");
-			generateFile(ve, context, new File(viewSrcDir, "/" + entityClass.getSimpleName().toLowerCase() + "/view.jsp"), "viewTemplate.template");
+			generateFile(ve, context, new File(viewSrcDir, "/" + entityClass.getSimpleName().substring(0, 1).toLowerCase() +  entityClass.getSimpleName().substring(1) + "/edit.jsp"), "editTemplate.template");
+			generateFile(ve, context, new File(viewSrcDir, "/" + entityClass.getSimpleName().substring(0, 1).toLowerCase() +  entityClass.getSimpleName().substring(1) + "/list.jsp"), "listTemplate.template");
+			generateFile(ve, context, new File(viewSrcDir, "/" + entityClass.getSimpleName().substring(0, 1).toLowerCase() +  entityClass.getSimpleName().substring(1) + "/view.jsp"), "viewTemplate.template");
 		}
 	}
 
@@ -55,13 +54,15 @@ public class GenerateCrud {
 		FileWriter fileWriter = null;
 		try {
 			if(!generatedFile.exists()) {
-				Template template = ve.getTemplate(templateName);
-				FileUtils.touch(generatedFile);
-				fileWriter = new FileWriter(generatedFile);
-				template.merge(context, fileWriter);
+				System.out.println("Creating " + generatedFile.getAbsolutePath());
 			} else {
-				System.out.println("Skipping " + generatedFile.getAbsolutePath());
+				System.out.println("Overriding " + generatedFile.getAbsolutePath());
+				generatedFile.delete();
 			}
+			Template template = ve.getTemplate(templateName);
+			FileUtils.touch(generatedFile);
+			fileWriter = new FileWriter(generatedFile);
+			template.merge(context, fileWriter);
 		} finally {
 			if(fileWriter != null )fileWriter.close();
 		}

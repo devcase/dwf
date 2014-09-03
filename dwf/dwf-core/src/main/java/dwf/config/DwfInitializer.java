@@ -2,6 +2,7 @@ package dwf.config;
 
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.DispatcherType;
@@ -145,6 +146,9 @@ public class DwfInitializer implements ServletContainerInitializer {
 				localSessionFactoryDefinition.getPropertyValues().add("namingStrategy", new DwfNamingStrategy(dwfConfig));
 				localSessionFactoryDefinition.getPropertyValues().add("dataSource", dataSource);
 				localSessionFactoryDefinition.setScope(SCOPE_APPLICATION);
+				Properties hibernateProperties = new Properties();
+				hibernateProperties = dwfConfig.changeHibernateProperties(hibernateProperties);
+				localSessionFactoryDefinition.getPropertyValues().add("hibernateProperties", hibernateProperties);
 				beanFactory.registerBeanDefinition("sessionFactory", localSessionFactoryDefinition);
 				
 				//Scan for components!

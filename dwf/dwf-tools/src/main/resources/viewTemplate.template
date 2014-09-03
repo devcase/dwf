@@ -11,7 +11,9 @@
 <body>
 	<dwf:viewPanel>
 #foreach( $field in $entityClass.fields )
+ #if( ${field.name} != 'serialVersionUID' )
 		<dwf:outputText property="${field.name}"/>
+ #end
 #end
 	</dwf:viewPanel>
 </body>

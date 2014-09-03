@@ -27,6 +27,7 @@ public class DwfNamingStrategy implements NamingStrategy {
 	 * case converted to underscores
 	 */
 	public String propertyToColumnName(String propertyName) {
+		
 		return addUnderscores( StringHelper.unqualify(propertyName) );
 	}
 	/**
@@ -39,6 +40,9 @@ public class DwfNamingStrategy implements NamingStrategy {
 	 * Convert mixed case to underscores
 	 */
 	public String columnName(String columnName) {
+		if("user".equalsIgnoreCase(columnName)) { //user é palavra reservada no postgres
+			columnName="user_";
+		}
 		return addUnderscores(columnName);
 	}
 

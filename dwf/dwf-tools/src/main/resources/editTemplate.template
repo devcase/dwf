@@ -9,7 +9,9 @@
 	<body>
 		<dwf:editForm>
 #foreach( $field in $entityClass.fields )
-		<dwf:inputText property="${field.name}" required="true"/>
+ 	#if( ${field.name} != 'serialVersionUID' )
+			<dwf:inputText property="${field.name}" required="true"/>
+	#end
 #end
 		</dwf:editForm>
 	</body>

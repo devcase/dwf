@@ -25,10 +25,18 @@
 			<name>JBoss repository</name>
 			<url>https://repository.jboss.org/nexus/content/groups/public</url>
 		</repository>
-		<repository>
+		<!-- >repository>
 			<id>Devcase</id>
 			<name>Devcase Artifactory</name>
 			<url>http://casa.devcase.com.br:12666/artifactory/libs-releases-local</url>
+		</repository -->
+		<repository>
+			<id>OSGEO GeoTools repo</id>
+			<url>http://download.osgeo.org/webdav/geotools</url>
+		</repository>
+		<repository>
+			<id>Hibernate Spatial repo</id>
+			<url>http://www.hibernatespatial.org/repository</url>
 		</repository>
 	</repositories>
 	<build>
@@ -80,7 +88,7 @@
 			<artifactId>spring-jdbc</artifactId>
 			<version>4.0.5.RELEASE</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-orm</artifactId>
@@ -116,11 +124,36 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
 			<version>4.3.5.Final</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jboss-logging-annotations</artifactId>
+					<groupId>org.jboss.logging</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
 			<version>5.1.1.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-spatial</artifactId>
+			<version>4.3</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jboss-logging-annotations</artifactId>
+					<groupId>org.jboss.logging</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>postgresql</artifactId>
+					<groupId>postgresql</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>postgis-jdbc</artifactId>
+					<groupId>org.postgis</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 
@@ -174,6 +207,5 @@
 			<artifactId>imgscalr-lib</artifactId>
 			<version>4.2</version>
 		</dependency>
-
 	</dependencies>
 </project>
