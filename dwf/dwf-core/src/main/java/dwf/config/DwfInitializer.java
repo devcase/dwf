@@ -1,6 +1,7 @@
 package dwf.config;
 
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.util.EnumSet;
 import java.util.Properties;
 import java.util.Set;
@@ -66,8 +67,9 @@ public class DwfInitializer implements ServletContainerInitializer {
 			}
 			Class<DwfConfig> _dwfConfigImplementation = null;
 			for (Class<?> clazz : configImplementations) {
-				if(DwfConfig.class.isAssignableFrom(clazz)) {
+				if(DwfConfig.class.isAssignableFrom(clazz) && !Modifier.isAbstract(clazz.getModifiers())) {
 					_dwfConfigImplementation = (Class<DwfConfig>) clazz;
+					break;
 				}
 			}
 			if(_dwfConfigImplementation == null) {

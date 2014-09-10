@@ -14,7 +14,8 @@ import org.apache.velocity.tools.generic.ClassTool;
 public class GenerateCrud {
 
 	public static void main(String[] args) throws Exception {
-		String[] entityClassesName = { "systemagiclabs.smservices.persistence.domain.Airline", "systemagiclabs.smservices.persistence.domain.CarPark", "systemagiclabs.smservices.persistence.domain.AirportTerminal" };
+		//String[] entityClassesName = { "systemagiclabs.smservices.persistence.domain.Airline", "systemagiclabs.smservices.persistence.domain.CarPark", "systemagiclabs.smservices.persistence.domain.AirportTerminal" };
+		String[] entityClassesName = { "systemagiclabs.smservices.persistence.domain.FlightPlan"};
 		String daopackage = "systemagiclabs.smservices.persistence.dao";
 		String controllerpackage = "systemagiclabs.smservices.backoffice.controller";
 		String javaSrcPath = "/target/generated/main/java";

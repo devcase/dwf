@@ -15,6 +15,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import dwf.persistence.annotations.NotEditableProperty;
+import dwf.serialization.ExcludeFromSerialization;
 
 @MappedSuperclass
 @Access(AccessType.PROPERTY)
@@ -27,8 +28,11 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 
 	private ID id;
 	
+	@ExcludeFromSerialization
 	private boolean enabled = true;
+	@ExcludeFromSerialization
 	private Date creationTime;
+	@ExcludeFromSerialization
 	private Date updateTime;
 
 	@Id
