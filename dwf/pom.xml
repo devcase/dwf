@@ -25,11 +25,8 @@
 			<name>JBoss repository</name>
 			<url>https://repository.jboss.org/nexus/content/groups/public</url>
 		</repository>
-		<!-- >repository>
-			<id>Devcase</id>
-			<name>Devcase Artifactory</name>
-			<url>http://casa.devcase.com.br:12666/artifactory/libs-releases-local</url>
-		</repository -->
+		<!-- >repository> <id>Devcase</id> <name>Devcase Artifactory</name> <url>http://casa.devcase.com.br:12666/artifactory/libs-releases-local</url> 
+			</repository -->
 		<repository>
 			<id>OSGEO GeoTools repo</id>
 			<url>http://download.osgeo.org/webdav/geotools</url>
@@ -207,5 +204,16 @@
 			<artifactId>imgscalr-lib</artifactId>
 			<version>4.2</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.10.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.10.1</version>
+		</dependency>
+
 	</dependencies>
 </project>

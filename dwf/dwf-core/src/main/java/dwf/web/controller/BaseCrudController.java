@@ -1,15 +1,20 @@
 package dwf.web.controller;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.ui.Model;
@@ -24,11 +29,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import dwf.activitylog.service.ActivityLogService;
 import dwf.persistence.dao.DAO;
 import dwf.persistence.domain.BaseEntity;
+import dwf.persistence.export.Exporter;
+import dwf.persistence.export.Importer;
 import dwf.upload.UploadManager;
 import dwf.utils.ParsedMap;
 import dwf.web.message.UserMessageType;
 
 public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializable> extends BaseController {
+	private static Log log = LogFactory.getLog(BaseCrudController.class); 
+	
 	public static final String OPERATION_EDIT = "edit";
 	public static final String OPERATION_VIEW = "view";
 	public static final String OPERATION_LIST = "list";
@@ -36,12 +45,16 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	public static final String OPERATION_DELETE = "delete";
 	public static final String OPERATION_RESTORE = "restore";
 	public static final String OPERATION_LOG = "log";
-	public static final String OPERATION_IMPORT = "import";
+	public static final String OPERATION_UPLOAD = "upload";
+	public static final String OPERATION_DOWNLOAD = "download";
 
 	@Autowired
 	private ActivityLogService activityLogService;
 	@Autowired(required=false)
 	private UploadManager uploadManager;
+	private Importer<D> importer;
+	private Exporter<D> exporter;
+	private DAO<D> dao;
 
 	protected final Class<D> clazz;
 	protected final String entityName;
@@ -50,6 +63,27 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 		super();
 		this.clazz = clazz;
 		this.entityName = StringUtils.uncapitalize(clazz.getSimpleName());
+	}
+	
+	@SuppressWarnings("unchecked")
+	@PostConstruct
+	public void initDependencies() {
+		this.dao = applicationContext.getBean(entityName + "DAO", DAO.class);
+		//busca importador
+		try{
+			this.importer = applicationContext.getBean(entityName + "Importer", Importer.class);
+		} catch (NoSuchBeanDefinitionException ignore) {
+			log.debug("No importer found for " + entityName);
+		}
+		try{
+			this.exporter = applicationContext.getBean(entityName + "Exporter", Exporter.class);
+		} catch (NoSuchBeanDefinitionException ignore) {
+			log.debug("No exporter found for " + entityName);
+		}
+		
+		if(this.exporter == null && this.importer != null && this.importer instanceof Exporter) {
+			this.exporter = (Exporter<D>) this.importer;
+		}
 	}
 
 	/**
@@ -127,7 +161,28 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 			return "/generic/restore";
 		}
 	}
+	
+	
+	@RequestMapping(value = { "/upload" }, method = RequestMethod.GET)
+	public String upload() {
+		setupNavCrud(OPERATION_UPLOAD, null);
+		
+		return "/generic/upload";
+	}
 
+
+	@RequestMapping(value = { "/import" }, method = RequestMethod.POST)
+	public String importFromExcel(final MultipartFile file) {
+		try {
+			importer.importFromExcel(file.getInputStream());
+		} catch (IOException e) {
+			//TODO tratamento de erro!!!
+			e.printStackTrace();
+		}
+		return String.format("redirect:/%s/list", entityName);
+	}
+
+	
 	/**
 	 */
 	@RequestMapping(value = { "/restore/{id}" }, method = RequestMethod.POST)
@@ -261,6 +316,30 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 			}
 		};
 	}
+
+	@RequestMapping(value="/download")
+	public String download(final ParsedMap filter) {
+		model.addAttribute("filter", filter);
+		setupNavCrud(OPERATION_DOWNLOAD, null);
+		return "/generic/download";
+	}
+
+	
+	@RequestMapping(value="/export")
+	public void export(final ParsedMap filter, @RequestParam(defaultValue = "0") final int pageNumber, @RequestParam(defaultValue = "100") final int fetchSize, final HttpServletResponse response) {
+		if(exporter == null) {
+			log.warn("Invalid exporting attempt for entity " + entityName);
+		}
+		try {
+			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			String contentDisposition = String
+					.format("attachment; filename=export_%s.xlsx", entityName);
+			response.setHeader("Content-disposition", contentDisposition);
+			exporter.exportAsExcel(response.getOutputStream(), filter);
+		} catch (IOException e) {
+			log.info("Error exporting entities", e);
+		}
+	}
 	
 	protected String saveByGroup(final D form, final Class<?>... groups) {
 		try {
@@ -283,10 +362,19 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public DAO<D> getDAO() {
-		return (DAO<D>) applicationContext.getBean(entityName + "DAO");
+		return dao;
 	}
+	
+	public Importer<D> getImporter() {
+		return importer;
+	}
+	
+	public Exporter<D> getExporter() {
+		return exporter;
+	}
+
+
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
@@ -315,6 +403,12 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 		} else {
 			navCrud.getItems().add(new NavCrudItem(null, OPERATION_LIST, NavCrudItem.ICON_LIST, false, OPERATION_CREATE.equals(operation)));
 			navCrud.getItems().add(new NavCrudItem(null, OPERATION_CREATE, NavCrudItem.ICON_CREATE));
+			if(importer != null) {
+				navCrud.getItems().add(new NavCrudItem(null, OPERATION_UPLOAD, NavCrudItem.ICON_UPLOAD));
+			}
+			if(exporter != null) {
+				navCrud.getItems().add(new NavCrudItem(null, OPERATION_DOWNLOAD, NavCrudItem.ICON_DOWNLOAD));
+			}
 
 		}
 		model.addAttribute("navCrud", navCrud);
@@ -386,6 +480,8 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 		public static final String ICON_LIST = "list";
 		public static final String ICON_CREATE = "plus";
 		public static final String ICON_RESTORE = "open";
+		public static final String ICON_UPLOAD = "cloud-upload";
+		public static final String ICON_DOWNLOAD = "cloud-download";
 
 		private String operation;
 		private D entity;

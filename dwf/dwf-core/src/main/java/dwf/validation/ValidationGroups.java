@@ -17,4 +17,8 @@ public interface ValidationGroups {
 
 	interface ChangePassword {
 	}
+	
+	interface ImportFromFile {
+	}
+
 }

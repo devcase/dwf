@@ -43,6 +43,7 @@ public interface DAO<D extends BaseEntity<?>> {
 	 * @throws ValidationException
 	 */
 	D updateByAnnotation(D entity, Class<?>... groups) throws ValidationException;
+	D importFromFile(D entity) throws ValidationException;
 	void delete(D entity, String comments);
 	D restore(D entity, String comments);
 	void validate(D entity, Class<?>... groups) throws ValidationException;

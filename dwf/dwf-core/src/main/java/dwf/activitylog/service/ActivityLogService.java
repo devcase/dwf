@@ -16,6 +16,7 @@ public interface ActivityLogService {
 	static String OPERATION_CANCEL = "cancel";
 	static String OPERATION_CONFIRM = "confirm";
 	static String OPERATION_EVALUATE = "evaluate";
+	static String OPERATION_IMPORT = "import";
 	
 	void log(BaseEntity<?> entity, String operationId);
 	void log(BaseEntity<?> entity, String operationId, String comments);

@@ -123,7 +123,7 @@ public abstract class BaseController implements ApplicationContextAware {
 		Map<String, ConstraintViolation<?>> violationsMap = new HashMap<String, ConstraintViolation<?>>();
 		for (int i = 0; i < violations.length; i+=2) {
 			Object path = violations[i];
-			Object violationObj = violations[i+1];
+			//Object violationObj = violations[i+1];
 			ConstraintViolation<?> violation = null;
 			
 			violationsMap.put((String) path, violation);

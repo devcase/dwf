@@ -102,6 +102,10 @@
 		<path>/META-INF/tags/dwf/inputTimeSelect.tag</path>
 	</tag-file>
 	<tag-file>
+		<name>inputTimeZoneCombo</name>
+		<path>/META-INF/tags/dwf/inputTimeZoneCombo.tag</path>
+	</tag-file>
+	<tag-file>
 		<name>inputBooleanCheckbox</name>
 		<path>/META-INF/tags/dwf/inputBooleanCheckbox.tag</path>
 	</tag-file>

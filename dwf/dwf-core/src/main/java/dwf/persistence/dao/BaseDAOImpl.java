@@ -356,6 +356,40 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		return entity;
 	}
 
+	@Override
+	@Transactional(rollbackFor=ValidationException.class)
+	public D importFromFile(D entity) throws ValidationException {
+		prepareEntity(entity);
+		validate(entity,ValidationGroups.ImportFromFile.class);
+		if(entity.getId() != null) {
+			setIdForImport(entity);
+		}
+		
+		D existent = entity.getId() != null ? findById(entity.getId()) : null;
+		
+		if(existent == null && entity.getId() != null) {
+			entity.setId(null);
+		}
+		
+		if(existent == null) {
+			//novo
+			entity = saveNew(entity);
+		} else {
+			//entity 
+			updateByAnnotation(entity, ValidationGroups.ImportFromFile.class);
+		}
+		return entity;
+	}
+	
+	/**
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	protected void setIdForImport(D entity) {
+	}
+
+	
 //	@SuppressWarnings("unchecked")
 //	@Transactional(rollbackFor=ValidationException.class)
 //	public D merge(D entity) throws ValidationException {
