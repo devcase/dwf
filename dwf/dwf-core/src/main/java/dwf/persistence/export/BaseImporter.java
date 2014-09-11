@@ -65,6 +65,7 @@ public abstract class BaseImporter<D extends BaseEntity<Long>> implements Import
 
 	protected Long getValueAsLong(Row row, int cellNum) {
 		Cell c = row.getCell(cellNum);
+		if(c == null) return null;
 		
 		switch(c.getCellType()) {
 		case Cell.CELL_TYPE_BLANK:
@@ -81,6 +82,7 @@ public abstract class BaseImporter<D extends BaseEntity<Long>> implements Import
 	
 	protected String getValueAsString(Row row, int cellNum) {
 		Cell c = row.getCell(cellNum);
+		if(c == null) return null;
 		String val;
 		switch(c.getCellType()) {
 		case Cell.CELL_TYPE_BLANK:
