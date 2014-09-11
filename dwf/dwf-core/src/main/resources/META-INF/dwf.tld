@@ -166,4 +166,8 @@
 		<name>mergeMaps</name>
 		<path>/META-INF/tags/dwf/mergeMaps.tag</path>
 	</tag-file>
+	<tag-file>
+		<name>toJson</name>
+		<path>/META-INF/tags/dwf/toJson.tag</path>
+	</tag-file>
 </taglib>

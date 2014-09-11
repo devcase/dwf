@@ -39,6 +39,7 @@ import org.imgscalr.Scalr.Mode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import dwf.activitylog.domain.UpdatedProperty;
@@ -64,7 +65,6 @@ import dwf.validation.ValidationGroups;
  * @author Hirata
  * 
  */
-@Transactional()
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		implements DAO<D> {
@@ -487,6 +487,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	}
 
 	@Override
+	@Transactional()
 	public void delete(D entity, String comment) {
 		D connectedEntity = findById(entity.getId());
 		if (connectedEntity.isEnabled()) {
@@ -496,6 +497,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	}
 
 	@Override
+	@Transactional()
 	public D restore(D entity, String comment) {
 		D connectedEntity = findById(entity.getId());
 		if (!connectedEntity.isEnabled()) {
