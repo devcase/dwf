@@ -102,6 +102,11 @@ public class DefaultQueryBuilder implements QueryBuilder {
 					}
 				}
 				params.put(pName, value);
+			} else if(filter.containsKey(pName+ ".id")) {
+				Long value = filter.getLong(pName+ ".id"); //TODO - Só funciona com Long!
+				query.append(" and s.").append(pName).append(".id = :").append(pName).append("Id ");
+				params.put(pName + "Id", value);
+				System.out.println(value);
 			}
 		}
 		

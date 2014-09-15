@@ -72,8 +72,10 @@ public class SimpleParsedMap implements ParsedMap {
 			return (Long) value;
 		} else if (value instanceof Number) {
 			return ((Number) value).longValue();
+		} else if(value instanceof String) {
+			return Long.valueOf((String) value);
 		} else {
-			throw new IllegalArgumentException("Passed key can't be parsed into a Long");
+			throw new IllegalArgumentException("Passed key can't be parsed into a Long: " + value);
 		}
 	}
 
