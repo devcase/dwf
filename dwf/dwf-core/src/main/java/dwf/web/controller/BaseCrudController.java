@@ -123,6 +123,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 			return "redirect:/" + entityName + "/";
 		} else {
 			model.addAttribute(entityName, entity);
+			model.addAttribute("entity", entity);
 			setupNavCrud(OPERATION_VIEW, entity);
 			return "/" + entityName + "/view";
 		}

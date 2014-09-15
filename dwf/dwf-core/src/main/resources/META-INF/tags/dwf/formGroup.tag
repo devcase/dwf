@@ -15,10 +15,10 @@
 		<dwf:resolveEL el="${attrMap.name}" var="value" />
 		<c:set var="name" value="${attrMap.name}"/>		
 	</c:when>
-	<c:otherwise><%-- PROPERTY --%>
+	<c:when test="${!empty attrMap.property}"><%-- PROPERTY --%>
 		<dwf:resolveEL el="${entityName}.${attrMap.property}" var="value" />
 		<c:set var="name" value="${attrMap.property}"/>
-	</c:otherwise>
+	</c:when>
 </c:choose>
 <c:if test="${!attrMap.ignoreParams and !empty param[name]}"><%-- usa o parâmetro do request no lugar da propriedade--%>
 	<c:set var="value" value="${param[name]}"/>
