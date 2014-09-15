@@ -53,6 +53,6 @@ public interface DAO<D extends BaseEntity<?>> {
 	void validate(D entity, Class<?>... groups) throws ValidationException;
 	
 	D updateUpload(Serializable id, InputStream inputStream, String contentType, String originalFilename, String propertyName) throws IOException;
-	
+	D retrieveCopy(Serializable id);
 	void evict(D entity);
 }

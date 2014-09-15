@@ -21,6 +21,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
+import javax.persistence.Transient;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
@@ -34,6 +35,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.ResultTransformer;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Mode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,7 +123,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		this.entityProperties = new HashMap<String, PropertyDescriptor>();
 
 		try {
-			processClazzFieldsRecursive(this.clazz);
+			processClazzPropertiesRecursive(this.clazz);
 		} catch (IllegalAccessException | InvocationTargetException | IntrospectionException e) {
 			throw new RuntimeException("Couldn't create the DAO. Check the Entity configuration.", e);
 		}
@@ -136,9 +138,9 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 * @throws InvocationTargetException 
 	 * @throws IllegalAccessException 
 	 */
-	private void processClazzFieldsRecursive(Class<?> cl) throws IllegalAccessException, InvocationTargetException, IntrospectionException {
+	private void processClazzPropertiesRecursive(Class<?> cl) throws IllegalAccessException, InvocationTargetException, IntrospectionException {
 		if(cl.getSuperclass() != null) {
-			processClazzFieldsRecursive(cl.getSuperclass());
+			processClazzPropertiesRecursive(cl.getSuperclass());
 		}
 		
 		for (final Field f : cl.getDeclaredFields()) {
@@ -150,13 +152,22 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		}
 
 		for (PropertyDescriptor p1 : PropertyUtils.getPropertyDescriptors(cl)) {
+			
+			
 			NotSyncPropertyDescriptor p = new NotSyncPropertyDescriptor(p1);
+			Method writeMethod = p.getWriteMethod();
+			Method readMethod = p.getReadMethod();
+
+			//ignorar propriedades transientes
+			if(readMethod.isAnnotationPresent(Transient.class)) {
+				continue;
+			}
+
 			propertyList.add(p);
 			propertyNames.add(p.getName());
 			entityProperties.put(p.getName(), p);
 			
-			Method writeMethod = p.getWriteMethod();
-			Method readMethod = p.getReadMethod();
+
 			if(writeMethod != null && readMethod.getAnnotation(FillWithCurrentUser.class) != null) {
 				filledWithUser.put(p, readMethod.getAnnotation(FillWithCurrentUser.class));
 			}
@@ -175,6 +186,51 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	@Override
 	public D findById(Serializable id) {
 		return (D) getSession().get(clazz, id);
+	}
+	
+	public D retrieveCopy(Serializable id) {
+		StringBuilder queryBuilder = new StringBuilder();
+		
+		queryBuilder.append("select " );
+		final List<String> propertyNames = new ArrayList<String>(this.propertyNames);
+		for (String property : propertyNames) {
+			queryBuilder.append("d.").append(property).append(",");
+		}
+		queryBuilder.deleteCharAt(queryBuilder.length() -1);
+		queryBuilder.append(" from ").append(entityFullName).append(" d where d.id = :id");
+		Query q = getSession().createQuery(queryBuilder.toString());
+		q.setParameter("id", id);
+		q.setResultTransformer(new ResultTransformer() {
+			
+			@Override
+			public Object transformTuple(Object[] tuple, String[] aliases) {
+				try {
+					D ob = clazz.newInstance();
+					for (int i = 0; i < aliases.length; i++) {
+						String alias = aliases[i];
+						Object value = tuple[i];
+						try {
+							BeanUtils.setProperty(ob, propertyNames.get(i), value);
+						} catch (InvocationTargetException e) {
+							e.printStackTrace();
+						}
+					}
+					return ob;
+				} catch (InstantiationException | IllegalAccessException e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
+			
+			@Override
+			public List transformList(List collection) {
+				return collection;
+			}
+		});
+		q.setFetchSize(1);
+		List r = q.list();
+		if(r.isEmpty())return null;
+		D result = (D) r.get(0);
+		return result;
 	}
 
 	@Override
