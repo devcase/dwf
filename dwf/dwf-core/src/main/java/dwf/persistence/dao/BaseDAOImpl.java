@@ -39,7 +39,6 @@ import org.imgscalr.Scalr.Mode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import dwf.activitylog.domain.UpdatedProperty;
@@ -181,13 +180,19 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	@Override
 	public final List<?> findByFilter(ParsedMap filter, int offset,
 			int pageSize) {
-		Map<String, Object> params = new HashMap<String, Object>();
-		String q = createQuery(filter, false, params);
-
-		return findByPage(q, offset, pageSize, params);
+		return findByFilter(filter, QueryReturnType.DOMAIN, offset, pageSize);
 	}
 	
 	
+	@SuppressWarnings("unchecked")
+	public <T> List<T> findByFilter(ParsedMap filter, QueryReturnType<T> returnType, int offset,
+			int pageSize) {
+		Map<String, Object> params = new HashMap<String, Object>();
+		String q = createQuery(filter, QueryReturnType.DOMAIN, params);
+
+		return (List<T>) findByPage(q, offset, pageSize, params);
+	}
+
 
 	/* (non-Javadoc)
 	 * @see dwf.persistence.dao.DAO#findByFilter(dwf.utils.ParsedMap)
@@ -196,6 +201,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	public List<?> findByFilter(ParsedMap filter) {
 		return findByFilter(filter, 0, -1);
 	}
+
+	
 	
 	/* (non-Javadoc)
 	 * @see dwf.persistence.dao.DAO#findByFilter(java.lang.Object[])
@@ -214,12 +221,32 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	/* (non-Javadoc)
 	 * @see dwf.persistence.dao.DAO#findFirstByFilter(java.lang.Object[])
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public D findFirstByFilter(Object... params) {
-		List<?> list = findByFilter(params);
+		return findFirstByFilter(new SimpleParsedMap(params));
+	}
+	
+	/* (non-Javadoc)
+	 * @see dwf.persistence.dao.DAO#findFirstByFilter(java.lang.Object[])
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public D findFirstByFilter(ParsedMap filter) {
+		List<?> list = findByFilter(filter, 0, 1);
 		if(list.isEmpty()) return null;
 		else return (D) list.get(0);
+	}
+
+	@Override
+	public <T> T findFirstByFilter(ParsedMap filter, QueryReturnType<T> returnType) {
+		List<T> list = findByFilter(filter, returnType, 0, 1);
+		if(list.isEmpty()) return null;
+		else return list.get(0);
+	}
+
+	@Override
+	public <T> T findFirstByFilter(QueryReturnType<T> returnType, Object... params) {
+		return findFirstByFilter(new SimpleParsedMap(params), returnType);
 	}
 
 	/* (non-Javadoc)
@@ -301,7 +328,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	@Override
 	public int countByFilter(ParsedMap filter) {
 		Map<String, Object> params = new HashMap<String, Object>();
-		String q = createQuery(filter, true, params);
+		String q = createQuery(filter, QueryReturnType.COUNT, params);
 		return count(q, params);
 	}
 
@@ -686,8 +713,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 * @param params
 	 * @return
 	 */
-	protected String createQuery(ParsedMap filter, boolean count, Map<String, Object> params) {
-		return createQueryBuilder().createQuery(filter, count, params);
+	protected String createQuery(ParsedMap filter, QueryReturnType returnType, Map<String, Object> params) {
+		return createQueryBuilder().createQuery(filter, returnType, params);
 	}
 
 	/**

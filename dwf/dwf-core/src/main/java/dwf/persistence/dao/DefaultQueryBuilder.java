@@ -19,26 +19,28 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	 * @see dwf.persistence.dao.QueryBuilder#createQuery(dwf.utils.ParsedMap, boolean, java.util.Map)
 	 */
 	@Override
-	public String createQuery(ParsedMap filter, boolean count, Map<String, Object> params) {
+	public String createQuery(ParsedMap filter, QueryReturnType returnType, Map<String, Object> params) {
 
 		StringBuilder query = new StringBuilder();
 		
-		if(count) {
+		if(returnType.isCount()) {
 			query.append("select count(s.id) from ").append(dao.getEntityName()).append(" s ");
 		} else {
-			query.append("select s2 from ").append(dao.getEntityName()).append(" s2 where s2.id in (select s from ").append(dao.getEntityName()).append(" s ");
+			query.append("select ");
+			returnType.appendSelectList(query, "s2");
+			query.append(" from ").append(dao.getEntityName()).append(" s2 where s2.id in (select s from ").append(dao.getEntityName()).append(" s ");
 		}
 
-		appendJoins(filter, count, params, query);
+		appendJoins(filter, returnType, params, query);
 
 		query.append(" WHERE 1=1 ");
 
-		appendConditions(filter, count, params, query);
+		appendConditions(filter, returnType, params, query);
 
 		
-		if(!count) {
+		if(!returnType.isCount()) {
 			query.append(") ");
-			appendOrderBy(filter, count, params, query);
+			appendOrderBy(filter, returnType, params, query);
 		}
 		
 		return query.toString();		
@@ -51,7 +53,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	 * @param params
 	 * @param query
 	 */
-	protected void appendOrderBy(ParsedMap filter, boolean count, Map<String, Object> params, StringBuilder query) {
+	protected void appendOrderBy(ParsedMap filter, QueryReturnType returnType, Map<String, Object> params, StringBuilder query) {
 		if(filter.containsKey("orderBy") && dao.hasPropertyWithName(filter.getString("orderBy"))) {
 			query.append(" order by s2.").append( filter.getString("orderBy"));
 			if(filter.containsKey("orderByDirection")) {
@@ -71,7 +73,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	 * @param params
 	 * @param query
 	 */
-	protected void appendJoins(ParsedMap filter, boolean count, Map<String, Object> params, StringBuilder query) {
+	protected void appendJoins(ParsedMap filter, QueryReturnType returnType, Map<String, Object> params, StringBuilder query) {
 	}
 
 	/**
@@ -81,7 +83,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	 * @param params
 	 * @param query
 	 */
-	protected void appendConditions(ParsedMap filter, boolean count, Map<String, Object> params, StringBuilder query) {
+	protected void appendConditions(ParsedMap filter, QueryReturnType returnType, Map<String, Object> params, StringBuilder query) {
 		for ( PropertyDescriptor pDescriptor : dao.getPropertyList()) {
 			String pName = pDescriptor.getName();
 			if(filter.containsKey(pName)) {
