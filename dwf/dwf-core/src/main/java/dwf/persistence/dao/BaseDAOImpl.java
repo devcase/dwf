@@ -713,8 +713,13 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 * @param params
 	 * @return
 	 */
-	protected String createQuery(ParsedMap filter, QueryReturnType returnType, Map<String, Object> params) {
+	protected String createQuery(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params) {
 		return createQueryBuilder().createQuery(filter, returnType, params);
+	}
+	
+	@Override
+	public void evict(D entity) {
+		getSession().evict(entity);
 	}
 
 	/**

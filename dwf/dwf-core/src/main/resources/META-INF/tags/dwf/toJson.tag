@@ -32,6 +32,6 @@ Gson gson = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
      public boolean shouldSkipField(FieldAttributes f) {
 	 	return f.getAnnotation(ExcludeFromSerialization.class) != null;
 	 }
-}).create();
+}).setPrettyPrinting().create();
 out.append(gson.toJson(getJspContext().getAttribute("value")));
 %>

@@ -54,4 +54,5 @@ public interface DAO<D extends BaseEntity<?>> {
 	
 	D updateUpload(Serializable id, InputStream inputStream, String contentType, String originalFilename, String propertyName) throws IOException;
 	
+	void evict(D entity);
 }
