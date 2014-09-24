@@ -33,6 +33,18 @@ public class DwfCustomDateEditor extends PropertyEditorSupport {
 		this.dateFormat = new SimpleDateFormat(datePatternJava);
 		this.timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
 	}
+	
+	public static DateFormat createDateFormat(Locale locale) {
+		String datePatternJava;
+		if(locale.equals(Locale.US)) {
+			datePatternJava = "MM/dd/yyyy";
+		} else if(locale.equals(Locale.JAPAN) || locale.equals(Locale.CHINA) || locale.equals(Locale.KOREAN)){
+			datePatternJava = "yyyy/MM/dd";
+		} else {
+			datePatternJava = "dd/MM/yyyy";
+		}
+		return new SimpleDateFormat(datePatternJava);
+	}
 
 	/**
 	 * Parse the Date from the given text, using the specified DateFormat.

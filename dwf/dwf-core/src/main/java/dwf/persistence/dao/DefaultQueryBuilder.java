@@ -19,7 +19,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	 * @see dwf.persistence.dao.QueryBuilder#createQuery(dwf.utils.ParsedMap, boolean, java.util.Map)
 	 */
 	@Override
-	public String createQuery(ParsedMap filter, QueryReturnType returnType, Map<String, Object> params) {
+	public String createQuery(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params) {
 
 		StringBuilder query = new StringBuilder();
 		
@@ -31,16 +31,16 @@ public class DefaultQueryBuilder implements QueryBuilder {
 			query.append(" from ").append(dao.getEntityName()).append(" s2 where s2.id in (select s from ").append(dao.getEntityName()).append(" s ");
 		}
 
-		appendJoins(filter, returnType, params, query);
+		appendJoins(filter, returnType, params, query, "s");
 
 		query.append(" WHERE 1=1 ");
 
-		appendConditions(filter, returnType, params, query);
+		appendConditions(filter, returnType, params, query, "s");
 
 		
 		if(!returnType.isCount()) {
 			query.append(") ");
-			appendOrderBy(filter, returnType, params, query);
+			appendOrderBy(filter, returnType, params, query, "s2");
 		}
 		
 		return query.toString();		
@@ -53,15 +53,15 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	 * @param params
 	 * @param query
 	 */
-	protected void appendOrderBy(ParsedMap filter, QueryReturnType returnType, Map<String, Object> params, StringBuilder query) {
+	protected void appendOrderBy(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params, StringBuilder query, String domainAlias) {
 		if(filter.containsKey("orderBy") && dao.hasPropertyWithName(filter.getString("orderBy"))) {
-			query.append(" order by s2.").append( filter.getString("orderBy"));
+			query.append(" order by ").append(domainAlias).append(".").append( filter.getString("orderBy"));
 			if(filter.containsKey("orderByDirection")) {
 				//avoiding append to the hql the content directly from the filter
 				query.append(" ").append(filter.getString("orderByDirection").toLowerCase().equals("desc") ? " DESC " : " ASC ");
 			}
 		} else {
-			query.append(" order by s2.autocompleteText");
+			query.append(" order by ").append(domainAlias).append(".autocompleteText");
 		}
 		
 	}
@@ -73,7 +73,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	 * @param params
 	 * @param query
 	 */
-	protected void appendJoins(ParsedMap filter, QueryReturnType returnType, Map<String, Object> params, StringBuilder query) {
+	protected void appendJoins(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params, StringBuilder query, String domainAlias) {
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	 * @param params
 	 * @param query
 	 */
-	protected void appendConditions(ParsedMap filter, QueryReturnType returnType, Map<String, Object> params, StringBuilder query) {
+	protected void appendConditions(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params, StringBuilder query, String domainAlias) {
 		for ( PropertyDescriptor pDescriptor : dao.getPropertyList()) {
 			String pName = pDescriptor.getName();
 			if(filter.containsKey(pName)) {
@@ -91,27 +91,27 @@ public class DefaultQueryBuilder implements QueryBuilder {
 				Object value = filter.get(pName, pDescriptor.getPropertyType());
 				if(value != null && (value.getClass().isArray()) && Array.getLength(value) > 0) {
 					//chegou array
-					query.append(" and s.").append(pName).append(" in (:").append(pName).append(") ");
+					query.append(" and ").append(domainAlias).append(".").append(pName).append(" in (:").append(pName).append(") ");
 				} else if(value != null && (value instanceof Collection<?>)) {
-					query.append(" and s.").append(pName).append(" in (:").append(pName).append(") ");
+					query.append(" and ").append(domainAlias).append(".").append(pName).append(" in (:").append(pName).append(") ");
 				} else {
 					if(Collection.class.isAssignableFrom(pDescriptor.getPropertyType())) {
-						query.append(" and :").append(pName).append(" member of s.").append(pName);
+						query.append(" and :").append(pName).append(" member of ").append(domainAlias).append(".").append(pName);
 					} else {
-						query.append(" and s.").append(pName).append(" = :").append(pName);
+						query.append(" and ").append(domainAlias).append(".").append(pName).append(" = :").append(pName);
 					}
 				}
 				params.put(pName, value);
 			} else if(filter.containsKey(pName+ ".id")) {
 				Long value = filter.getLong(pName+ ".id"); //TODO - Só funciona com Long!
-				query.append(" and s.").append(pName).append(".id = :").append(pName).append("Id ");
+				query.append(" and ").append(domainAlias).append(".").append(pName).append(".id = :").append(pName).append("Id ");
 				params.put(pName + "Id", value);
 			}
 		}
 		
 		if(Boolean.TRUE.equals(filter.getBoolean("includeDisabled"))) {
 		} else {
-			query.append(" and s.enabled = true ");
+			query.append(" and ").append(domainAlias).append(".enabled = true ");
 		}
 	}
 

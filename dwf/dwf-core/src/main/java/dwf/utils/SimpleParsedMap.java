@@ -1,5 +1,7 @@
 package dwf.utils;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +17,9 @@ public class SimpleParsedMap implements ParsedMap {
 		for (int i = 0; i < values.length; i+=2) {
 			this.values.put((String) values[i], values[i+1]);
 		}
+	}
+	public SimpleParsedMap() {
+		this.values = new HashMap<String, Object>();
 	}
 
 	/* (non-Javadoc)
@@ -57,7 +62,7 @@ public class SimpleParsedMap implements ParsedMap {
 		else if(value instanceof Boolean) {
 			return (Boolean) value;
 		} else {
-			throw new IllegalArgumentException("Passed key can't be parsed into a Long");
+			throw new IllegalArgumentException("Passed key can't be parsed into a boolean");
 		}
 	}
 
@@ -76,6 +81,21 @@ public class SimpleParsedMap implements ParsedMap {
 			return Long.valueOf((String) value);
 		} else {
 			throw new IllegalArgumentException("Passed key can't be parsed into a Long: " + value);
+		}
+	}
+	
+	
+
+	@Override
+	public Date getDate(String key) {
+		Object value = values.get(key);
+		if(value == null) return null;
+		else if(value instanceof Date) {
+			return (Date) value;
+		} else if (value instanceof Calendar) {
+			return ((Calendar) value).getTime();
+		} else {
+			throw new IllegalArgumentException("Passed key can't be parsed into a Date: " + value);
 		}
 	}
 

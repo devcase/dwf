@@ -26,9 +26,9 @@ public interface DAO<D extends BaseEntity<?>> {
 	 * @param maxResults tamanho da página
 	 * @return
 	 */
-	List<?> findByFilter(ParsedMap filter, int pageNumber, int fetchSize);
+	List<D> findByFilter(ParsedMap filter, int pageNumber, int fetchSize);
 	<T> List<T> findByFilter(ParsedMap filter, QueryReturnType<T> returnType, int pageNumber, int fetchSize);
-	List<?> findByFilter(ParsedMap filter);
+	List<D> findByFilter(ParsedMap filter);
 	List<?> findAll();
 	List<?> findByFilter(Object... params);
 	D findFirstByFilter(Object... params);

@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -21,6 +22,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import dwf.utils.ParsedMap;
+import dwf.web.DwfCustomDateEditor;
 
 /**
  * Resolves {@link ParsedMap} method arguments annotated with an @{@link RequestParam} where the annotation does
@@ -95,12 +97,33 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 		
 		}
 		
+		@Override
+		public Date getDate(String key) {
+			if(newObjectMap.containsKey(key)) {
+				return (Date) newObjectMap.get(key);
+			}
+			if(keyPrefix != null) key = keyPrefix + key;
+			if(!requestMap.containsKey(key) || requestMap.get(key).length == 0 || StringUtils.isBlank(requestMap.get(key)[0])) {
+				return null;
+			} else {
+				String paramValue = requestMap.get(key)[0];
+				return convertToDate(paramValue);
+			}
+		
+		}
 
 		protected double convertToDouble(String paramValue) {
 			try {
 				return NumberFormat.getInstance(this.locale).parse(paramValue).doubleValue();
 			} catch (ParseException e) {
 				throw new IllegalArgumentException("Value at provided key can't be parsed into a Long", e);
+			}
+		}
+		protected Date convertToDate(String paramValue) {
+			try {
+				return DwfCustomDateEditor.createDateFormat(locale).parse(paramValue);
+			} catch (ParseException e) {
+				throw new IllegalArgumentException("Value at provided key can't be parsed into a Date", e);
 			}
 		}
 

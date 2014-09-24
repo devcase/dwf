@@ -234,9 +234,10 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	}
 
 	@Override
-	public final List<?> findByFilter(ParsedMap filter, int offset,
+	public final List<D> findByFilter(ParsedMap filter, int offset,
 			int pageSize) {
-		return findByFilter(filter, QueryReturnType.DOMAIN, offset, pageSize);
+		QueryReturnType<D> qrt = QueryReturnType.Factory.domainQueryReturnType();
+		return findByFilter(filter, qrt, offset, pageSize);
 	}
 	
 	
@@ -254,7 +255,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 * @see dwf.persistence.dao.DAO#findByFilter(dwf.utils.ParsedMap)
 	 */
 	@Override
-	public List<?> findByFilter(ParsedMap filter) {
+	public List<D> findByFilter(ParsedMap filter) {
 		return findByFilter(filter, 0, -1);
 	}
 
@@ -264,7 +265,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	 * @see dwf.persistence.dao.DAO#findByFilter(java.lang.Object[])
 	 */
 	@Override
-	public List<?> findByFilter(Object... params) {
+	public List<D> findByFilter(Object... params) {
 		return findByFilter(new SimpleParsedMap(params));
 	}
 	
@@ -325,6 +326,11 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 			 */
 			@Override
 			public Double getDouble(String key) {
+				return null;
+			}
+			
+			@Override
+			public Date getDate(String key) {
 				return null;
 			}
 

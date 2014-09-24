@@ -12,6 +12,12 @@ public interface QueryReturnType<T> {
 		}
 	};
 	
+	static class Factory {
+		public static <T> QueryReturnType<T> domainQueryReturnType() {
+			return (QueryReturnType<T>) DOMAIN;
+		}
+	}
+	
 	static final QueryReturnType<?> DOMAIN = new QueryReturnType<Object>() {
 		@Override
 		public boolean isCount() {
