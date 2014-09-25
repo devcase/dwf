@@ -245,7 +245,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	public <T> List<T> findByFilter(ParsedMap filter, QueryReturnType<T> returnType, int offset,
 			int pageSize) {
 		Map<String, Object> params = new HashMap<String, Object>();
-		String q = createQuery(filter, QueryReturnType.DOMAIN, params);
+		String q = createQuery(filter, returnType, params);
 
 		return (List<T>) findByPage(q, offset, pageSize, params);
 	}
