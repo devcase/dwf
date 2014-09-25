@@ -43,13 +43,20 @@ public abstract class BaseImporter<D extends BaseEntity<Long>> implements Import
 			for(int rowNum = sheet.getFirstRowNum() + 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
 				try {
 					Row row = sheet.getRow(rowNum);
-					D domain = readLine(row);
-					dao.importFromFile(domain);
+					if(!ignoreLine(row)){ 
+						D domain = readLine(row);
+						dao.importFromFile(domain);
+					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
 			}
 		}
+	}
+	
+	protected boolean ignoreLine(Row row) {
+		if(row.getPhysicalNumberOfCells() == 0) return true;
+		return false;
 	}
 	
 	protected abstract D readLine(Row row) throws ValidationException;
