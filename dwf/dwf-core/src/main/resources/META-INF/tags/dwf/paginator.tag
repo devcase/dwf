@@ -8,18 +8,25 @@
 StringBuilder sb = new StringBuilder();
 for(Map.Entry<String, String[]> parameter : request.getParameterMap().entrySet()) {
 	if("fetchSize".equals(parameter.getKey())
-		|| "pageNumber".equals(parameter.getKey())) {
+		|| "pageNumber".equals(parameter.getKey())
+		|| "decorator".equals(parameter.getKey())) {
 	} else {
 		for(String value : parameter.getValue()) {
 			sb.append("&").append(parameter.getKey()).append("=").append(value);
 		}
 	}
 }
+Map<String, Object> attrMap = (Map<String, Object>) jspContext.getAttribute("attrMap");
+String contentHref = (String) attrMap.get("contentHref");
+if(!contentHref.contains("?")) {
+	sb.setCharAt(0, '?');
+}
+
 jspContext.setAttribute("_querystring", sb.toString());
 %>
 <c:if test="${pageCount > 1}">
 	<ul class="pagination">
-		<li class="${pageNumber > 0 ? '' : 'disabled'}"><a href="${attrMap.contentHref}&fetchSize=${fetchSize}&pageNumber=${pageNumber - 1}${_querystring}" dwf-toggle="paginator" >&laquo;</a></li>
+		<li class="${pageNumber > 0 ? '' : 'disabled'}"><a href="${attrMap.contentHref}${_querystring}&fetchSize=${fetchSize}&pageNumber=${pageNumber - 1}" dwf-toggle="paginator" >&laquo;</a></li>
 		
 		<c:forEach begin="0" end="${pageCount - 1}" var="page">
 			<c:choose>
@@ -33,6 +40,6 @@ jspContext.setAttribute("_querystring", sb.toString());
 	  		
 		</c:forEach>
 		
-		<li class="${pageNumber < (pageCount - 1) ? '' : 'disabled'}"><a href="${attrMap.contentHref}&fetchSize=${fetchSize}&pageNumber=${pageNumber + 1}${_querystring}" dwf-toggle="paginator">&raquo;</a></li>
+		<li class="${pageNumber < (pageCount - 1) ? '' : 'disabled'}"><a href="${attrMap.contentHref}${_querystring}&fetchSize=${fetchSize}&pageNumber=${pageNumber + 1}" dwf-toggle="paginator">&raquo;</a></li>
 	</ul>
 </c:if>
