@@ -13,6 +13,7 @@ public interface QueryReturnType<T> {
 	};
 	
 	static class Factory {
+		@SuppressWarnings("unchecked")
 		public static <T> QueryReturnType<T> domainQueryReturnType() {
 			return (QueryReturnType<T>) DOMAIN;
 		}

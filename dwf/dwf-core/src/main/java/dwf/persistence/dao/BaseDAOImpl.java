@@ -202,12 +202,17 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		q.setParameter("id", id);
 		q.setResultTransformer(new ResultTransformer() {
 			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 5048269000498535522L;
+
 			@Override
 			public Object transformTuple(Object[] tuple, String[] aliases) {
 				try {
 					D ob = clazz.newInstance();
 					for (int i = 0; i < aliases.length; i++) {
-						String alias = aliases[i];
+						//String alias = aliases[i];
 						Object value = tuple[i];
 						try {
 							BeanUtils.setProperty(ob, propertyNames.get(i), value);
@@ -221,14 +226,16 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 				}
 			}
 			
+			@SuppressWarnings("rawtypes")
 			@Override
 			public List transformList(List collection) {
 				return collection;
 			}
 		});
 		q.setFetchSize(1);
-		List r = q.list();
+		List<?> r = q.list();
 		if(r.isEmpty())return null;
+		@SuppressWarnings("unchecked")
 		D result = (D) r.get(0);
 		return result;
 	}
