@@ -32,7 +32,7 @@ public class DwfServletRequestDataBinder extends ExtendedServletRequestDataBinde
 		super.addBindValues(mpvs, request);
 		
 		transformArraysToIndexedValues(mpvs);
-		
+		ignoreEmptyEntityId(mpvs, request);
 		
 	}
 
@@ -42,7 +42,7 @@ public class DwfServletRequestDataBinder extends ExtendedServletRequestDataBinde
 	 * ex: categories[].id={1,2} vira categories[0].id=1 e categories[1].id=2
 	 * @param mpvs
 	 */
-	protected void transformArraysToIndexedValues(MutablePropertyValues mpvs) {
+	private void transformArraysToIndexedValues(MutablePropertyValues mpvs) {
 		Set<String> renamedList = new HashSet<String>();
 		PropertyValue[] values = mpvs.getPropertyValues();
 		for (int i = 0; i < values.length; i++) {
@@ -79,7 +79,27 @@ public class DwfServletRequestDataBinder extends ExtendedServletRequestDataBinde
 		}
 	}
 
+	/**
+	 * Remove parâmetros com nome {alguma coisa}.id. (Exemplo: combos de seleção de entidades que enviam {nome propriedade}.id vazio). 
+	 * O DAO não vai funcionar corretamente nestes casos.
+	 * @param mpvs
+	 * @param request
+	 */
+	private void ignoreEmptyEntityId(MutablePropertyValues mpvs, ServletRequest request) {
+		
+		PropertyValue[] values = mpvs.getPropertyValues();
+		for (int i = 0; i < values.length; i++) {
+			PropertyValue currentPV = values[i];
+			final String originalName = currentPV.getName();
+			if(originalName.endsWith(".id")) {
+				if(currentPV.getValue() == null || "".equals(currentPV.getValue())) {
+					//encontrei!
+					mpvs.removePropertyValue(currentPV);
+				}
+			}
+		}
 	
+	}
 	
 
 }
