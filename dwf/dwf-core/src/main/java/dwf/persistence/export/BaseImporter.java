@@ -35,6 +35,7 @@ public abstract class BaseImporter<D extends BaseEntity<Long>> implements Import
 	public void importFromExcel(InputStream inputStream) throws IOException {
 		//read the source file
 		XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+		@SuppressWarnings("unchecked")
 		DAO<D> dao = (DAO<D>) applicationContext.getBean(entityName + "DAO", DAO.class);
 
 		int numberOfSheets =  workbook.getNumberOfSheets();

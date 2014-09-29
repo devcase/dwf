@@ -28,13 +28,14 @@ public abstract class BaseExporter<D extends BaseEntity<?>> implements Exporter<
 
 	@Override
 	public void exportAsExcel(OutputStream outputStream, ParsedMap filter) throws IOException {
+		@SuppressWarnings("unchecked")
 		DAO<D> dao = (DAO<D>) applicationContext.getBean(entityName + "DAO", DAO.class);
 		
-		List results = dao.findByFilter(filter);
+		List<D> results = dao.findByFilter(filter);
 		ExcelBuilder builder = new ExcelBuilder(entityName, 0);
 		buildHeader(builder);
-		for (Object asobj : results) {
-			D domain = (D) asobj;
+		for (D asobj : results) {
+			D domain = asobj;
 			buildLine(builder, domain);
 		}
 		builder.write(outputStream);
