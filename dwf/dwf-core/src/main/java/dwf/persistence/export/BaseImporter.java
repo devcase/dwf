@@ -87,6 +87,23 @@ public abstract class BaseImporter<D extends BaseEntity<Long>> implements Import
 		default: throw new IllegalArgumentException("Not a numeric value");
 		}
 	}
+
+	protected Double getValueAsDouble(Row row, int cellNum) {
+		Cell c = row.getCell(cellNum);
+		if(c == null) return null;
+		
+		switch(c.getCellType()) {
+		case Cell.CELL_TYPE_BLANK:
+			return null;
+		case Cell.CELL_TYPE_NUMERIC: 
+			return Double.valueOf((double)c.getNumericCellValue());
+		case Cell.CELL_TYPE_STRING:
+			return Double.valueOf(c.getStringCellValue());
+		case Cell.CELL_TYPE_FORMULA:
+			return Double.valueOf((long)c.getNumericCellValue());
+		default: throw new IllegalArgumentException("Not a numeric value");
+		}
+	}
 	
 	protected String getValueAsString(Row row, int cellNum) {
 		Cell c = row.getCell(cellNum);

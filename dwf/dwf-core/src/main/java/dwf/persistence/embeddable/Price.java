@@ -49,6 +49,10 @@ public class Price implements Serializable {
 			return null;
 		return Currency.getInstance(getCurrencyCode());
 	}
-	
+
+	@Override
+	public String toString() {
+		return new StringBuilder().append(currencyCode).append(": ").append(value).toString();
+	}	
 	
 }
