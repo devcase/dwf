@@ -10,7 +10,7 @@
 		long timeinmillis = value instanceof Date ? ((Date) value).getTime() : ((Calendar) value).getTimeInMillis();
 		if(timeinmillis <= 24*60*60*1000 && timeinmillis >= 0) {
 			getJspContext().setAttribute("format", "time");
-		} else if (timeinmillis % 24*60*60*1000 == 0) {
+		} else if (timeinmillis % ((long) 24*60*60*1000) == 0) {
 			getJspContext().setAttribute("format", "date");
 		} else {
 			getJspContext().setAttribute("format", "datetime");
