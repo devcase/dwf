@@ -57,7 +57,9 @@
 			  					<c:if test="${!empty navCrudItem.icon }">
 			  						<span class=" glyphicon glyphicon-${navCrudItem.icon }"></span>
 			  					</c:if>
-				  				<spring:message code="${navCrudItem.labelKey}" />
+			  					<span class="hidden-sm">
+					  				<spring:message code="${navCrudItem.labelKey}" />
+				  				</span>
 				  				<c:if test="${!empty navCrudItem.badge}">
 				  					<span class="badge">${navCrudItem.badge}</span>
 				  				</c:if>
@@ -71,7 +73,9 @@
 			  					<c:if test="${!empty navCrudItem.icon }">
 			  						<span class=" glyphicon glyphicon-${navCrudItem.icon }"></span>
 			  					</c:if>
-				  				<spring:message code="${navCrudItem.labelKey}" />
+			  					<span class="hidden-sm">
+					  				<spring:message code="${navCrudItem.labelKey}" />
+				  				</span>
 				  				<c:if test="${!empty navCrudItem.badge}">
 				  					<span class="badge">${navCrudItem.badge}</span>
 				  				</c:if>

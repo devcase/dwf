@@ -113,6 +113,11 @@ public class DefaultQueryBuilder implements QueryBuilder {
 		} else {
 			query.append(" and ").append(domainAlias).append(".enabled = true ");
 		}
+		
+		if(filter.containsKey("searchstring")) {
+			query.append(" and lower(").append(domainAlias).append(".autocompleteText) like :searchstring ");
+			params.put("searchstring", "%" + filter.getString("searchstring").trim() + "%");
+		}
 	}
 
 }

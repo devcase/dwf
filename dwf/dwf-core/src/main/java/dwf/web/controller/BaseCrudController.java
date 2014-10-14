@@ -242,7 +242,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 				int count = getDAO().countByFilter(filter);
 				int pages = fetchSize > 0 ? (count / fetchSize) + (count % fetchSize != 0 ? 1 : 0) : 0;
 				int p = Math.min(pages - 1, pageNumber);
-				List<?> list = getDAO().findByFilter(filter, pageNumber * fetchSize, fetchSize);
+				List<?> list = getDAO().findByFilter(filter, p * fetchSize, fetchSize);
 				model.addAttribute("list", list);
 				model.addAttribute("count", count);
 				model.addAttribute("pageNumber", p);
