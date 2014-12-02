@@ -8,17 +8,20 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 
 
 /**
- * Accepts two types of formats - time only and date only 
+ * Accepts 3 types of formats - time only (locale dependent), date only  (locale dependent) and ISO8601 
  * @author Hirata
  *
  */
 public class DwfCustomDateEditor extends PropertyEditorSupport {
 	private final DateFormat timeFormat;
 	private final DateFormat dateFormat;
+	private final DateTimeFormatter isoFormatter; 
 	
 	public DwfCustomDateEditor(Locale locale) {
 		String datePatternJava;
@@ -32,6 +35,8 @@ public class DwfCustomDateEditor extends PropertyEditorSupport {
 		
 		this.dateFormat = new SimpleDateFormat(datePatternJava);
 		this.timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
+		
+		isoFormatter = ISODateTimeFormat.dateTimeParser();
 	}
 	
 	public static DateFormat createDateFormat(Locale locale) {
@@ -53,17 +58,26 @@ public class DwfCustomDateEditor extends PropertyEditorSupport {
 	public void setAsText(String text) throws IllegalArgumentException {
 		if (StringUtils.isBlank(text)) {
 			setValue(null);
+			return;
 		}
 		else {
 			try {
 				setValue(this.timeFormat.parse(text));
+				return;
 			}
 			catch (ParseException ex1) {
 				try {
 					setValue(this.dateFormat.parse(text));
+					return;
 				}
 				catch (ParseException ex) {
-					throw new IllegalArgumentException("Could not parse date: " + ex.getMessage(), ex);
+					try {
+						long date = isoFormatter.parseMillis(text);
+						setValue(new Date(date));
+						return;
+					} catch (IllegalArgumentException ex2) {
+						throw new IllegalArgumentException("Could not parse date: " + ex.getMessage(), ex);
+					}
 				}
 			}
 		}
