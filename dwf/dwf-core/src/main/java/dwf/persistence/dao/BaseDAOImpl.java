@@ -105,6 +105,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	protected final Map<NotSyncPropertyDescriptor, FillWithCurrentUser> filledWithUser;
 	private List<NotSyncPropertyDescriptor> propertyList;
 	private Set<String> propertyNames;
+	private final Set<String> readAndWritePropertyNames;
 
 	public BaseDAOImpl(Class<D> clazz)  {
 		super();
@@ -119,6 +120,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		updatableProperties = new HashMap<NotSyncPropertyDescriptor, UpdatableProperty>();
 		this.propertyList = new ArrayList<NotSyncPropertyDescriptor>();	
 		this.propertyNames = new HashSet<String>();
+		this.readAndWritePropertyNames = new HashSet<String>();
 		this.filledWithUser = new HashMap<NotSyncPropertyDescriptor, FillWithCurrentUser>();
 		this.entityProperties = new HashMap<String, PropertyDescriptor>();
 
@@ -167,6 +169,9 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 			propertyNames.add(p.getName());
 			entityProperties.put(p.getName(), p);
 			
+			if(writeMethod != null && readMethod != null) {
+				readAndWritePropertyNames.add(p.getName());
+			}
 
 			if(writeMethod != null && readMethod.getAnnotation(FillWithCurrentUser.class) != null) {
 				filledWithUser.put(p, readMethod.getAnnotation(FillWithCurrentUser.class));
@@ -192,7 +197,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 		StringBuilder queryBuilder = new StringBuilder();
 		
 		queryBuilder.append("select " );
-		final List<String> propertyNames = new ArrayList<String>(this.propertyNames);
+		final List<String> propertyNames = new ArrayList<String>(this.readAndWritePropertyNames);
 		for (String property : propertyNames) {
 			queryBuilder.append("d.").append(property).append(",");
 		}
@@ -215,9 +220,10 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 						//String alias = aliases[i];
 						Object value = tuple[i];
 						try {
-							BeanUtils.setProperty(ob, propertyNames.get(i), value);
-						} catch (InvocationTargetException e) {
-							e.printStackTrace();
+							PropertyUtils.setProperty(ob, propertyNames.get(i), value);
+
+						} catch (Exception e) {
+							throw new RuntimeException("Unexpected error copying property " + propertyNames.get(i) + " of a " + getEntityName(), e);
 						}
 					}
 					return ob;
