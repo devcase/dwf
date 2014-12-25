@@ -30,6 +30,7 @@ import javax.validation.groups.Default;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
@@ -194,56 +195,66 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	}
 	
 	public D retrieveCopy(Serializable id) {
-		StringBuilder queryBuilder = new StringBuilder();
-		
-		queryBuilder.append("select " );
-		final List<String> propertyNames = new ArrayList<String>(this.readAndWritePropertyNames);
-		for (String property : propertyNames) {
-			queryBuilder.append("d.").append(property).append(",");
+		D d = findById(id);
+		D copy;
+		try {
+			copy = (D) d.getClass().newInstance();
+			PropertyUtils.copyProperties(copy, d);
+			return copy;
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			throw new IllegalArgumentException(e);
 		}
-		queryBuilder.deleteCharAt(queryBuilder.length() -1);
-		queryBuilder.append(" from ").append(entityFullName).append(" d where d.id = :id");
-		Query q = getSession().createQuery(queryBuilder.toString());
-		q.setParameter("id", id);
-		q.setResultTransformer(new ResultTransformer() {
-			
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 5048269000498535522L;
-
-			@Override
-			public Object transformTuple(Object[] tuple, String[] aliases) {
-				try {
-					D ob = clazz.newInstance();
-					for (int i = 0; i < aliases.length; i++) {
-						//String alias = aliases[i];
-						Object value = tuple[i];
-						try {
-							PropertyUtils.setProperty(ob, propertyNames.get(i), value);
-
-						} catch (Exception e) {
-							throw new RuntimeException("Unexpected error copying property " + propertyNames.get(i) + " of a " + getEntityName(), e);
-						}
-					}
-					return ob;
-				} catch (InstantiationException | IllegalAccessException e) {
-					throw new IllegalArgumentException(e);
-				}
-			}
-			
-			@SuppressWarnings("rawtypes")
-			@Override
-			public List transformList(List collection) {
-				return collection;
-			}
-		});
-		q.setFetchSize(1);
-		List<?> r = q.list();
-		if(r.isEmpty())return null;
-		@SuppressWarnings("unchecked")
-		D result = (D) r.get(0);
-		return result;
+		
+//		StringBuilder queryBuilder = new StringBuilder();
+//		
+//		queryBuilder.append("select " );
+//		final List<String> propertyNames = new ArrayList<String>(this.readAndWritePropertyNames);
+//		for (String property : propertyNames) {
+//			queryBuilder.append("d.").append(property).append(",");
+//		}
+//		queryBuilder.deleteCharAt(queryBuilder.length() -1);
+//		queryBuilder.append(" from ").append(entityFullName).append(" d where d.id = :id");
+//		Query q = getSession().createQuery(queryBuilder.toString());
+//		q.setParameter("id", id);
+//		q.setResultTransformer(new ResultTransformer() {
+//			
+//			/**
+//			 * 
+//			 */
+//			private static final long serialVersionUID = 5048269000498535522L;
+//
+//			@Override
+//			public Object transformTuple(Object[] tuple, String[] aliases) {
+//				try {
+//					D ob = clazz.newInstance();
+//					for (int i = 0; i < aliases.length; i++) {
+//						//String alias = aliases[i];
+//						Object value = tuple[i];
+//						try {
+//							PropertyUtils.setProperty(ob, propertyNames.get(i), value);
+//
+//						} catch (Exception e) {
+//							throw new RuntimeException("Unexpected error copying property " + propertyNames.get(i) + " of a " + getEntityName(), e);
+//						}
+//					}
+//					return ob;
+//				} catch (InstantiationException | IllegalAccessException e) {
+//					throw new IllegalArgumentException(e);
+//				}
+//			}
+//			
+//			@SuppressWarnings("rawtypes")
+//			@Override
+//			public List transformList(List collection) {
+//				return collection;
+//			}
+//		});
+//		q.setFetchSize(1);
+//		List<?> r = q.list();
+//		if(r.isEmpty())return null;
+//		@SuppressWarnings("unchecked")
+//		D result = (D) r.get(0);
+//		return result;
 	}
 
 	@Override

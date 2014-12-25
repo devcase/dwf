@@ -23,6 +23,7 @@ import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
+import org.springframework.core.env.Environment;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate4.support.OpenSessionInViewFilter;
 import org.springframework.web.context.WebApplicationContext;
@@ -43,7 +44,7 @@ import dwf.web.filter.TimestampFilter;
  * 
  */
 @HandlesTypes(DwfConfig.class)
-public class DwfInitializer implements ServletContainerInitializer {
+public class DwfInitializer implements ServletContainerInitializer  {
 	private Log log = LogFactory.getLog(getClass());
 	
 	protected DispatcherServlet dispatcherServlet;
@@ -77,7 +78,7 @@ public class DwfInitializer implements ServletContainerInitializer {
 			}
 			this.dwfConfig = (DwfConfig) BeanUtils.instantiate(_dwfConfigImplementation);;
 			
-			webApplicationContext = createWebApplicationContext(servletContext, dwfConfig);
+			webApplicationContext = createWebApplicationContext();
 			
 			// configure the spring mvc servlet
 			dispatcherServlet = new DispatcherServlet(webApplicationContext);
@@ -122,7 +123,7 @@ public class DwfInitializer implements ServletContainerInitializer {
 	 * @param dwfConfig
 	 * @return
 	 */
-	private XmlWebApplicationContext createWebApplicationContext(ServletContext servletContext, final DwfConfig dwfConfig) {
+	private XmlWebApplicationContext createWebApplicationContext() {
 		final DwfInitializer dwfInitializer = this;
 		servletContext.setAttribute("dwfInitializer", dwfInitializer);
 
@@ -132,39 +133,8 @@ public class DwfInitializer implements ServletContainerInitializer {
 			@Override
 			protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
 				super.loadBeanDefinitions(beanFactory);
+				DwfInitializer.registerDwfBeans(beanFactory, getEnvironment(), dwfInitializer, dwfConfig);
 
-				beanFactory.registerSingleton("dwfInitializer", dwfInitializer);
-				beanFactory.registerSingleton("dwfConfig", dwfConfig);
-				
-				//Datasource: search into JNDI
-				DataSource dataSource = dwfConfig.getDataSource();
-				beanFactory.registerSingleton("dataSource", dataSource);
-				
-				//SessionFactory setup
-				GenericBeanDefinition localSessionFactoryDefinition =  new GenericBeanDefinition();
-				localSessionFactoryDefinition.setBeanClass(LocalSessionFactoryBean.class);
-				localSessionFactoryDefinition.setPropertyValues(new MutablePropertyValues());
-				localSessionFactoryDefinition.getPropertyValues().add("packagesToScan", new String [] {"dwf.user.domain", "dwf.activitylog.domain", dwfConfig.getEntityPackage()});
-				localSessionFactoryDefinition.getPropertyValues().add("namingStrategy", new DwfNamingStrategy(dwfConfig));
-				localSessionFactoryDefinition.getPropertyValues().add("dataSource", dataSource);
-				localSessionFactoryDefinition.setScope(SCOPE_APPLICATION);
-				Properties hibernateProperties = new Properties();
-				hibernateProperties = dwfConfig.changeHibernateProperties(hibernateProperties);
-				localSessionFactoryDefinition.getPropertyValues().add("hibernateProperties", hibernateProperties);
-				beanFactory.registerBeanDefinition("sessionFactory", localSessionFactoryDefinition);
-				
-				//Scan for components!
-				ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanFactory);
-				scanner.setEnvironment(getEnvironment());
-				//dwf default components
-				scanner.scan(new String[] {"dwf.persistence", "dwf.activitylog.service", "dwf.utils", "dwf.web", "dwf.security", "dwf.validation"});
-				//application components
-				scanner.scan(dwfConfig.getApplicationComponentPackages());
-				
-				//Default Locale Resolver, if application did not define a custom one
-				if(!beanFactory.containsBean("localeResolver")) {
-					beanFactory.registerSingleton("localeResolver", new DefaultLocaleResolver());
-				}
 			}
 		};
 		//basic configuration from xml
@@ -188,5 +158,43 @@ public class DwfInitializer implements ServletContainerInitializer {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public static void registerDwfBeans(DefaultListableBeanFactory beanFactory, Environment environment, DwfInitializer dwfInitializer, DwfConfig dwfConfig) {
+
+		beanFactory.registerSingleton("dwfInitializer", dwfInitializer);
+		beanFactory.registerSingleton("dwfConfig", dwfConfig);
+		
+		//Datasource: search into JNDI
+		DataSource dataSource = dwfConfig.getDataSource();
+		beanFactory.registerSingleton("dataSource", dataSource);
+		
+		//SessionFactory setup
+		GenericBeanDefinition localSessionFactoryDefinition =  new GenericBeanDefinition();
+		localSessionFactoryDefinition.setBeanClass(LocalSessionFactoryBean.class);
+		localSessionFactoryDefinition.setPropertyValues(new MutablePropertyValues());
+		localSessionFactoryDefinition.getPropertyValues().add("packagesToScan", new String [] {"dwf.user.domain", "dwf.activitylog.domain", dwfConfig.getEntityPackage()});
+		localSessionFactoryDefinition.getPropertyValues().add("namingStrategy", new DwfNamingStrategy(dwfConfig));
+		localSessionFactoryDefinition.getPropertyValues().add("dataSource", dataSource);
+		localSessionFactoryDefinition.setScope(WebApplicationContext.SCOPE_APPLICATION);
+		Properties hibernateProperties = new Properties();
+		hibernateProperties = dwfConfig.changeHibernateProperties(hibernateProperties);
+		localSessionFactoryDefinition.getPropertyValues().add("hibernateProperties", hibernateProperties);
+		beanFactory.registerBeanDefinition("sessionFactory", localSessionFactoryDefinition);
+		
+		//Scan for components!
+		ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanFactory);
+		scanner.setEnvironment(environment);
+		//dwf default components
+		scanner.scan(new String[] {"dwf.persistence", "dwf.activitylog.service", "dwf.utils", "dwf.web", "dwf.security", "dwf.validation"});
+		//application components
+		scanner.scan(dwfConfig.getApplicationComponentPackages());
+		
+		//Default Locale Resolver, if application did not define a custom one
+		if(!beanFactory.containsBean("localeResolver")) {
+			beanFactory.registerSingleton("localeResolver", new DefaultLocaleResolver());
+		}
+	}
+	
+	
 
 }

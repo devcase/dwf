@@ -61,9 +61,13 @@ public class DefaultQueryBuilder implements QueryBuilder {
 				query.append(" ").append(filter.getString("orderByDirection").toLowerCase().equals("desc") ? " DESC " : " ASC ");
 			}
 		} else {
-			query.append(" order by ").append(domainAlias).append(".autocompleteText");
+			appendDefaultOrderBy(filter, returnType, params, query, "s2");
 		}
 		
+	}
+	
+	protected void appendDefaultOrderBy(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params, StringBuilder query, String domainAlias) {
+		query.append(" order by ").append(domainAlias).append(".autocompleteText");
 	}
 	
 	/**
