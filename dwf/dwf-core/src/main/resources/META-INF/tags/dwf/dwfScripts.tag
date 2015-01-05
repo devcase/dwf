@@ -11,7 +11,7 @@
 <script type="text/javascript" src="${appPath}/resources/js/jquery-ui-1.10.4.custom.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery.validate-1.11.1.min.js"></script>
-<script type="text/javascript" src="${appPath}/resources/js/serializObject.js"></script>
+<script type="text/javascript" src="${appPath}/resources/js/serializeObject.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-core.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-remoteload.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-paginator.js"></script>

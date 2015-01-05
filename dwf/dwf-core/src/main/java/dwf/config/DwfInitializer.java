@@ -172,7 +172,7 @@ public class DwfInitializer implements ServletContainerInitializer  {
 		GenericBeanDefinition localSessionFactoryDefinition =  new GenericBeanDefinition();
 		localSessionFactoryDefinition.setBeanClass(LocalSessionFactoryBean.class);
 		localSessionFactoryDefinition.setPropertyValues(new MutablePropertyValues());
-		localSessionFactoryDefinition.getPropertyValues().add("packagesToScan", new String [] {"dwf.user.domain", "dwf.activitylog.domain", dwfConfig.getEntityPackage()});
+		localSessionFactoryDefinition.getPropertyValues().add("packagesToScan", new String [] {"dwf.user.domain", "dwf.activitylog.domain", "dwf.multilang", dwfConfig.getEntityPackage()});
 		localSessionFactoryDefinition.getPropertyValues().add("namingStrategy", new DwfNamingStrategy(dwfConfig));
 		localSessionFactoryDefinition.getPropertyValues().add("dataSource", dataSource);
 		localSessionFactoryDefinition.setScope(WebApplicationContext.SCOPE_APPLICATION);
@@ -185,7 +185,7 @@ public class DwfInitializer implements ServletContainerInitializer  {
 		ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(beanFactory);
 		scanner.setEnvironment(environment);
 		//dwf default components
-		scanner.scan(new String[] {"dwf.persistence", "dwf.activitylog.service", "dwf.utils", "dwf.web", "dwf.security", "dwf.validation"});
+		scanner.scan(new String[] {"dwf.persistence", "dwf.activitylog.service", "dwf.utils", "dwf.web", "dwf.security", "dwf.validation", "dwf.multilang"});
 		//application components
 		scanner.scan(dwfConfig.getApplicationComponentPackages());
 		

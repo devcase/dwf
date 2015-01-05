@@ -30,13 +30,12 @@ import javax.validation.groups.Default;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.transform.ResultTransformer;
+import org.hibernate.StatelessSession;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Mode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,15 +194,17 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>>
 	}
 	
 	public D retrieveCopy(Serializable id) {
-		D d = findById(id);
-		D copy;
-		try {
-			copy = (D) d.getClass().newInstance();
-			PropertyUtils.copyProperties(copy, d);
-			return copy;
-		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			throw new IllegalArgumentException(e);
-		}
+		StatelessSession ss = sessionFactory.openStatelessSession();
+		return (D) ss.get(clazz, id);
+//		D d = findById(id);
+//		D copy;
+//		try {
+//			copy = (D) d.getClass().newInstance();
+//			PropertyUtils.copyProperties(copy, d);
+//			return copy;
+//		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+//			throw new IllegalArgumentException(e);
+//		}
 		
 //		StringBuilder queryBuilder = new StringBuilder();
 //		

@@ -2,6 +2,8 @@ package dwf.test;
 
 import java.util.Set;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
@@ -18,17 +20,12 @@ import org.springframework.web.context.support.GenericWebApplicationContext;
 import dwf.config.DwfConfig;
 import dwf.config.DwfInitializer;
 
-public class DwfContextLoader extends AbstractGenericWebContextLoader {
+public class DwfTestContextLoader extends AbstractGenericWebContextLoader {
 	private Log log = LogFactory.getLog(getClass());
 
 	@Override
 	protected void loadBeanDefinitions(GenericWebApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
-
-//		System.setProperty("JDBC_DRIVER_CLASS_NAME", "org.apache.derby.jdbc.EmbeddedDriver");
-//		System.setProperty("JDBC_CONNECTION_STRING", "jdbc:derby:dwftest;create=true");
-		System.setProperty("JDBC_DRIVER_CLASS_NAME", "com.mysql.jdbc.Driver");
-		System.setProperty("JDBC_CONNECTION_STRING", "jdbc:mysql://localhost/smservices?user=systemagic&password=systemagic123");
-
+		System.out.println("HI!");
 		DwfInitializer dwfInitializer = new DwfInitializer();
 		
 		//busca implementação de DwfConfig
@@ -49,6 +46,12 @@ public class DwfContextLoader extends AbstractGenericWebContextLoader {
 		}
 	    Assert.assertNotNull("Implementação de DwfConfig não encontrada", dwfConfig);
 
+//		System.setProperty("JDBC_DRIVER_CLASS_NAME", "com.mysql.jdbc.Driver");
+//		System.setProperty("JDBC_CONNECTION_STRING", "jdbc:mysql://localhost/smservices?user=systemagic&password=systemagic123");
+		System.setProperty("JDBC_DRIVER_CLASS_NAME", "org.apache.derby.jdbc.EmbeddedDriver");
+		System.setProperty("JDBC_CONNECTION_STRING", "jdbc:derby:dwfTestDB;create=true;user=" + dwfConfig.getDatabaseSchema() );
+
+	    
 		DefaultListableBeanFactory beanFactory = context.getDefaultListableBeanFactory();
 		
 //		context = new GenericWebApplicationContext();
@@ -63,6 +66,7 @@ public class DwfContextLoader extends AbstractGenericWebContextLoader {
 
 		beanDefinitionReader.loadBeanDefinitions("classpath:dwf/config/dwf-applicationContext.xml");
 		DwfInitializer.registerDwfBeans(beanFactory, context.getEnvironment(), dwfInitializer, dwfConfig);
+
 	}
 
 	/**
