@@ -174,4 +174,9 @@
 		<name>toJson</name>
 		<path>/META-INF/tags/dwf/toJson.tag</path>
 	</tag-file>
+	<tag-file>
+		<name>inputEnumCheckboxList</name>
+		<path>/META-INF/tags/dwf/inputEnumCheckboxList.tag</path>
+	</tag-file>
+	
 </taglib>
