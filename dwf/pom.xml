@@ -17,7 +17,7 @@
 		<spring.version>4.1.4.RELEASE</spring.version>
 		<spring-security.version>3.2.5.RELEASE</spring-security.version>
 		<spring-boot.version>1.2.1.RELEASE</spring-boot.version>
-		<tomcat.version>7.0.57</tomcat.version>
+		<tomcat.version>8.0.15</tomcat.version>
 	</properties>
 	<build>
 		<plugins>

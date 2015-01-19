@@ -21,7 +21,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.io.FileSystemResourceLoader;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.support.WebApplicationObjectSupport;
@@ -30,7 +31,8 @@ import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 import dwf.upload.UploadManager;
 
-@RequestMapping
+
+@RequestMapping // responds to requests via /dl/**
 public class FileSystemUploadManager extends WebApplicationObjectSupport implements UploadManager, InitializingBean, ApplicationContextAware {
 	
 	private SecureRandom random = new SecureRandom();
@@ -54,7 +56,6 @@ public class FileSystemUploadManager extends WebApplicationObjectSupport impleme
 	public void afterPropertiesSet() throws Exception {
 		resourceHttpRequestHandler = new ResourceHttpRequestHandler();
 		resourceHttpRequestHandler.setApplicationContext(this.getApplicationContext());
-		FileSystemResourceLoader resourceLoader = new FileSystemResourceLoader();
 		
 		File rootDir = new File(getDirectory());
 		if(!rootDir.exists()) {
@@ -63,8 +64,10 @@ public class FileSystemUploadManager extends WebApplicationObjectSupport impleme
 			throw new IOException("Caminho de diretório configurado não é válido! " + getDirectory());
 		}
 		
-		Resource fileDir = resourceLoader.getResource(getDirectory());
-		resourceHttpRequestHandler.setLocations(Collections.singletonList(fileDir));
+		//FileSystemResource fsResource = new FileSystemResource(rootDir); <- não funciona
+		FileSystemResource fsResource = new FileSystemResource(getDirectory());
+		resourceHttpRequestHandler.setLocations(Collections.singletonList((Resource) fsResource));
+		resourceHttpRequestHandler.afterPropertiesSet();
 	}
 
 	@Override
@@ -83,9 +86,6 @@ public class FileSystemUploadManager extends WebApplicationObjectSupport impleme
 		writer.setOutput(ios);
 		writer.write(null, new IIOImage(image, null, null), iwp);
 		writer.dispose();
-		
-		System.err.println(savedFile + " ================================");
-		
 		return (folderName.startsWith("/") ? "" : "/")   + folderName + (folderName.endsWith("/") ? "" : "/") + fileName;
 		
 	}

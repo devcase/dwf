@@ -47,6 +47,12 @@
 			<version>${tomcat.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-core</artifactId>
+			<version>${tomcat.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>opensymphony</groupId>
@@ -129,6 +135,12 @@
 			<groupId>br.com.devcase.dwf</groupId>
 			<artifactId>dwf-commons</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>br.com.devcase.dwf</groupId>
+			<artifactId>dwf-data</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>

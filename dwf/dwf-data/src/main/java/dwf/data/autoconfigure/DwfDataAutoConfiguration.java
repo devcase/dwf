@@ -16,7 +16,7 @@ import dwf.persistence.utils.DwfNamingStrategy;
 
 @Configuration
 @ComponentScan(basePackages = {"dwf.activitylog.service", "dwf.persistence.utils"})
-public class DwfDataAutoConfiguration {
+public class DwfDataAutoConfiguration  {
 	@Autowired
 	private DataSource dataSource;
 	@Autowired
@@ -38,4 +38,7 @@ public class DwfDataAutoConfiguration {
 		
 		return sessionFactory;
 	}
+	
+	
+	
 }
