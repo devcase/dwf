@@ -78,11 +78,17 @@ public class FileSystemUploadManager extends WebApplicationObjectSupport impleme
 		File savedFile = getFileDestination(fileName, folderName);
 		
 		ImageOutputStream ios = ImageIO.createImageOutputStream(savedFile);
-		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
+		String formatName = "jpeg";
+		boolean isJpeg = "image/jpeg".equals(contentType); 
+		if(!isJpeg)
+			formatName = "png";
+		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName(formatName);
 		ImageWriter writer = iter.next();
 		ImageWriteParam iwp = writer.getDefaultWriteParam();
-		iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-		iwp.setCompressionQuality(0.95f);
+		if(isJpeg) {
+			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+			iwp.setCompressionQuality(0.95f);
+		}
 		writer.setOutput(ios);
 		writer.write(null, new IIOImage(image, null, null), iwp);
 		writer.dispose();

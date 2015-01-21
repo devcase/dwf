@@ -86,11 +86,15 @@ public class S3UploadManager implements UploadManager {
 		// sets ACL
 		AccessControlList acl = new AccessControlList();
 		acl.grantPermission(GroupGrantee.AllUsers, Permission.Read);
-		File tmpFile = File.createTempFile("tup-tmp", ".jpg");
+		File tmpFile = File.createTempFile("tup-tmp", fileName);
 		tmpFile.deleteOnExit();
 		try {
 			ImageOutputStream ios = ImageIO.createImageOutputStream(tmpFile);
-			Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
+			String formatName = "jpeg";
+			if(!"image/jpeg".equals(contentType))
+				formatName = "png";
+			Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName(formatName);
+			
 			ImageWriter writer = iter.next();
 			ImageWriteParam iwp = writer.getDefaultWriteParam();
 			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);

@@ -1,6 +1,10 @@
 package dwf.persistence.dao;
 
+import java.awt.AlphaComposite;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
+import java.awt.image.ColorModel;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
@@ -738,6 +742,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>> implements DAO<D> {
 	 * java.io.InputStream, java.lang.String)
 	 */
 	@Override
+	@Transactional(rollbackFor = ValidationException.class)
 	public D updateUpload(Serializable id, InputStream inputStream, String contentType, String originalFilename, String propertyName) throws IOException {
 		D entity = findById(id);
 		// get the UpdateGroup for the property
@@ -754,7 +759,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>> implements DAO<D> {
 					}
 					BeanUtils.setProperty(entity, propertyName, uploadKey);
 				} else {
-					// é imagem! fazer resize
+					// é imagem! fazer resize e crop da imagem
 					BufferedImage srcImg = ImageIO.read(inputStream);
 					BufferedImage resizedImg = null;
 					BufferedImage croppedImg = null;
@@ -769,7 +774,15 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>> implements DAO<D> {
 						int cropStartY = Math.max((resizedImg.getHeight() - imageAnnotation.targetHeight()) / 2, 0);
 
 						croppedImg = Scalr.crop(resizedImg, cropStartX, cropStartY, imageAnnotation.targetWidth(), imageAnnotation.targetHeight());
-						String uploadKey = uploadManager.saveImage(croppedImg, "img/jpeg", propertyName + ".jpg", entityName + "/" + id);
+						
+						String fileSuffix;
+						if(croppedImg.getType() == BufferedImage.TYPE_INT_RGB) {
+							contentType ="image/jpeg"; fileSuffix = ".jpg";
+						} else {
+							contentType ="image/png"; fileSuffix = ".png";
+						}
+						
+						String uploadKey = uploadManager.saveImage(croppedImg, contentType, propertyName + fileSuffix, entityName + "/" + id);
 						if (oldValue != null && !oldValue.equals(uploadKey)) {
 							uploadManager.deleteFile(oldValue);
 						}
@@ -812,8 +825,6 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>> implements DAO<D> {
 						}
 						
 						getSession().update(entity);
-						System.out.println(uploadKey + "=================== ");
-						System.out.println(oldValue + "=================== ");
 					} finally {
 						// limpa (?) dados da memória - TODO estudar mais
 						if (srcImg != null)
