@@ -812,6 +812,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>> implements DAO<D> {
 						}
 						
 						getSession().update(entity);
+						System.out.println(uploadKey + "=================== ");
+						System.out.println(oldValue + "=================== ");
 					} finally {
 						// limpa (?) dados da memória - TODO estudar mais
 						if (srcImg != null)
