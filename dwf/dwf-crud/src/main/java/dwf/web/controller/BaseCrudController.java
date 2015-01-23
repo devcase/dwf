@@ -27,6 +27,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import dwf.activitylog.service.ActivityLogService;
+import dwf.multilang.TranslationManager;
+import dwf.multilang.domain.BaseMultilangEntity;
 import dwf.persistence.dao.DAO;
 import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.export.Exporter;
@@ -52,6 +54,9 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	private ActivityLogService activityLogService;
 	@Autowired(required=false)
 	private UploadManager uploadManager;
+	@Autowired(required=false)
+	private TranslationManager translationManager;
+	
 	private Importer<D> importer;
 	private Exporter<D> exporter;
 	private DAO<D> dao;
@@ -342,6 +347,24 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 		}
 	}
 	
+	@RequestMapping(value="/translate/{id}/{property}/{language}")
+	public String translate(@PathVariable Long id, @PathVariable String language, @PathVariable String property, @RequestParam String text) {
+		try {
+			D d = clazz.newInstance();
+			d.setId((ID) id);
+			translationManager.setTranslation((BaseMultilangEntity<?>) d, property, language, text);
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new RuntimeException();
+		}
+		return "redirect:/" + entityName + "/" + id;
+	}
+	
+	/**
+	 * TODO Documentation
+	 * @param form
+	 * @param groups
+	 * @return
+	 */
 	protected String saveByGroup(final D form, final Class<?>... groups) {
 		try {
 			if (form.getId() == null) {

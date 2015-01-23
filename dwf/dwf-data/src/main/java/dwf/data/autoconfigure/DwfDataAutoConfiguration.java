@@ -1,6 +1,7 @@
 package dwf.data.autoconfigure;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -11,6 +12,7 @@ import org.hibernate.validator.resourceloading.AggregateResourceBundleLocator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -22,10 +24,10 @@ import org.springframework.validation.beanvalidation.LocaleContextMessageInterpo
 
 import dwf.config.DwfDataConfig;
 import dwf.persistence.utils.DwfNamingStrategy;
-import dwf.persistence.validation.DwfConstraintValidatorFactory;
 
 @Configuration
-@ComponentScan(basePackages = {"dwf.activitylog.service", "dwf.persistence"})
+@ComponentScan(basePackages = {"dwf.activitylog.service", "dwf.persistence", "dwf.multilang"})
+@ConfigurationProperties(prefix = "dwf.data")
 public class DwfDataAutoConfiguration  {
 	@Autowired
 	private DataSource dataSource;
@@ -34,16 +36,23 @@ public class DwfDataAutoConfiguration  {
 	@Autowired
 	private ApplicationContext applicationContext;
 	
-	
-	@Value("${dwf.data.hibernate.hbm2ddl.auto:}")
-	private String hbm2ddlAuto = null;
+	/**
+	 * configuravel a partir de dwf.data.hibernateproperties
+	 */
+	private Map<String, String> hibernateProperties;
 
-	
+	public Map<String, String> getHibernateProperties() {
+		return hibernateProperties;
+	}
+
+	public void setHibernateProperties(Map<String, String> hibernateProperties) {
+		this.hibernateProperties = hibernateProperties;
+	}
 
 	@Bean
 	public javax.validation.Validator beanValidator() {
 		LocalValidatorFactoryBean a = new LocalValidatorFactoryBean();
-		a.setConstraintValidatorFactory(new DwfConstraintValidatorFactory(applicationContext));
+//		a.setConstraintValidatorFactory(new DwfConstraintValidatorFactory(applicationContext));
 		a.setMessageInterpolator(
 				new LocaleContextMessageInterpolator(
 						new ResourceBundleMessageInterpolator(
@@ -59,12 +68,11 @@ public class DwfDataAutoConfiguration  {
 		sessionFactory.setPackagesToScan( new String [] {"dwf.activitylog.domain", dwfDataConfig.getClass().getPackage().getName()});
 		sessionFactory.setNamingStrategy(new DwfNamingStrategy(dwfDataConfig));
 		sessionFactory.setDataSource(dataSource);
-		
-		Properties hibernateProperties = new Properties();
-		if(StringUtils.isNotBlank(hbm2ddlAuto)) {
-			hibernateProperties.setProperty("hibernate.hbm2ddl.auto", hbm2ddlAuto);
+		if(hibernateProperties != null) {
+			Properties p = new Properties();
+			p.putAll(hibernateProperties);
+			sessionFactory.setHibernateProperties(p);
 		}
-		sessionFactory.setHibernateProperties(hibernateProperties);
 		
 		
 		return sessionFactory;

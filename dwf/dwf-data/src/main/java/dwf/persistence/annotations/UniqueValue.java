@@ -43,14 +43,14 @@ public @interface UniqueValue {
 	String field();
 
 	/**
-	 * Used by hibernate validator. Spring will use the UniqueValueValidator implementation
+	 * Hibernate won't autowire the sessionFactory
 	 * @author Hirata
 	 *
 	 */
 	public class Validator implements ConstraintValidator<UniqueValue, BaseEntity<?>> {
 		private Log log = LogFactory.getLog(getClass());
 
-		@Autowired
+		@Autowired //vai ser preenchido
 		protected SessionFactory sessionFactory;
 
 		private String fieldName;
@@ -64,6 +64,8 @@ public @interface UniqueValue {
 
 		@Override
 		public boolean isValid(BaseEntity<?> entity, ConstraintValidatorContext constraintContext) {
+			if(sessionFactory == null) return true; //ignorando - quando chamado pelo Hibernate
+			
 			try {
 				Object propertyValue = BeanUtils.getProperty(entity, fieldName);
 				if(propertyValue == null) {

@@ -3,8 +3,6 @@ package dwf.activitylog.service;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -46,7 +44,7 @@ public class ActivityLogServiceImpl implements ActivityLogService {
 
 	@Override
 	@Transactional
-	public void logEntityUpdate(BaseEntity<?> entity, Object newInstance, List<UpdatedProperty> updatedProperties, Class<?>... groups) {
+	public void logEntityUpdate(BaseEntity<?> entity, List<UpdatedProperty> updatedProperties, Class<?>... groups) {
 		getSession().save(createActivityLog(entity, OPERATION_UPDATE, null, updatedProperties)); //TODO - colocar as modificações aqui
 	}
 

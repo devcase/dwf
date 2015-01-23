@@ -41,11 +41,15 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.orm.hibernate4.support.OpenSessionInViewInterceptor;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
@@ -103,6 +107,17 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
         registry.addResourceHandler("/resources/**").addResourceLocations("/resources/", "classpath:/dwf/web-resources/");
 	}
 	
+	@Bean
+	public LocaleResolver localeResolver() {
+		return new SessionLocaleResolver();
+	}
+
+	
+	/**
+	 * Configuração do OpenSessionInViewInterceptor - se o DwfData estiver no classpath
+	 * @author Hirata
+	 *
+	 */
 	@Configuration
 	@ConditionalOnClass(name="dwf.data.autoconfigure.DwfDataAutoConfiguration")
 	static class OpenSessionInViewInterceptorConfiguration extends WebMvcConfigurerAdapter {
@@ -119,6 +134,15 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		@Override
 		public void addInterceptors(InterceptorRegistry registry) {
 			registry.addWebRequestInterceptor(openSessionInViewInterceptor());
+		}
+	}
+	
+	@Configuration
+	static class LocaleChangeInterceptorConfiguration extends WebMvcConfigurerAdapter {
+
+		@Override
+		public void addInterceptors(InterceptorRegistry registry) {
+			registry.addInterceptor(new LocaleChangeInterceptor());
 		}
 		
 	}

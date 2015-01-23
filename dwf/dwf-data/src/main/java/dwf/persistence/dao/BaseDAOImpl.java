@@ -1,10 +1,6 @@
 package dwf.persistence.dao;
 
-import java.awt.AlphaComposite;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
-import java.awt.image.ColorModel;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
@@ -624,7 +620,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>> implements DAO<D> {
 		}
 		retrievedEntity.setUpdateTime(new Date());
 
-		activityLogService.logEntityUpdate(entity, entity, updatedProperties, groups);
+		activityLogService.logEntityUpdate(entity, updatedProperties, groups);
 
 		getSession().update(retrievedEntity);
 		return retrievedEntity;
