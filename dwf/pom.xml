@@ -11,6 +11,7 @@
 		<module>dwf-user</module>
 		<module>dwf-crud</module>
 		<module>dwf-web-view</module>
+		<module>dwf-test</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

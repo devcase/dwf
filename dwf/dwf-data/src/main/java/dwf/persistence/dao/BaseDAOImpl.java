@@ -493,7 +493,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>> implements DAO<D> {
 		validate(entity); // valida campos sem grupos definidos
 		entity.setUpdateTime(new Date());
 		entity.setCreationTime(new Date());
-//		getSession().(entity);
+		getSession().persist(entity);
 		activityLogService.log(entity, ActivityLogService.OPERATION_CREATE);
 		return entity;
 	}
