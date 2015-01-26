@@ -30,7 +30,6 @@ public class DwfServletRequestDataBinder extends ExtendedServletRequestDataBinde
 	@Override
 	protected void addBindValues(MutablePropertyValues mpvs, ServletRequest request) {
 		super.addBindValues(mpvs, request);
-		
 		transformArraysToIndexedValues(mpvs);
 		ignoreEmptyEntityId(mpvs, request);
 		
@@ -49,6 +48,7 @@ public class DwfServletRequestDataBinder extends ExtendedServletRequestDataBinde
 			PropertyValue currentPV = values[i];
 			if(!renamedList.contains(currentPV.getName()) && currentPV.getName().contains("[]")) {
 				final String originalName = currentPV.getName();
+				
 				renamedList.add(originalName);
 				
 				if(currentPV.getValue() instanceof String[]) {

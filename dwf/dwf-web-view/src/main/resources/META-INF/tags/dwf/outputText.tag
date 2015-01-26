@@ -8,7 +8,7 @@
 <dwf:formGroup parentAttrMap="${attrMap}">
 	<p class="form-control-static">
 		<span class="${empty attrMap.styleClass ? '' :  attrMap.styleClass}">
-			<dwf:autoFormat value="${value}"></dwf:autoFormat>${empty value ? '&nbsp;' : '' }
-		</span>
+			<dwf:autoFormat value="${value}"></dwf:autoFormat>${empty value ? '&nbsp;' : '' }</span>
+		<jsp:doBody></jsp:doBody>
 	</p>
 </dwf:formGroup>

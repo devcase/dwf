@@ -2,10 +2,7 @@ package dwf.web.spring;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.method.annotation.InitBinderDataBinderFactory;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.InvocableHandlerMethod;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 

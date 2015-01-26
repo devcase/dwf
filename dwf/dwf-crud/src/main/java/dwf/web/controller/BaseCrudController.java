@@ -347,12 +347,18 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 		}
 	}
 	
-	@RequestMapping(value="/translate/{id}/{property}/{language}")
-	public String translate(@PathVariable Long id, @PathVariable String language, @PathVariable String property, @RequestParam String text) {
+	@RequestMapping(value="/translate/{id}/{property}")
+	public String translate(@PathVariable Long id, @RequestParam List<String> language, @PathVariable String property, @RequestParam List<String> text) {
 		try {
-			D d = clazz.newInstance();
-			d.setId((ID) id);
-			translationManager.setTranslation((BaseMultilangEntity<?>) d, property, language, text);
+			BaseMultilangEntity<?> d = (BaseMultilangEntity<?>) clazz.newInstance();
+			d.setId(id);
+			
+			for (int i = 0; i < text.size(); i++) {
+				String t = text.get(i);
+				String l = language.get(i);
+				translationManager.setTranslation(d, property, l, t);
+			}
+			
 		} catch (InstantiationException | IllegalAccessException e) {
 			throw new RuntimeException();
 		}

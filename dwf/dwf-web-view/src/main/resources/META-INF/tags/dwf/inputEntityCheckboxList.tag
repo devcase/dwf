@@ -21,7 +21,7 @@ getJspContext().setAttribute("targetEntityList", targetEntityList);
 		<c:forEach items="${targetEntityList}" var="targetEntity" varStatus="loopStatus">
 			<label class= "btn btn-borderless">
 				<input type="checkbox" name="${name}[].id" value="${targetEntity.id }" ${value.contains(targetEntity) ? 'checked="checked"' : '' }>
-					${targetEntity.displayText}</input>
+					<dwf:autoFormat value="${targetEntity}"/></input>
 			</label>
 		</c:forEach>
 	</div>	

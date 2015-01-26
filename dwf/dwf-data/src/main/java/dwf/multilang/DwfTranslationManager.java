@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.transaction.Transactional;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,9 +72,18 @@ public class DwfTranslationManager implements TranslationManager {
 		long tKey = generateTranslationKey(domain, language);
 		Translation<D> t = getTranslation(domain, language);
 		String oldValue = null;
+		if(t != null) {
+			if(t.getText().containsKey(property)) {
+				oldValue = t.getText().get(property);
+				if(oldValue != null && oldValue.equals(value)) {
+					return;
+				}
+			}
+		}
+		
+		Class<? extends Translation<D>> c = getTranslationClass(domain);
 		if(t == null) {
 			//não existe ainda
-			Class<? extends Translation<D>> c = getTranslationClass(domain);
 			try {
 				t = c.newInstance();
 				t.setLanguage(language);
@@ -88,7 +98,10 @@ public class DwfTranslationManager implements TranslationManager {
 			if(t.getText().containsKey(property)) {
 				oldValue = t.getText().get(property);
 			}
+			//updates a connected entity, 
+			t = (Translation<D>) sessionFactory.getCurrentSession().get(c, t.getId());
 			t.getText().put(property, value);
+			translationCache.put(tKey, t);
 		}
 		UpdatedProperty up = new UpdatedProperty();
 		up.setPropertyName(property);
@@ -105,14 +118,15 @@ public class DwfTranslationManager implements TranslationManager {
 		Assert.notNull(language);
 		
 		Translation<D> t = getTranslation(domain, language);
-		if(t == null) {
+		String text = t != null ? t.getText().get(property) : null; 
+		if(StringUtils.isBlank(text)) {
 			try {
 				return (String) PropertyUtils.getProperty(domain, property);
 			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 				throw new RuntimeException("Invalid property " + property  + " for entity " + domain);
 			}
 		} else {
-			return t.getText().get(property);
+			return text;
 		}
 	}
 	

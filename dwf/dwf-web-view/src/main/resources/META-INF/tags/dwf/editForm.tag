@@ -5,6 +5,7 @@
 <%@ tag dynamic-attributes="attrMap"%>
 <%@ variable name-given="entity" scope="NESTED" variable-class="java.lang.Object"%>
 <dwf:resolveEL el="${entityName}" var="entity"/>
+<dwf:mergeMaps map1="${attrMap}" map2="${attrMap.parentAttrMap}" var="attrMap"/>
 <c:set var="formaction" value="${attrMap.formaction}"/>
 <c:if test="${empty attrMap.formaction}">
 	<c:set var="formaction" value="${appPath}/${entityName}/save"/>
@@ -39,6 +40,9 @@
 			<input type="hidden" name="id" value="${entity.id}"/>
 			<jsp:doBody />
 			<div class="text-right">
+				<c:if test="${attrMap.closemodalbutton eq true}"><%-- Close button, when in a modal (see modal.tag) --%>
+			 		<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="action.cancel"/></button>
+			 	</c:if>
 				<button type="submit" class="btn btn-primary" data-loading-text="<spring:message code="action.wait"/>" formaction="${formaction}">
 			 		<spring:message code="${buttonLabelKey}"/>
 				</button>

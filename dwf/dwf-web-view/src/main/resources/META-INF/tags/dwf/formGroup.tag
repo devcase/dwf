@@ -23,6 +23,9 @@
 <c:if test="${!attrMap.ignoreParams and !empty param[name]}"><%-- usa o parâmetro do request no lugar da propriedade--%>
 	<c:set var="value" value="${param[name]}"/>
 </c:if>
+<c:if test="${!empty attrMap.value}">
+	<c:set var="value" value="${attrMap.value}"/>
+</c:if>
 
 
 <div class="form-group ${!empty violation ?  'has-error' : ''}">

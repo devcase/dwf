@@ -5,13 +5,13 @@
 <%@ tag dynamic-attributes="attrMap"%>
 <c:set var="formLayout" value="horizontal" scope="request"/>
 <dwf:resolveEL el='${entityName}' var="entity"/>
-<h1><i class="fa fa-edit"></i><spring:message code="domain.${entityName}"/>: <dwf:autoFormat value="${entity}"/></h1>
+<h1><spring:message code="domain.${entityName}"/>: <dwf:autoFormat value="${entity}"/></h1>
 <div class="panel panel-default">
 	<div class="panel-body">
-		<form class="form-horizontal" method="POST" action="${appPath}/${entityName}/edit/${entity.id}" role="form">
+		<div class="form-horizontal" >
 			<jsp:doBody />
 			<dwf:outputText property="enabled" styleClass="label ${entity.enabled eq true ? 'label-success' : 'label-danger'}"></dwf:outputText>
-		</form>
+		</div>
 	</div>
 </div>
 <c:set var="formLayout" value="" scope="request"/>
