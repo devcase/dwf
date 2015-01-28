@@ -36,7 +36,7 @@ import dwf.persistence.domain.BaseEntity;
 public @interface UniqueValue {
 	Class<?>[] groups() default {};
 
-	String message() default "{constraint.uniquevalue}";
+	String message() default "{dwf.persistence.annotations.UniqueValue.message}";
 
 	Class<? extends Payload>[] payload() default {};
 

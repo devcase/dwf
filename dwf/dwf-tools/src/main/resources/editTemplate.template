@@ -1,0 +1,18 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf" %>
+<html>
+	<head>
+		<meta name="decorator" content="crud"/>
+	</head>
+	<body>
+		<dwf:editForm>
+#foreach( $field in $entityClass.fields )
+ 	#if( ${field.name} != 'serialVersionUID' )
+			<dwf:inputText property="${field.name}" required="true"/>
+	#end
+#end
+		</dwf:editForm>
+	</body>
+</html>

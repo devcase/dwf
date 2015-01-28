@@ -33,6 +33,7 @@ public interface DAO<D extends BaseEntity<?>> {
 	List<?> findByFilter(Object... params);
 	D findFirstByFilter(Object... params);
 	D findFirstByFilter(ParsedMap filter);
+	D find(D copyWithId);
 	<T> T findFirstByFilter(ParsedMap filter, QueryReturnType<T> returnType);
 	<T> T findFirstByFilter(QueryReturnType<T> returnType, Object... params);
 	int countByFilter(ParsedMap filter);
@@ -55,4 +56,5 @@ public interface DAO<D extends BaseEntity<?>> {
 	D updateUpload(Serializable id, InputStream inputStream, String contentType, String originalFilename, String propertyName) throws IOException;
 	D retrieveCopy(Serializable id);
 	void evict(D entity);
+	Class<D> getEntityClass();
 }

@@ -1,0 +1,17 @@
+package $controllerpackage;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import $entityClass.fullName;
+import dwf.web.controller.BaseCrudController;
+
+@Controller
+@RequestMapping("/${entityClass.name.substring(0,1).toLowerCase()}${entityClass.name.substring(1)}/")
+public class ${entityClass.name}Controller extends BaseCrudController<${entityClass.name}, Long> {
+
+	public ${entityClass.name}Controller() {
+		super(${entityClass.name}.class);
+	}
+
+}

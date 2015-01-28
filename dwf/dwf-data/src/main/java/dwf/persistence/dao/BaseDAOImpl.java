@@ -69,7 +69,7 @@ import dwf.utils.SimpleParsedMap;
  * 
  */
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-public abstract class BaseDAOImpl<D extends BaseEntity<?>> implements DAO<D> {
+public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> implements DAO<D> {
 
 	private final static Class<?>[] DEFAULT_VALIDATION_GROUP = { Default.class };
 
@@ -189,12 +189,24 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>> implements DAO<D> {
 		}
 	}
 
+	
+	@Override
+	public D find(D copyWithId) {
+		//TODO - naturalids?
+		if(copyWithId == null || copyWithId.getId() == null) {
+			return null;
+		} else {
+			return findById(copyWithId.getId());
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public D findById(Serializable id) {
 		return (D) getSession().get(clazz, id);
 	}
 
+	@SuppressWarnings("unchecked")
 	public D retrieveCopy(Serializable id) {
 		StatelessSession ss = sessionFactory.openStatelessSession();
 		return (D) ss.get(clazz, id);
@@ -474,7 +486,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>> implements DAO<D> {
 		prepareEntity(entity);
 		validate(entity, groups);
 
-		D retrievedEntity = findById(entity.getId());
+		D retrievedEntity = find(entity);
 		if (retrievedEntity == null) {
 			throw new IllegalArgumentException("Id must be not-null");
 		}
@@ -828,4 +840,11 @@ public abstract class BaseDAOImpl<D extends BaseEntity<?>> implements DAO<D> {
 	public Set<String> getPropertyNames() {
 		return this.propertyNames;
 	}
+
+	@Override
+	public Class<D> getEntityClass() {
+		return clazz;
+	}
+	
+	
 }

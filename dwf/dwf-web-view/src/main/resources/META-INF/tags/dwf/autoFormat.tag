@@ -1,4 +1,4 @@
-<%-- ATENÇÃO - NÃO quebre linhas! --%><%@tag import="org.springframework.web.context.support.WebApplicationContextUtils"%><%@tag import="dwf.multilang.TranslationManager"%><%@tag import="java.util.Locale"%><%@tag import="org.springframework.context.i18n.LocaleContextHolder"%><%@tag import="dwf.multilang.domain.BaseMultilangEntity"%><%@tag import="java.util.Calendar"%><%@tag import="java.util.Date"%><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%><%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%><%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%><%@taglib uri="http://www.springframework.org/tags" prefix="spring"%><%@ attribute name="value" required="true" type="java.lang.Object"%><%
+<%-- ATENÇÃO - NÃO quebre linhas! --%><%@tag import="org.apache.commons.lang3.time.DateUtils"%><%@tag import="org.springframework.web.context.support.WebApplicationContextUtils"%><%@tag import="dwf.multilang.TranslationManager"%><%@tag import="java.util.Locale"%><%@tag import="org.springframework.context.i18n.LocaleContextHolder"%><%@tag import="dwf.multilang.domain.BaseMultilangEntity"%><%@tag import="java.util.Calendar"%><%@tag import="java.util.Date"%><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%><%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%><%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%><%@taglib uri="http://www.springframework.org/tags" prefix="spring"%><%@ attribute name="value" required="true" type="java.lang.Object"%><%
 	Object value = getJspContext().getAttribute("value");
 
 	if(value == null) {
@@ -9,13 +9,30 @@
 		getJspContext().setAttribute("format", "number");
 	} else if (value instanceof Date || value instanceof Calendar) {
 		long timeinmillis = value instanceof Date ? ((Date) value).getTime() : ((Calendar) value).getTimeInMillis();
-		if(timeinmillis <= 24*60*60*1000 && timeinmillis >= 0) {
-			getJspContext().setAttribute("format", "time");
-		} else if (timeinmillis % ((long) 24*60*60*1000) == 0) {
-			getJspContext().setAttribute("format", "date");
-		} else {
+		long dateinmillis = value instanceof Date ? DateUtils.truncate((Date) value, Calendar.DATE).getTime() : DateUtils.truncate((Calendar) value, Calendar.DATE).getTimeInMillis();
+		boolean hasTime;
+		boolean hasDate;
+		hasDate = dateinmillis != 0;
+		hasTime = dateinmillis != timeinmillis;
+		
+		if(hasTime && hasDate) {
 			getJspContext().setAttribute("format", "datetime");
+		} else if (hasTime) {
+			getJspContext().setAttribute("format", "time");
+		} else {
+			getJspContext().setAttribute("format", "date");
 		}
+		String datePatternJava;
+		Locale locale = LocaleContextHolder.getLocale();
+		if(locale.equals(Locale.US)) {
+			datePatternJava = "MM/dd/yyyy";
+		} else if(locale.equals(Locale.JAPAN) || locale.equals(Locale.CHINA) || locale.equals(Locale.KOREAN)){
+			datePatternJava = "yyyy/MM/dd";
+		} else {
+			datePatternJava = "dd/MM/yyyy";
+		}
+		getJspContext().setAttribute("datePatternJava", datePatternJava);
+		
 	} else if (value instanceof Boolean) {
 		getJspContext().setAttribute("format", "boolean");
 	} else if (value instanceof java.util.Collection){

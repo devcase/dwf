@@ -14,6 +14,9 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.GenericGenerators;
+
 import dwf.persistence.annotations.ExcludeFromSerialization;
 import dwf.persistence.annotations.NotEditableProperty;
 
@@ -36,7 +39,8 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	private Date updateTime;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.TABLE)
+	@GeneratedValue(generator="baseEntityIdGenerator")
+	@GenericGenerator(name="baseEntityIdGenerator", strategy="dwf.persistence.domain.BaseEntityIdGenerator")
 	@NotEditableProperty()
 	public ID getId() {
 		return id;

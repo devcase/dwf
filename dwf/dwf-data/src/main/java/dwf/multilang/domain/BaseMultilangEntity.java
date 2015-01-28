@@ -49,6 +49,11 @@ public abstract class BaseMultilangEntity<T extends Translation<?>> extends Base
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	@Override
+	protected String displayText() {
+		return name;
+	}
 	
 	
 

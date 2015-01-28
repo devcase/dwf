@@ -17,6 +17,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
+import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -46,7 +47,8 @@ public class ActivityLog  {
 
 	
 	@Id
-	@GeneratedValue(strategy=GenerationType.TABLE)
+	@GeneratedValue(generator="activityLogIdGenerator")
+	@TableGenerator(name="activityLogIdGenerator")
 	public Long getId() {
 		return id;
 	}

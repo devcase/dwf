@@ -1,3 +1,4 @@
+<%@tag import="dwf.persistence.interfaces.HasIcon"%>
 <%@tag import="java.util.List"%>
 <%@tag import="dwf.persistence.dao.DAO"%>
 <%@tag import="java.util.Map"%>
@@ -15,12 +16,16 @@ if(targetEntityName == null)
 DAO dao = (DAO) WebApplicationContextUtils.getWebApplicationContext(application).getBean(targetEntityName + "DAO");
 List targetEntityList = dao.findAll();
 getJspContext().setAttribute("targetEntityList", targetEntityList);
+//hasicon?
+Class targetEntityClass = dao.getEntityClass();
+getJspContext().setAttribute("hasIcon", HasIcon.class.isAssignableFrom(targetEntityClass));
 %>
 <dwf:formGroup parentAttrMap="${attrMap}">
 	<div class="btn-group" >
 		<c:forEach items="${targetEntityList}" var="targetEntity" varStatus="loopStatus">
 			<label class= "btn btn-borderless">
 				<input type="checkbox" name="${name}[].id" value="${targetEntity.id }" ${value.contains(targetEntity) ? 'checked="checked"' : '' }>
+					<c:if test="${hasIcon and !empty targetEntity.xsIconImage}"><img src="<dwf:remoteUrl uploadKey="${targetEntity.xsIconImage}" />" style="width: 1em; height: 1em;"/></c:if>
 					<dwf:autoFormat value="${targetEntity}"/></input>
 			</label>
 		</c:forEach>
