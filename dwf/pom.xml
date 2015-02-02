@@ -35,13 +35,6 @@
 			<url>s3://devcase-repo/snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
-	<repositories>
-		<repository>
-			<id>devcase-repo</id>
-			<name>Devcase Repository S3 Bucket</name>
-			<url>s3://devcase-repo/release</url>
-		</repository>
-	</repositories>
 	<build>
 		<plugins>
 			<plugin>
