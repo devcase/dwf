@@ -1,11 +1,14 @@
 package dwf.web;
 
+import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.format.DateTimeFormatter;
@@ -16,6 +19,8 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 
+import dwf.web.conversion.CustomPropertyEditorFactory;
+
 
 
 /**
@@ -25,11 +30,23 @@ import org.springframework.web.context.WebApplicationContext;
  */
 @Component
 @Scope(WebApplicationContext.SCOPE_REQUEST)
-public class DwfCustomDateEditor extends PropertyEditorSupport {
+public class DwfCustomDateEditor extends PropertyEditorSupport implements CustomPropertyEditorFactory {
 	private final DateFormat timeFormat;
 	private final DateFormat dateFormat;
 	private final DateTimeFormatter isoFormatter;
 	
+	
+	private final Class<?>[] TARGET_CLASSES = new Class<?>[] {Date.class};
+	@Override
+	public Class<?>[] getTargetClasses() {
+		return TARGET_CLASSES;
+	}
+
+	@Override
+	public PropertyEditor getPropertyEditor(HttpServletRequest request) {
+		return this;
+	}
+
 	public DwfCustomDateEditor() {
 		LocaleContext localeContext = LocaleContextHolder.getLocaleContext();
 		Locale locale = localeContext.getLocale();
