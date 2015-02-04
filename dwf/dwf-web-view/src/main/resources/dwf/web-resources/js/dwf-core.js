@@ -33,7 +33,8 @@ $(document).on('dwf-postupdate', function() {
 
 
 /**
- * Enables jquery-datepicker
+ * Enables jquery-datepicker (após carregamento da página e após 
+ * carregamento de trecho da página via ajax (ver dwf-remoteload.js)
  */
 $(document).on('dwf-postupdate', function() {
 	$(this).find(".date-picker").each(function() {
@@ -95,8 +96,34 @@ $(function() {
 });
 
 
+/**
+ * Lançar evento dwf-postupdate após o carregamento da página (ver também dwf-remoteload)
+ */
 $(document).ready(function() {
 	$(this).trigger('dwf-postupdate');
 });
 
-
+/**
+ * Tratamento da propriedade minproperty para combos (ver inputNumberSelect.tag)
+ */ 
+$(document).on('dwf-postupdate', function() {
+	$('[minproperty]').each(function() {
+		var minPropertyName = $(this).attr('minproperty');
+		var targetDom = $(this);
+		$(this).closest('form').find('[name="' + minPropertyName + '"]').on('change', function(e) {
+			var selectedValue = parseInt($(this).val(), 10);
+			if (parseInt(targetDom.val()) < selectedValue) {
+				targetDom.val(selectedValue);
+			}
+			targetDom.find('option').each(function () {
+				if (parseInt($(this).attr('value'), 10) < selectedValue) {
+					$(this).hide();
+					$(this).prop('disabled', true);
+				} else {
+					$(this).show();
+					$(this).prop('disabled', false);
+				}
+			});
+		});
+	});
+});
