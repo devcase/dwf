@@ -1,5 +1,6 @@
 package dwf.multilang.domain;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -37,7 +38,11 @@ public abstract class BaseMultilangEntity<T extends Translation<?>> extends Base
 	
 	@Transient
 	public Class<T> getTranslationClass() {
-		return (Class<T>)((java.lang.reflect.ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+		Class classefilha = getClass();
+		while(!BaseMultilangEntity.class.equals(classefilha.getSuperclass())) {
+			classefilha = classefilha.getSuperclass();
+		}
+		return (Class<T>)((java.lang.reflect.ParameterizedType) classefilha.getGenericSuperclass()).getActualTypeArguments()[0];
 	}
 
 	@NotEmpty
