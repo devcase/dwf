@@ -58,9 +58,12 @@ public class SimpleParsedMap implements ParsedMap {
 	@Override
 	public Boolean getBoolean(String key) {
 		Object value = values.get(key);
-		if(value == null) return null;
-		else if(value instanceof Boolean) {
+		if(value == null) {
+			return null;
+		} else if(value instanceof Boolean) {
 			return (Boolean) value;
+		} else if(value instanceof String) {
+			return Boolean.valueOf(((String) value).toLowerCase());
 		} else {
 			throw new IllegalArgumentException("Passed key can't be parsed into a boolean");
 		}
@@ -129,6 +132,20 @@ public class SimpleParsedMap implements ParsedMap {
 	 */
 	@Override
 	public <T> Object get(String key, Class<T> expectedClass) {
+
+		if(Boolean.class.equals(expectedClass) || 
+				boolean.class.equals(expectedClass)) {
+			return getBoolean(key);
+		} else if(Double.class.equals(expectedClass)||
+				double.class.equals(expectedClass)) {
+			return getDouble(key);
+		} else if(Long.class.equals(expectedClass)) {
+			return getLong(key);
+		} else if(Date.class.equals(expectedClass)) {
+			return getDate(key);
+		} else if(String.class.equals(expectedClass)) {
+			return getString(key);
+		}
 		return get(key);
 	}
 	
