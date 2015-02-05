@@ -16,3 +16,4 @@
 <script type="text/javascript" src="${appPath}/resources/js/dwf-remoteload.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-paginator.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-horizontal-scroller.js"></script>
+<script type="text/javascript" src="${appPath}/resources/js/ckeditor/ckeditor.js"></script>

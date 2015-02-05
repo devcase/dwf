@@ -107,7 +107,7 @@ $(document).ready(function() {
  * Tratamento da propriedade minproperty para combos (ver inputNumberSelect.tag)
  */ 
 $(document).on('dwf-postupdate', function() {
-	$('[minproperty]').each(function() {
+	$(this).find('[minproperty]').each(function() {
 		var minPropertyName = $(this).attr('minproperty');
 		var targetDom = $(this);
 		$(this).closest('form').find('[name="' + minPropertyName + '"]').on('change', function(e) {
@@ -125,5 +125,15 @@ $(document).on('dwf-postupdate', function() {
 				}
 			});
 		});
+		$(this).closest('form').find('[name="' + minPropertyName + '"]').change();
+	});
+});
+
+/**
+ * Inicializa os CKEditors da tela (ver <dwf:inputRichText/>)
+ */
+$(document).on('dwf-postupdate', function() {
+	$(this).find('.ckeditor').each(function() {
+		CKEDITOR.replace(this);
 	});
 });
