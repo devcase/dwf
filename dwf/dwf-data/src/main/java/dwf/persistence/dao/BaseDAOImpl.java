@@ -6,6 +6,7 @@ import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -20,6 +21,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javassist.bytecode.SignatureAttribute.ArrayType;
+
 import javax.imageio.ImageIO;
 import javax.persistence.Transient;
 import javax.validation.ConstraintViolation;
@@ -31,6 +34,7 @@ import javax.validation.groups.Default;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
@@ -38,6 +42,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.type.ListType;
+import org.hibernate.type.MapType;
 import org.hibernate.type.Type;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Mode;
@@ -538,15 +544,32 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 					Object oldValue = PropertyUtils.getSimpleProperty(retrievedEntity, property.getName());
 
 					boolean isCollection = t.isCollectionType();
-					
 					if(isCollection) {
+						boolean isList = t instanceof ListType;
+						boolean isMap = t instanceof MapType;
+						boolean isArray = t instanceof ArrayType;
+						//TODO - outros tipos de coleções
+						boolean isOldValueEmpty = oldValue == null ? true : isList ? ((List) oldValue).isEmpty() :  isMap? ((Map) oldValue).isEmpty() : ((Collection<?>) oldValue).isEmpty();
+						
 						if(value == null) {
-							if(oldValue == null || ((Collection<?>) oldValue).isEmpty()) {
+							if(oldValue == null || isOldValueEmpty) {
 								continue;
 							}
 						} else {
-							if(CollectionUtils.isEqualCollection((Collection<?>) value, (Collection<?>) oldValue)) {
-								continue;
+							if(isArray) {
+								//
+								if (ArrayUtils.isEquals((Array) value, (Array) oldValue)) {
+									continue;
+								}
+							} else if (isList) {
+								//TODO Listas - detectar se faz diferença a ordem
+								if(CollectionUtils.isEqualCollection((Collection<?>) value, (Collection<?>) oldValue)) { //Desconsidera a ordem
+									continue;
+								}
+							} else {
+								if(value.equals(oldValue)) { //pode não funcionar, dependendo da implementação de equals (funciona para AbstractMap e AbstractList)
+									continue;
+								}
 							}
 						}
 					} else {
