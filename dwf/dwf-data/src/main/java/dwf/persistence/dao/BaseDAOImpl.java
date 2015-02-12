@@ -1,5 +1,7 @@
 package dwf.persistence.dao;
 
+import java.awt.Color;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -33,9 +35,12 @@ import javax.validation.groups.Default;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -76,6 +81,7 @@ import dwf.utils.SimpleParsedMap;
  */
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> implements DAO<D> {
+	private Log log = LogFactory.getLog(getClass());
 
 	private final static Class<?>[] DEFAULT_VALIDATION_GROUP = { Default.class };
 
@@ -169,7 +175,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			Method readMethod = p.getReadMethod();
 
 			// ignorar propriedades transientes
-			if (readMethod.isAnnotationPresent(Transient.class)) {
+			if (readMethod.isAnnotationPresent(Transient.class) 
+					&& !readMethod.isAnnotationPresent(UpdatableProperty.class)) { //usado para dar override (ex: override do UpdatableProperty do getName de BaseMultilangEntity)
 				continue;
 			}
 
@@ -493,6 +500,11 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		validate(entity, groups);
 
 		D retrievedEntity = find(entity);
+		if(entity == retrievedEntity) {
+			log.warn("Passed entity is connected - evicting it from the Session and retrieving a new instance");
+			evict(entity);
+			retrievedEntity = find(entity);
+		}
 		if (retrievedEntity == null) {
 			throw new IllegalArgumentException("Id must be not-null");
 		}
@@ -724,7 +736,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	 */
 	@Override
 	@Transactional(rollbackFor = ValidationException.class)
-	public D updateUpload(Serializable id, InputStream inputStream, String contentType, String originalFilename, String propertyName) throws IOException {
+	public D updateUpload(Serializable id, InputStream inputStream, final String contentType, String originalFilename, String propertyName) throws IOException {
 		D entity = findById(id);
 		// get the UpdateGroup for the property
 		PropertyDescriptor pd = entityProperties.get(propertyName);
@@ -741,29 +753,57 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 					BeanUtils.setProperty(entity, propertyName, uploadKey);
 				} else {
 					// é imagem! fazer resize e crop da imagem
-					BufferedImage srcImg = ImageIO.read(inputStream);
+					BufferedImage tmpImg = ImageIO.read(inputStream);
+					BufferedImage srcImg = null;
+					// se tiver transparencia com anotação de noTransparency, pinta o fundo
+					if (imageAnnotation.noTransparency() && 
+							(tmpImg.getType() == BufferedImage.TYPE_INT_ARGB || tmpImg.getType() == BufferedImage.TYPE_4BYTE_ABGR)) {
+						srcImg = new BufferedImage(tmpImg.getWidth(), tmpImg.getHeight(), BufferedImage.TYPE_INT_RGB);
+						String transpColor = imageAnnotation.transparencyColor();
+						Color bgColor = Color.decode(transpColor);
+						srcImg.createGraphics().drawImage(tmpImg, 0, 0, bgColor, null);
+						tmpImg.flush();
+					} else if (tmpImg.getTransparency() == Transparency.OPAQUE && tmpImg.getType() != BufferedImage.TYPE_INT_RGB) {
+						srcImg = new BufferedImage(tmpImg.getWidth(), tmpImg.getHeight(), BufferedImage.TYPE_INT_RGB);
+						srcImg.createGraphics().drawImage(tmpImg, 0, 0, null);
+						tmpImg.flush();
+					} else {
+						srcImg = tmpImg;
+					}
 					BufferedImage resizedImg = null;
 					BufferedImage croppedImg = null;
 					try {
-						Mode resizeMode = (((double) srcImg.getHeight() / (double) srcImg.getWidth()) < ((double) imageAnnotation.targetHeight() / (double) imageAnnotation
-								.targetWidth())) ? Mode.FIT_TO_HEIGHT : Mode.FIT_TO_WIDTH;
-
-						resizedImg = Scalr.resize(srcImg, org.imgscalr.Scalr.Method.ULTRA_QUALITY, resizeMode, imageAnnotation.targetWidth(),
-								imageAnnotation.targetHeight());
-
-						int cropStartX = Math.max((resizedImg.getWidth() - imageAnnotation.targetWidth()) / 2, 0);
-						int cropStartY = Math.max((resizedImg.getHeight() - imageAnnotation.targetHeight()) / 2, 0);
-
-						croppedImg = Scalr.crop(resizedImg, cropStartX, cropStartY, imageAnnotation.targetWidth(), imageAnnotation.targetHeight());
-						
 						String fileSuffix;
-						if(croppedImg.getType() == BufferedImage.TYPE_INT_RGB) {
-							contentType ="image/jpeg"; fileSuffix = ".jpg";
+						String outputContentType;
+						if(srcImg.getType() == BufferedImage.TYPE_INT_RGB) {
+							outputContentType ="image/jpeg"; fileSuffix = ".jpg";
+						} else if (srcImg.getType() == BufferedImage.TYPE_INT_ARGB) {
+							outputContentType ="image/png"; fileSuffix = ".png";
 						} else {
-							contentType ="image/png"; fileSuffix = ".png";
+							throw new RuntimeException("Invalid image type " + srcImg.getType());
 						}
 						
-						String uploadKey = uploadManager.saveImage(croppedImg, contentType, propertyName + fileSuffix, entityName + "/" + id);
+						Mode resizeMode = (((double) srcImg.getHeight() / (double) srcImg.getWidth()) < ((double) imageAnnotation.targetHeight() / (double) imageAnnotation
+								.targetWidth())) ? Mode.FIT_TO_HEIGHT : Mode.FIT_TO_WIDTH;
+						
+						if (imageAnnotation.maxHeight() != 0 || imageAnnotation.maxWidth() != 0) {
+							int maxWidth = imageAnnotation.maxWidth();
+							int maxHeight = imageAnnotation.maxHeight();
+							if (srcImg.getWidth() < (maxWidth == 0? Integer.MAX_VALUE : maxWidth) && srcImg.getHeight() < (maxHeight == 0? Integer.MAX_VALUE : maxHeight)) {
+								resizedImg = croppedImg = srcImg;
+							} else {
+								resizedImg = croppedImg = Scalr.resize(srcImg, Scalr.Method.ULTRA_QUALITY, Mode.AUTOMATIC, (maxWidth == 0? Integer.MAX_VALUE : maxWidth), (maxHeight == 0? Integer.MAX_VALUE : maxHeight));
+							}
+						} else {											
+							resizedImg = Scalr.resize(srcImg, org.imgscalr.Scalr.Method.ULTRA_QUALITY, resizeMode, imageAnnotation.targetWidth(),
+									imageAnnotation.targetHeight());
+	
+							int cropStartX = Math.max((resizedImg.getWidth() - imageAnnotation.targetWidth()) / 2, 0);
+							int cropStartY = Math.max((resizedImg.getHeight() - imageAnnotation.targetHeight()) / 2, 0);
+	
+							croppedImg = Scalr.crop(resizedImg, cropStartX, cropStartY, imageAnnotation.targetWidth(), imageAnnotation.targetHeight());
+						}
+						String uploadKey = uploadManager.saveImage(croppedImg, outputContentType, propertyName + fileSuffix, entityName + "/" + id);
 						if (oldValue != null && !oldValue.equals(uploadKey)) {
 							uploadManager.deleteFile(oldValue);
 						}
@@ -786,10 +826,10 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 								BufferedImage croppedThumbImg = null;
 								try {
 									thumbImg = Scalr.resize(croppedImg, org.imgscalr.Scalr.Method.ULTRA_QUALITY, resizeMode, thumbWidth, thumbHeight);
-									cropStartX = (thumbImg.getWidth() - thumbWidth) / 2;
-									cropStartY = (thumbImg.getHeight() - thumbHeight) / 2;
+									int thumbCropStartX = (thumbImg.getWidth() - thumbWidth) / 2;
+									int thumbCropStartY = (thumbImg.getHeight() - thumbHeight) / 2;
 
-									croppedThumbImg = Scalr.crop(thumbImg, cropStartX, cropStartY, thumbWidth, thumbHeight);
+									croppedThumbImg = Scalr.crop(thumbImg, thumbCropStartX, thumbCropStartY, thumbWidth, thumbHeight);
 									String thumbUpKey = uploadManager.saveImage(croppedThumbImg, "img/jpeg", thumbProperty + ".jpg", entityName + "/" + id);
 									if (oldThumbValue != null && !oldThumbValue.equals(thumbUpKey)) {
 										uploadManager.deleteFile(oldThumbValue);
@@ -839,7 +879,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 
 	@Override
 	public void evict(D entity) {
-		// getSession().evict(entity);
+		getSession().evict(entity);
 	}
 
 	/**
