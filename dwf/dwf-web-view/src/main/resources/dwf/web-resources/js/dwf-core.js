@@ -162,7 +162,6 @@ $(document).on('dwf-postupdate', function() {
 });
 
 function reCaptchaRemoveError() {
-	console.log("CHAMOU A FUNCAO");
 	$(document).find('.recaptcha-error').each(function () {
 		$(this).removeClass('help-block');
 		$(this).hide();
