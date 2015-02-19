@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleEvent;
@@ -43,7 +45,9 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.orm.hibernate4.support.OpenSessionInViewInterceptor;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -55,6 +59,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import dwf.upload.UploadManager;
 import dwf.web.sitemesh.SitemeshView;
+import dwf.web.spring.DwfReCaptchaInterceptor;
 import dwf.web.spring.DwfRequestMappingHandlerAdapter;
 import dwf.web.spring.ParsedMapArgumentResolver;
 import dwf.web.upload.FileSystemUploadManager;
@@ -107,6 +112,26 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
         registry.addResourceHandler("/resources/**").addResourceLocations("/resources/", "classpath:/dwf/web-resources/");
 	}
 	
+	
+	@Value("${dwf.web.recaptcha.privatekey:testdb}")
+	private String recaptchaPrivateKey = "testdb";
+	@Value("${dwf.web.recaptcha.publickey:testdb}")
+	private String recaptchaPublicKey = "testdb";
+
+	
+	public String getRecaptchaPublicKey() {
+		return recaptchaPublicKey;
+	}
+
+	public void setRecaptchaPublicKey(String recaptchaPublicKey) {
+		this.recaptchaPublicKey = recaptchaPublicKey;
+	}
+
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(new DwfReCaptchaInterceptor(recaptchaPrivateKey)).addPathPatterns("/**");
+	}
+
 	@Bean
 	public LocaleResolver localeResolver() {
 		return new SessionLocaleResolver();

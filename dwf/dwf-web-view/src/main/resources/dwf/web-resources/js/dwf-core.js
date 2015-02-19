@@ -137,3 +137,35 @@ $(document).on('dwf-postupdate', function() {
 		CKEDITOR.replace(this);
 	});
 });
+
+$(document).on('dwf-postupdate', function() {
+	$(this).find('.g-recaptcha').each(function() {
+		var recaptcha = $(this);
+		$(this).closest('form').submit(function (evt) {
+			var res = grecaptcha.getResponse();
+			var errorSpan = $(this).find('.recaptcha-error');
+			if (!res) {
+				recaptcha.closest('.form-group').addClass('has-error');
+				errorSpan.show();
+				errorSpan.addClass('help-block');
+				return false;
+			} else {
+				errorSpan.removeClass('help-block');
+				errorSpan.hide();
+				recaptcha.closest('.form-group').removeClass('has-error');
+				return true;
+			}
+			return true;
+		});
+		
+	});
+});
+
+function reCaptchaRemoveError() {
+	console.log("CHAMOU A FUNCAO");
+	$(document).find('.recaptcha-error').each(function () {
+		$(this).removeClass('help-block');
+		$(this).hide();
+		$(this).closest('.form-group').removeClass('has-error');
+	});
+}
