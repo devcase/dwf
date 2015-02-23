@@ -92,6 +92,7 @@ public class FileSystemUploadManager extends WebApplicationObjectSupport impleme
 		writer.setOutput(ios);
 		writer.write(null, new IIOImage(image, null, null), iwp);
 		writer.dispose();
+		ios.close();
 		return (folderName.startsWith("/") ? "" : "/")   + folderName + (folderName.endsWith("/") ? "" : "/") + fileName;
 		
 	}

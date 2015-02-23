@@ -33,7 +33,8 @@ $(document).on('dwf-postupdate', function() {
 
 
 /**
- * Enables jquery-datepicker
+ * Enables jquery-datepicker (após carregamento da página e após 
+ * carregamento de trecho da página via ajax (ver dwf-remoteload.js)
  */
 $(document).on('dwf-postupdate', function() {
 	$(this).find(".date-picker").each(function() {
@@ -95,8 +96,75 @@ $(function() {
 });
 
 
+/**
+ * Lançar evento dwf-postupdate após o carregamento da página (ver também dwf-remoteload)
+ */
 $(document).ready(function() {
 	$(this).trigger('dwf-postupdate');
 });
 
+/**
+ * Tratamento da propriedade minproperty para combos (ver inputNumberSelect.tag)
+ */ 
+$(document).on('dwf-postupdate', function() {
+	$(this).find('[minproperty]').each(function() {
+		var minPropertyName = $(this).attr('minproperty');
+		var targetDom = $(this);
+		$(this).closest('form').find('[name="' + minPropertyName + '"]').on('change', function(e) {
+			var selectedValue = parseInt($(this).val(), 10);
+			if (parseInt(targetDom.val()) < selectedValue) {
+				targetDom.val(selectedValue);
+			}
+			targetDom.find('option').each(function () {
+				if (parseInt($(this).attr('value'), 10) < selectedValue) {
+					$(this).hide();
+					$(this).prop('disabled', true);
+				} else {
+					$(this).show();
+					$(this).prop('disabled', false);
+				}
+			});
+		});
+		$(this).closest('form').find('[name="' + minPropertyName + '"]').change();
+	});
+});
 
+/**
+ * Inicializa os CKEditors da tela (ver <dwf:inputRichText/>)
+ */
+$(document).on('dwf-postupdate', function() {
+	$(this).find('.ckeditor').each(function() {
+		CKEDITOR.replace(this);
+	});
+});
+
+$(document).on('dwf-postupdate', function() {
+	$(this).find('.g-recaptcha').each(function() {
+		var recaptcha = $(this);
+		$(this).closest('form').submit(function (evt) {
+			var res = grecaptcha.getResponse();
+			var errorSpan = $(this).find('.recaptcha-error');
+			if (!res) {
+				recaptcha.closest('.form-group').addClass('has-error');
+				errorSpan.show();
+				errorSpan.addClass('help-block');
+				return false;
+			} else {
+				errorSpan.removeClass('help-block');
+				errorSpan.hide();
+				recaptcha.closest('.form-group').removeClass('has-error');
+				return true;
+			}
+			return true;
+		});
+		
+	});
+});
+
+function reCaptchaRemoveError() {
+	$(document).find('.recaptcha-error').each(function () {
+		$(this).removeClass('help-block');
+		$(this).hide();
+		$(this).closest('.form-group').removeClass('has-error');
+	});
+}

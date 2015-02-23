@@ -12,6 +12,11 @@
 		long dateinmillis = value instanceof Date ? DateUtils.truncate((Date) value, Calendar.DATE).getTime() : DateUtils.truncate((Calendar) value, Calendar.DATE).getTimeInMillis();
 		boolean hasTime;
 		boolean hasDate;
+		
+		int timezoneOffset = value instanceof Date ? DateUtils.toCalendar((Date) value).getTimeZone().getRawOffset() : ((Calendar) value).getTimeZone().getRawOffset();
+		timeinmillis += timezoneOffset;
+		dateinmillis += timezoneOffset;
+		
 		hasDate = dateinmillis != 0;
 		hasTime = dateinmillis != timeinmillis;
 		

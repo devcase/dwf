@@ -6,9 +6,14 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
 <dwf:formGroup parentAttrMap="${attrMap}">
-	<p class="form-control-static">
+	<div class="form-control-static">
 		<span class="${empty attrMap.styleClass ? '' :  attrMap.styleClass}">
-			<dwf:autoFormat value="${value}"></dwf:autoFormat>${empty value ? '&nbsp;' : '' }</span>
+		<c:choose>
+		<c:when test="${empty attrMap.enableHtml || attrMap.enableHtml eq 'false' }">
+			<dwf:autoFormat value="${value}"></dwf:autoFormat>${empty value ? '&nbsp;' : '' }
 		<jsp:doBody></jsp:doBody>
-	</p>
+		</c:when>
+			<c:otherwise>${value}</c:otherwise>
+		</c:choose></span>
+	</div>
 </dwf:formGroup>

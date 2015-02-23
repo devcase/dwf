@@ -23,7 +23,7 @@ if(filter == null) {
 	List targetEntityList = dao.findAll();
 	getJspContext().setAttribute("targetEntityList", targetEntityList);
 } else {
-	List targetEntityList = dao.findByFilter(new SimpleParsedMap(filter.split(";")));
+	List targetEntityList = dao.findByFilter(new SimpleParsedMap(filter.split(";|=")));
 	getJspContext().setAttribute("targetEntityList", targetEntityList);
 }
 %>

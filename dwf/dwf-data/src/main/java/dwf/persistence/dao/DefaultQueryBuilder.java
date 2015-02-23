@@ -94,12 +94,14 @@ public class DefaultQueryBuilder implements QueryBuilder {
 				
 				Object value = filter.get(pName, pDescriptor.getPropertyType());
 				if(value != null && (value.getClass().isArray()) && Array.getLength(value) > 0) {
-					//chegou array
+					//chegou array no filtro
 					query.append(" and ").append(domainAlias).append(".").append(pName).append(" in (:").append(pName).append(") ");
 				} else if(value != null && (value instanceof Collection<?>)) {
+					//chegou collection no filtro
 					query.append(" and ").append(domainAlias).append(".").append(pName).append(" in (:").append(pName).append(") ");
 				} else {
 					if(Collection.class.isAssignableFrom(pDescriptor.getPropertyType())) {
+						//propriedade na entidade é collection
 						query.append(" and :").append(pName).append(" member of ").append(domainAlias).append(".").append(pName);
 					} else {
 						query.append(" and ").append(domainAlias).append(".").append(pName).append(" = :").append(pName);

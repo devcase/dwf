@@ -182,4 +182,20 @@
 		<name>modal</name>
 		<path>/META-INF/tags/dwf/modal.tag</path>
 	</tag-file>
+	<tag-file>
+		<name>inputEnumCheckboxList</name>
+		<path>/META-INF/tags/dwf/inputEnumCheckboxList.tag</path>
+	</tag-file>
+	<tag-file>
+		<name>inputEnumRadio</name>
+		<path>/META-INF/tags/dwf/inputEnumRadio.tag</path>
+	</tag-file>
+	<tag-file>
+		<name>inputRichText</name>
+		<path>/META-INF/tags/dwf/inputRichText.tag</path>
+	</tag-file>
+	<tag-file>
+		<name>reCaptcha</name>
+		<path>/META-INF/tags/dwf/reCaptcha.tag</path>
+	</tag-file>
 </taglib>

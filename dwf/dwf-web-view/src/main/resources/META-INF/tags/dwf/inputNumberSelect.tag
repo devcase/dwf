@@ -5,7 +5,9 @@
 <%@ tag dynamic-attributes="attrMap"%>
 <dwf:formGroup parentAttrMap="${attrMap}">
 	<select name="${name}"
-		<c:if test="${attrMap.required}">required="required"</c:if> class="form-control">
+		<c:if test="${attrMap.required}">required="required"</c:if>
+		<c:if test="${!empty attrMap.minproperty}">minproperty="${attrMap.minproperty}"</c:if> 
+		class="form-control">
 		<c:forEach begin="${attrMap.min }" end="${attrMap.max}" varStatus="loopStatus">
 			<option value="${loopStatus.index}"
 				<c:if test="${loopStatus.index eq value}">selected</c:if>

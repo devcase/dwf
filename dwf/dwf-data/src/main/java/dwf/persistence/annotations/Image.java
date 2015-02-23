@@ -18,4 +18,8 @@ public @interface Image {
 	int targetWidth() default 0;
 	int targetHeight() default 0;
 	String[] thumbnail() default {};
+	boolean noTransparency() default false;
+	String transparencyColor() default "#FFFFFF";
+	int maxHeight() default 0;
+	int maxWidth() default 0;
 }

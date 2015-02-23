@@ -1,3 +1,4 @@
+<%@tag import="dwf.utils.SimpleParsedMap"%>
 <%@tag import="dwf.persistence.interfaces.HasIcon"%>
 <%@tag import="java.util.List"%>
 <%@tag import="dwf.persistence.dao.DAO"%>
@@ -14,8 +15,16 @@ String targetEntityName = (String) attrMap.get("targetEntity");
 if(targetEntityName == null)
 	targetEntityName = (String) attrMap.get("property");
 DAO dao = (DAO) WebApplicationContextUtils.getWebApplicationContext(application).getBean(targetEntityName + "DAO");
-List targetEntityList = dao.findAll();
-getJspContext().setAttribute("targetEntityList", targetEntityList);
+
+String filter = (String) attrMap.get("filter");
+if(filter == null) {
+	List targetEntityList = dao.findAll();
+	getJspContext().setAttribute("targetEntityList", targetEntityList);
+} else {
+	List targetEntityList = dao.findByFilter(new SimpleParsedMap(filter.split(";|=")));
+	getJspContext().setAttribute("targetEntityList", targetEntityList);
+}
+
 //hasicon?
 Class targetEntityClass = dao.getEntityClass();
 getJspContext().setAttribute("hasIcon", HasIcon.class.isAssignableFrom(targetEntityClass));
