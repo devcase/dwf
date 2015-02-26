@@ -1,6 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
-<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
 <%@ tag dynamic-attributes="attrMap"%>
 
 <c:choose> <%--_entityName--%>
@@ -26,6 +27,7 @@
 <div class="panel panel-default">
 	<div class="panel-body">
 		<form class="validate" method="POST" action="${_formAction}" role="form">
+			<sec:csrfInput />
 			<input type="hidden" name="id" value="${entity.id}"/>
 			<dwf:inputTextarea name="comments" required="true" maxlength="1000" labelKey="label.comments.restore"/>
 			<div class="form-group">
