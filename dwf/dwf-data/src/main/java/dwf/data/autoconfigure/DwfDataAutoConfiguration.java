@@ -26,7 +26,7 @@ import dwf.config.DwfDataConfig;
 import dwf.persistence.utils.DwfNamingStrategy;
 
 @Configuration
-@ComponentScan(basePackages = {"dwf.activitylog.service", "dwf.persistence", "dwf.multilang"})
+@ComponentScan(basePackages = {"dwf.activitylog.service", "dwf.persistence", "dwf.multilang", "dwf.user"})
 @ConfigurationProperties(prefix = "dwf.data")
 public class DwfDataAutoConfiguration  {
 	@Autowired
