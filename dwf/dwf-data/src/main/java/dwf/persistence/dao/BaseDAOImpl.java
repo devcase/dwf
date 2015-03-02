@@ -767,6 +767,10 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 						srcImg = new BufferedImage(tmpImg.getWidth(), tmpImg.getHeight(), BufferedImage.TYPE_INT_RGB);
 						srcImg.createGraphics().drawImage(tmpImg, 0, 0, null);
 						tmpImg.flush();
+					} else if (tmpImg.getTransparency() != Transparency.OPAQUE && tmpImg.getType() != BufferedImage.TYPE_INT_ARGB) {
+						srcImg = new BufferedImage(tmpImg.getWidth(), tmpImg.getHeight(), BufferedImage.TYPE_INT_ARGB);
+						srcImg.createGraphics().drawImage(tmpImg, 0, 0, null);
+						tmpImg.flush();
 					} else {
 						srcImg = tmpImg;
 					}
