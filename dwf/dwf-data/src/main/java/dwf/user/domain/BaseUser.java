@@ -3,9 +3,9 @@ package dwf.user.domain;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -15,7 +15,7 @@ import dwf.persistence.annotations.UniqueValue;
 import dwf.persistence.annotations.constraints.Username;
 import dwf.persistence.domain.BaseEntity;
 
-@MappedSuperclass
+@Entity
 @UniqueValue(field="username")
 public class BaseUser extends BaseEntity<Long> {
 

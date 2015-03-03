@@ -7,19 +7,21 @@ import org.hibernate.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Repository;
 
 import dwf.persistence.dao.BaseDAOImpl;
 import dwf.user.domain.BaseUser;
 import dwf.user.domain.ChangePasswordBean;
 
+@Repository("baseUserDAO")
 @Transactional
-public class BaseUserDAOImpl<D extends BaseUser> extends BaseDAOImpl<D> implements BaseUserDAO<D> {
+public class BaseUserDAOImpl extends BaseDAOImpl<BaseUser> implements BaseUserDAO {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-	public BaseUserDAOImpl(Class<D> clazz) {
-		super(clazz);
+	public BaseUserDAOImpl() {
+		super(BaseUser.class);
 	}
 
 	@Override
@@ -43,7 +45,7 @@ public class BaseUserDAOImpl<D extends BaseUser> extends BaseDAOImpl<D> implemen
 		}
 		
 		final String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		final D currentUser = findByUsername(username);
+		final BaseUser currentUser = findByUsername(username);
 		
 		if (passwordEncoder.matches(changePasswordBean.getCurrentPassword(), currentUser.getHashedpass())) {
 			currentUser.setHashedpass(encodePassword(changePasswordBean.getNewPassword()));
@@ -54,10 +56,9 @@ public class BaseUserDAOImpl<D extends BaseUser> extends BaseDAOImpl<D> implemen
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public D findByUsername(String username) {
-		final Query query = getSession().createQuery("from TravenupUser where username = :username");
+	public BaseUser findByUsername(String username) {
+		final Query query = getSession().createQuery("from BaseUser where username = :username");
 		query.setParameter("username", username);
-		return (D) query.uniqueResult();
+		return (BaseUser) query.uniqueResult();
 	}
 }

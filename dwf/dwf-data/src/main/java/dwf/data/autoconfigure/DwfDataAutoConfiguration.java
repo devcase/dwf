@@ -6,11 +6,9 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import org.hibernate.validator.resourceloading.AggregateResourceBundleLocator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -65,7 +63,7 @@ public class DwfDataAutoConfiguration  {
 	public LocalSessionFactoryBean sessionFactory() {
 		
 		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-		sessionFactory.setPackagesToScan( new String [] {"dwf.activitylog.domain", dwfDataConfig.getClass().getPackage().getName()});
+		sessionFactory.setPackagesToScan( new String [] {"dwf.activitylog.domain", "dwf.user.domain", dwfDataConfig.getClass().getPackage().getName()});
 		sessionFactory.setNamingStrategy(new DwfNamingStrategy(dwfDataConfig));
 		sessionFactory.setDataSource(dataSource);
 		if(hibernateProperties != null) {
