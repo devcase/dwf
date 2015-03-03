@@ -13,6 +13,15 @@ public class ChangePasswordBean {
 	@NotEmpty
 	private String newPasswordConfirmation;
 
+	public ChangePasswordBean() {
+	}
+	
+	public ChangePasswordBean(String currentPassword, String newPassword, String newPasswordConfirmation) {
+		this.currentPassword = currentPassword;
+		this.newPassword = newPassword;
+		this.newPasswordConfirmation = newPasswordConfirmation;
+	}
+
 	public String getCurrentPassword() {
 		return currentPassword;
 	}

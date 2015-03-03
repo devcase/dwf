@@ -1,5 +1,7 @@
 package dwf.user.service;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
@@ -8,22 +10,22 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import dwf.user.dao.BaseUserDAO;
 import dwf.user.domain.BaseUser;
 
-@Service
+@Service("userDetailsService")
+@Transactional
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-	private final BaseUserDAO baseUserDAO;
+	private final BaseUserService userService;
 
 	@Autowired
-	public UserDetailsServiceImpl(BaseUserDAO baseUserDAO) {
-		this.baseUserDAO = baseUserDAO;
+	public UserDetailsServiceImpl(BaseUserService userService) {
+		this.userService = userService;
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		final BaseUser baseUser = baseUserDAO.findByUsername(username);
+		final BaseUser baseUser = userService.findByUsername(username);
 		if (baseUser != null) {
 			return new User(baseUser.getUsername(), baseUser.getHashedpass(), AuthorityUtils
 					.createAuthorityList(baseUser.getRole().toString()));
