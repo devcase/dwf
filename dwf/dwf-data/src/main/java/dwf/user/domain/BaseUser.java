@@ -10,6 +10,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import dwf.persistence.annotations.UniqueValue;
 import dwf.persistence.annotations.constraints.Username;
@@ -22,14 +24,16 @@ public class BaseUser extends BaseEntity<Long> {
 	private static final long serialVersionUID = 3161746215465593657L;
 	
 	private String username;
+	private String email;
 	private String hashedpass;
 	private Date expirationDate;
 	private BaseUserRole role;
 
 	public BaseUser() {}
 	
-	public BaseUser(String username, String hashedpass, Date expirationDate, BaseUserRole role) {
+	public BaseUser(String username, String email, String hashedpass, Date expirationDate, BaseUserRole role) {
 		this.username = username;
+		this.email = email;
 		this.hashedpass = hashedpass;
 		this.expirationDate = expirationDate;
 		this.role = role;
@@ -44,6 +48,16 @@ public class BaseUser extends BaseEntity<Long> {
 	
 	public void setUsername(String username) {
 		this.username = username;
+	}
+	
+	@NotEmpty
+	@Email
+	public String getEmail() {
+		return email;
+	}
+	
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	
 	@Column(length=200)
@@ -73,6 +87,7 @@ public class BaseUser extends BaseEntity<Long> {
 	public void setRole(BaseUserRole role) {
 		this.role = role;
 	}
+	
 	@Override
 	protected String displayText() {
 		return username;
