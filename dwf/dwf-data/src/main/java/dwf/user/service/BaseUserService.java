@@ -6,4 +6,5 @@ import dwf.user.domain.ChangePasswordBean;
 public interface BaseUserService {
 	void changePassword(ChangePasswordBean changePasswordBean);
 	BaseUser findByUsername(String username);
+	void sendEmailConfirmation(String username);
 }
