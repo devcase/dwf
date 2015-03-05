@@ -9,9 +9,11 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import dwf.persistence.annotations.NotEditableProperty;
+import dwf.persistence.annotations.UniqueValue;
 import dwf.persistence.domain.BaseEntity;
 
 @Entity
+@UniqueValue(field = "token")
 public class VerificationToken extends BaseEntity<Long> {
 
 	private static final long serialVersionUID = -4203897491499641698L;
@@ -72,5 +74,9 @@ public class VerificationToken extends BaseEntity<Long> {
 	@Override
 	protected String displayText() {
 		return token;
+	}
+	
+	public boolean hasExpired() {
+		return new Date().after(expiryDate);
 	}
 }

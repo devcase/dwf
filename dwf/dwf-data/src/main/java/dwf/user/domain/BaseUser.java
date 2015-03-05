@@ -27,6 +27,7 @@ public class BaseUser extends BaseEntity<Long> {
 	private String email;
 	private String hashedpass;
 	private Date expirationDate;
+	private boolean verified;
 	private BaseUserRole role;
 
 	public BaseUser() {}
@@ -86,6 +87,14 @@ public class BaseUser extends BaseEntity<Long> {
 	
 	public void setRole(BaseUserRole role) {
 		this.role = role;
+	}
+
+	public boolean isVerified() {
+		return verified;
+	}
+	
+	public void setVerified(boolean verified) {
+		this.verified = verified;
 	}
 	
 	@Override
