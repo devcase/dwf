@@ -168,3 +168,39 @@ function reCaptchaRemoveError() {
 		$(this).closest('.form-group').removeClass('has-error');
 	});
 }
+
+// token-input (autocomplete input with "tags")
+$(document).on("dwf-postupdate", function () {
+	$(this).find('.token-input').each(function () {
+		var containerDiv = $(this).parent().find('.token-div');
+		var property = $(this).attr('property');
+		var inpt = $(this);
+		var th = $(this).attr('theme');;
+		var path = "/ajax/tokenInput/"+$(this).attr('targetentityname');
+		$(this).tokenInput(path, {preventDuplicates: true,
+									hintText: null,
+									noResultsText: null,
+									searchingText: null,
+									theme: th,
+									onAdd: function (item) {
+										containerDiv.append("<input type=\"hidden\" name=\""+property+"[].id\" token-id=\""+item.id+"\" class=\"token-id\" value=\""+item.id+"\" />");
+										containerDiv.append("<input type=\"hidden\" name=\""+property+"[].name\" token-id=\""+item.id+"\" class=\"token-name\" value=\""+item.name+"\" />");
+										
+									},
+									onDelete: function (item) {
+										containerDiv.find("[token-id=\""+item.id+"\"]").remove();
+									},
+									onReady: function () {
+										var selector = ".token-input-list".concat(th == null? '':'-'+th);
+										containerDiv.parent().find(selector).addClass("form-control");
+									}
+									});
+		containerDiv.find(".init-token-id").each(function() {
+			var objid = $(this).val();
+			var objname = containerDiv.find(".init-token-name[token-id=\""+$(this).val()+"\"]").val();
+			inpt.tokenInput("add", {id: objid, name: objname});
+		});
+		containerDiv.find(".init-token-id").remove();
+		containerDiv.find(".init-token-name").remove();
+	});
+});
