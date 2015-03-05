@@ -3,7 +3,7 @@ package dwf.user.service;
 import static helper.BaseUserTestHelper.newBaseUser;
 import static helper.ChangePasswordBeanTestHelper.invalidChangePasswordBean;
 import static helper.ChangePasswordBeanTestHelper.validChangePasswordBean;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,8 +14,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import dwf.user.dao.BaseUserDAO;
@@ -34,14 +32,11 @@ public class BaseUserServiceImplTest {
 	@Mock
 	private LoggedUser loggedUserMock;
 	
-	@Mock
-	private MailSender mailSenderMock;
-	
 	private BaseUserService service;
 	
 	@Before
 	public void before() {
-		this.service = new BaseUserServiceImpl(daoMock, passwordEncoderMock, loggedUserMock, mailSenderMock);
+		this.service = new BaseUserServiceImpl(daoMock, passwordEncoderMock, loggedUserMock);
 	}
 	
 	@Test(expected = ValidationException.class)
@@ -84,14 +79,5 @@ public class BaseUserServiceImplTest {
 		service.findByUsername("travenup");
 		
 		verify(daoMock).findFirstByFilter("username", "travenup");
-	}
-	
-	@Test
-	public void sendEmailConfirmationSuccess() {
-		when(daoMock.findFirstByFilter("username", "travenup")).thenReturn(newBaseUser("travenup"));
-		
-		service.sendEmailConfirmation("travenup");
-		
-		verify(mailSenderMock).send(any(SimpleMailMessage.class));
 	}
 }

@@ -1,14 +1,9 @@
 package dwf.user.service;
 
-import java.util.UUID;
-
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.MailException;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,14 +19,12 @@ public class BaseUserServiceImpl implements BaseUserService {
 	private final BaseUserDAO dao;
 	private final PasswordEncoder passwordEncoder;
 	private final LoggedUser loggedUser;
-	private final MailSender mailSender;
 	
 	@Autowired
-	public BaseUserServiceImpl(BaseUserDAO dao, PasswordEncoder passwordEncoder, LoggedUser loggedUser, MailSender mailSender) {
+	public BaseUserServiceImpl(BaseUserDAO dao, PasswordEncoder passwordEncoder, LoggedUser loggedUser) {
 		this.dao = dao;
 		this.passwordEncoder = passwordEncoder;
 		this.loggedUser = loggedUser;
-		this.mailSender = mailSender;
 	}
 
 	@Override
@@ -58,21 +51,5 @@ public class BaseUserServiceImpl implements BaseUserService {
 	@Override
 	public BaseUser findByUsername(String username) {
 		return dao.findFirstByFilter("username", username);
-	}
-
-	@Override
-	public void sendEmailConfirmation(String username) {
-		final BaseUser user = findByUsername(username);
-		
-		final SimpleMailMessage mail = new SimpleMailMessage();
-		mail.setTo(user.getEmail());
-		mail.setSubject("Travenup Registration Confirmation");
-		mail.setText(UUID.randomUUID().toString());
-		
-		try {
-			mailSender.send(mail);
-		} catch (MailException e) {
-			e.printStackTrace();
-		}
 	}
 }
