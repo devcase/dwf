@@ -22,8 +22,8 @@ public abstract class BaseMultilangEntity<T extends Translation<?>> extends Base
 	 * 
 	 */
 	private static final long serialVersionUID = -7754202986115531680L;
-	private Map<String, T> translations;
-	private String name;
+	protected Map<String, T> translations;
+	protected String name;
 	
 	@OneToMany(mappedBy="parentEntity")
 	@MapKey(name="language")
