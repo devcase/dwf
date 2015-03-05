@@ -198,4 +198,8 @@
 		<name>reCaptcha</name>
 		<path>/META-INF/tags/dwf/reCaptcha.tag</path>
 	</tag-file>
+	<tag-file>
+		<name>inputEntityTokenAutocomplete</name>
+		<path>/META-INF/tags/dwf/inputEntityTokenAutocomplete.tag</path>
+	</tag-file>
 </taglib>
