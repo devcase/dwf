@@ -176,7 +176,7 @@ $(document).on("dwf-postupdate", function () {
 		var property = $(this).attr('property');
 		var inpt = $(this);
 		var th = $(this).attr('theme');;
-		var path = "/ajax/tokenInput/"+$(this).attr('targetentityname');
+		var path = "/ajax/tokenInput/"+$(this).attr('hashkey');
 		$(this).tokenInput(path, {preventDuplicates: true,
 									hintText: null,
 									noResultsText: null,
@@ -192,7 +192,11 @@ $(document).on("dwf-postupdate", function () {
 									},
 									onReady: function () {
 										var selector = ".token-input-list".concat(th == null? '':'-'+th);
-										containerDiv.parent().find(selector).addClass("form-control");
+										containerDiv.parent().find(selector).addClass("form-control").on('focusin', function () {
+											$(this).addClass("focus");
+										}).on('focusout', function () {
+											$(this).removeClass("focus");
+										});
 									}
 									});
 		containerDiv.find(".init-token-id").each(function() {
@@ -202,5 +206,6 @@ $(document).on("dwf-postupdate", function () {
 		});
 		containerDiv.find(".init-token-id").remove();
 		containerDiv.find(".init-token-name").remove();
+		
 	});
 });

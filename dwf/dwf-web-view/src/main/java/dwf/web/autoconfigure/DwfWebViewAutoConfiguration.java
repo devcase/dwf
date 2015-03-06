@@ -58,6 +58,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import dwf.upload.UploadManager;
+import dwf.web.AjaxHashKeyManager;
 import dwf.web.sitemesh.SitemeshView;
 import dwf.web.spring.DwfReCaptchaInterceptor;
 import dwf.web.spring.DwfRequestMappingHandlerAdapter;
@@ -135,6 +136,11 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	@Bean
 	public LocaleResolver localeResolver() {
 		return new SessionLocaleResolver();
+	}
+	
+	@Bean
+	public AjaxHashKeyManager ajaxHashKeyManager() {
+		return new AjaxHashKeyManager();
 	}
 
 	

@@ -1,14 +1,27 @@
+<%@tag import="org.springframework.web.context.support.WebApplicationContextUtils"%>
+<%@tag import="dwf.web.AjaxHashKeyManager"%>
 <%@attribute name="targetEntity" required="true" type="java.lang.String"%>
 <%@attribute name="theme" type="java.lang.String" description="theme: null, facebook or mac"%>
+<%@attribute name="filter" type="java.lang.String" description="filtro da busca" %>
 <%@attribute name="property" type="java.lang.String"%>
 <%@taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<%
+String entityName = (String) getJspContext().getAttribute("targetEntity");
+String filter = (String) getJspContext().getAttribute("filter");
+if (filter == null) filter = "";
+AjaxHashKeyManager keyManager = (AjaxHashKeyManager) WebApplicationContextUtils.getWebApplicationContext(application).getBean("ajaxHashKeyManager");
+
+getJspContext().setAttribute("hashkey", keyManager.generateHashKey(entityName, filter));
+%>
+
 <dwf:formGroup targetEntity="${targetEntity}" property="${property}">
-	<input class="token-input" theme="${theme}" property="${property}" targetEntityName="${targetEntity}" />
+	<input class="token-input" theme="${theme}" property="${property}" hashkey="${hashkey}" />
 	<div class="token-div" style="display: none">
 		<c:forEach items="${value}" var="item">
 			<input type="hidden" token-id="${item.id}" class="init-token-id" value="${item.id}" />
-			<input type="hidden" token-id="${item.id}" class="init-token-name" value="${item.name}" />		
+			<input type="hidden" token-id="${item.id}" class="init-token-name" value="${item.name}" />
 		</c:forEach>
 	</div>
 </dwf:formGroup>

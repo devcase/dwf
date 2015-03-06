@@ -6,3 +6,4 @@
 <link href="${appPath}/resources/css/token-input.css" rel="stylesheet"/>
 <link href="${appPath}/resources/css/token-input-facebook.css" rel="stylesheet"/>
 <link href="${appPath}/resources/css/token-input-mac.css" rel="stylesheet"/>
+<link href="${appPath}/resources/css/token-input.dwfcustom.css" rel="stylesheet"/>
