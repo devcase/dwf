@@ -69,20 +69,30 @@ public class SitemeshView extends JstlView {
 
 					request.setAttribute(RequestConstants.PAGE, page);
 					request.setAttribute("dwf_decoratedPage", page);
+					
+					//1) decorator set as a request parameter
 					String decorator = exposedRequest.getParameter("decorator");
 					if(StringUtils.isBlank(decorator)) {
+						//2) decorator set as a meta-tag from HTML
 						decorator = page.getProperty("meta.decorator");
 					}
 					if(decorator == null) {
+						//3) ?
 						decorator = (String) exposedRequest.getAttribute("decorator");
 					}
+					
+					
 					if(decorator == null || decorator.equals("none")) {
 						page.writePage(response.getWriter());
 						return;
 					} else if(decorator.equals("table")) {
 						page.writeTable(response.getWriter());
 						return;
+					} else if(decorator.equals("bodycontents")) {
+						page.writeBody(response.getWriter());
+						return;
 					}
+					
 					RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/decorators/" + decorator + ".jsp");
 					dispatcher.include(request, response);
 					request.removeAttribute("dwf_decoratedPage");
