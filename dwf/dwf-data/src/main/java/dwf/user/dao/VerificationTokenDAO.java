@@ -4,5 +4,5 @@ import dwf.persistence.dao.DAO;
 import dwf.user.domain.VerificationToken;
 
 public interface VerificationTokenDAO extends DAO<VerificationToken> {
-
+	VerificationToken findByToken(String token);
 }

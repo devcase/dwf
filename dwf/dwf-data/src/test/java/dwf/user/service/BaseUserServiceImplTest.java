@@ -3,7 +3,11 @@ package dwf.user.service;
 import static helper.BaseUserTestHelper.newBaseUser;
 import static helper.ChangePasswordBeanTestHelper.invalidChangePasswordBean;
 import static helper.ChangePasswordBeanTestHelper.validChangePasswordBean;
+import static helper.ResetPasswordBeanTestHelper.invalidResetPasswordBean;
+import static helper.ResetPasswordBeanTestHelper.validResetPasswordBean;
+import static helper.VerificationTokenTestHelper.validResetPasswordToken;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,6 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import dwf.user.dao.BaseUserDAO;
 import dwf.user.domain.BaseUser;
+import dwf.user.domain.TokenType;
+import dwf.user.domain.VerificationToken;
 import dwf.user.utils.LoggedUser;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -25,6 +31,9 @@ public class BaseUserServiceImplTest {
 
 	@Mock
 	private BaseUserDAO daoMock;
+	
+	@Mock
+	private VerificationTokenService verificationTokenServiceDAOMock;
 	
 	@Mock
 	private PasswordEncoder passwordEncoderMock;
@@ -36,7 +45,8 @@ public class BaseUserServiceImplTest {
 	
 	@Before
 	public void before() {
-		this.service = new BaseUserServiceImpl(daoMock, passwordEncoderMock, loggedUserMock);
+		this.service = new BaseUserServiceImpl(daoMock, verificationTokenServiceDAOMock, 
+				passwordEncoderMock, loggedUserMock);
 	}
 	
 	@Test(expected = ValidationException.class)
@@ -79,5 +89,46 @@ public class BaseUserServiceImplTest {
 		service.findByUsername("travenup");
 		
 		verify(daoMock).findFirstByFilter("username", "travenup");
+	}
+	
+	@Test(expected = ValidationException.class)
+	public void throwsValidationExceptionWhenResetBeanIsInvalid() {
+		service.resetPasswordChange("abcdef1234", invalidResetPasswordBean());
+	}
+	
+	@Test(expected = ValidationException.class)
+	public void throwsValidationExceptionWhenTokenIsNull() {
+		service.resetPasswordChange("abcdef1234", validResetPasswordBean());
+	}
+	
+	@Test
+	public void testValidResetPasswordChange() {
+		final BaseUser userSpy = spy(newBaseUser("travenup"));
+		final VerificationToken tokenSpy = spy(validResetPasswordToken());
+		tokenSpy.setUser(userSpy);
+		
+		when(verificationTokenServiceDAOMock.findByToken("abcdef1234")).thenReturn(tokenSpy);
+		
+		service.resetPasswordChange("abcdef1234", validResetPasswordBean());
+		
+		verify(passwordEncoderMock).encode(anyString());
+		verify(userSpy).setHashedpass(anyString());
+		verify(daoMock).updateByAnnotation(userSpy);
+		verify(verificationTokenServiceDAOMock).verifyToken(tokenSpy);
+	}
+	
+	@Test(expected = ValidationException.class)
+	public void throwsValidationExceptionWhenResetPasswordRequestUserIsNull() {
+		when(daoMock.findFirstByFilter("email", "teste@email.com")).thenReturn(null);
+		service.resetPasswordRequest("teste@email.com");
+	}
+	
+	@Test
+	public void testValidResetPasswordRequest() {
+		when(daoMock.findFirstByFilter("email", "teste@email.com")).thenReturn(newBaseUser("travenup"));
+		
+		service.resetPasswordRequest("teste@email.com");
+		
+		verify(verificationTokenServiceDAOMock).generateAndSendToken("travenup", TokenType.RESET_PASSWORD);
 	}
 }

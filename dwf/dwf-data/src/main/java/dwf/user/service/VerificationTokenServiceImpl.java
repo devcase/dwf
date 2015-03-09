@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import dwf.user.dao.BaseUserDAO;
 import dwf.user.dao.VerificationTokenDAO;
 import dwf.user.domain.BaseUser;
+import dwf.user.domain.TokenType;
 import dwf.user.domain.VerificationToken;
 
 @Service("verificationTokenService")
@@ -32,10 +33,18 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 	}
 
 	@Override
-	public void sendEmailConfirmation(String username) {
-		
-		final BaseUser user = baseUserDAO.findFirstByFilter("username", username);
-		final VerificationToken token = newVerificationToken(user);
+	public VerificationToken findByToken(String token) {
+		return verificationTokenDAO.findByToken(token);
+	}
+	
+	@Override
+	public VerificationToken generateToken(String username, TokenType type) {
+		return newVerificationToken(username, type);
+	}
+	
+	@Override
+	public void generateAndSendToken(String username, TokenType type) {
+		final VerificationToken token = newVerificationToken(username, type);
 		final SimpleMailMessage mail = newMailMessage(token);
 		
 		try {
@@ -48,30 +57,37 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 	private SimpleMailMessage newMailMessage(VerificationToken token) {
 		final SimpleMailMessage mail = new SimpleMailMessage();
 		mail.setTo(token.getUser().getEmail());
-		mail.setSubject("Travenup Registration Confirmation");
-		mail.setText("http://localhost:8080/registration?token=" + token.getToken());
+		mail.setSubject(token.toString());
+		mail.setText("http://localhost:8080/" + token.getType().getUrl() + "/" + token.getToken());
 		return mail;
 	}
 	
-	private VerificationToken newVerificationToken(BaseUser user) {
-		final VerificationToken token = new VerificationToken(UUID.randomUUID().toString(), user);
+	private VerificationToken newVerificationToken(String username, TokenType type) {
+		final BaseUser user = baseUserDAO.findFirstByFilter("username", username);
+		final VerificationToken token = new VerificationToken(UUID.randomUUID().toString(), user, type);
 		verificationTokenDAO.saveNew(token);
 		return token;
 	}
 
 	@Override
 	public void confirmToken(String token) {
-		final VerificationToken verificationToken = verificationTokenDAO.findFirstByFilter("token", token);
+		final VerificationToken verificationToken = verificationTokenDAO.findByToken(token);
 		if (verificationToken == null || verificationToken.hasExpired() || verificationToken.isVerified()) {
 			throw new ValidationException();
 		}
 		
-		verificationToken.setVerified(true);
-		verificationTokenDAO.updateByAnnotation(verificationToken);
+		verifyToken(verificationToken);
 
-		final BaseUser user = verificationToken.getUser();
-		user.setVerified(true);
-		baseUserDAO.updateByAnnotation(user);
+		if (TokenType.EMAIL_CONFIRMATION.equals(verificationToken.getType())) {
+			final BaseUser user = verificationToken.getUser();
+			user.setVerified(true);
+			baseUserDAO.updateByAnnotation(user);
+		}
 	}
 
+	@Override
+	public void verifyToken(VerificationToken token) {
+		token.setVerified(true);
+		verificationTokenDAO.updateByAnnotation(token);
+	}
 }

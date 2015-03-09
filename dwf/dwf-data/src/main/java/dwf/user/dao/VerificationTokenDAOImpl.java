@@ -14,4 +14,9 @@ public class VerificationTokenDAOImpl extends BaseDAOImpl<VerificationToken> imp
 	public VerificationTokenDAOImpl() {
 		super(VerificationToken.class);
 	}
+
+	@Override
+	public VerificationToken findByToken(String token) {
+		return findFirstByFilter("token", token);
+	}
 }

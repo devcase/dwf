@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import dwf.user.dao.BaseUserDAO;
 import dwf.user.domain.BaseUser;
 import dwf.user.domain.ChangePasswordBean;
+import dwf.user.domain.ResetPasswordBean;
+import dwf.user.domain.TokenType;
+import dwf.user.domain.VerificationToken;
 import dwf.user.utils.LoggedUser;
 
 @Service("baseUserService")
@@ -19,10 +22,13 @@ public class BaseUserServiceImpl implements BaseUserService {
 	private final BaseUserDAO dao;
 	private final PasswordEncoder passwordEncoder;
 	private final LoggedUser loggedUser;
+	private final VerificationTokenService verificationTokenService;
 	
 	@Autowired
-	public BaseUserServiceImpl(BaseUserDAO dao, PasswordEncoder passwordEncoder, LoggedUser loggedUser) {
+	public BaseUserServiceImpl(BaseUserDAO dao, VerificationTokenService verificationTokenService, 
+			PasswordEncoder passwordEncoder, LoggedUser loggedUser) {
 		this.dao = dao;
+		this.verificationTokenService = verificationTokenService;
 		this.passwordEncoder = passwordEncoder;
 		this.loggedUser = loggedUser;
 	}
@@ -48,6 +54,33 @@ public class BaseUserServiceImpl implements BaseUserService {
 		}
 	}
 
+	@Override
+	public void resetPasswordRequest(String email) {
+		final BaseUser user = dao.findFirstByFilter("email", email);
+		if (user == null) {
+			throw new ValidationException();
+		}
+		verificationTokenService.generateAndSendToken(user.getUsername(), TokenType.RESET_PASSWORD);
+	}
+	
+	@Override
+	public void resetPasswordChange(String token, ResetPasswordBean resetPasswordBean) {
+		if (!resetPasswordBean.isValidConfirmation()) {
+			throw new ValidationException();
+		}
+		
+		final VerificationToken verificationToken = verificationTokenService.findByToken(token);
+		if (verificationToken == null) {
+			throw new ValidationException();
+		}
+
+		final BaseUser user = verificationToken.getUser();
+		user.setHashedpass(passwordEncoder.encode(resetPasswordBean.getNewPassword()));
+		dao.updateByAnnotation(user);
+		
+		verificationTokenService.verifyToken(verificationToken);
+	}
+	
 	@Override
 	public BaseUser findByUsername(String username) {
 		return dao.findFirstByFilter("username", username);
