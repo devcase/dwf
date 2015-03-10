@@ -1,6 +1,7 @@
 package dwf.web.sitemesh;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -10,12 +11,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.web.servlet.view.JstlView;
 
 import com.opensymphony.module.sitemesh.PageParser;
 import com.opensymphony.module.sitemesh.PageParserSelector;
 import com.opensymphony.module.sitemesh.RequestConstants;
 import com.opensymphony.module.sitemesh.filter.PageResponseWrapper;
+
+import dwf.web.controller.BaseController;
+import dwf.web.message.UserMessage;
 
 /**
  * Wraps a JstlView and apply a decoration based on Sitemesh
@@ -88,6 +94,13 @@ public class SitemeshView extends JstlView {
 					} else if(decorator.equals("table")) {
 						page.writeTable(response.getWriter());
 						return;
+					} else if(decorator.equals("dwfjson")) {
+						DwfJson dwfJson = new DwfJson();
+						dwfJson.bodyContents = page.getBody();
+						dwfJson.userMessages = BaseController.getUserMessageList(request);
+						response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+						GsonBuilderUtils.gsonBuilderWithBase64EncodedByteArrays().create().toJson(dwfJson, response.getWriter());
+						return;
 					} else if(decorator.equals("bodycontents")) {
 						page.writeBody(response.getWriter());
 						return;
@@ -104,6 +117,11 @@ public class SitemeshView extends JstlView {
 
 			}
 		};
+	}
+	
+	public static class DwfJson {
+		public String bodyContents;
+		public List<UserMessage> userMessages;
 	}
 	
 }

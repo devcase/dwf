@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -33,7 +32,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
 
-import dwf.web.DwfCustomDateEditor;
 import dwf.web.conversion.CustomPropertyEditorFactory;
 import dwf.web.message.UserMessage;
 import dwf.web.message.UserMessageType;
@@ -82,6 +80,11 @@ public abstract class BaseController implements ApplicationContextAware {
 		}
 		request.setAttribute(USER_MESSAGES_FLASH_MAP_KEY, list);
 		list.add(new UserMessage(key, userMessageType));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<UserMessage> getUserMessageList(HttpServletRequest request) {
+		return (List<UserMessage>) request.getAttribute(USER_MESSAGES_FLASH_MAP_KEY);
 	}
 
 	/**
