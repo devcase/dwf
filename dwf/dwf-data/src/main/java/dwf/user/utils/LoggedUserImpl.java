@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public class LoggedUserImpl implements LoggedUser {
 
 	@Override
-	public String getUsername() {
+	public String getEmail() {
 		return SecurityContextHolder.getContext().getAuthentication().getName();
 	}
 }

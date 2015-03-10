@@ -39,12 +39,12 @@ public class BaseUserServiceImpl implements BaseUserService {
 			throw new ValidationException();
 		}
 		
-		final String username = loggedUser.getUsername();
-		if (username == null) {
+		final String email = loggedUser.getEmail();
+		if (email == null) {
 			throw new ValidationException();
 		}
 		
-		final BaseUser currentUser = findByUsername(username);
+		final BaseUser currentUser = findByEmail(email);
 		
 		if (passwordEncoder.matches(changePasswordBean.getCurrentPassword(), currentUser.getHashedpass())) {
 			currentUser.setHashedpass(passwordEncoder.encode(changePasswordBean.getNewPassword()));
@@ -56,11 +56,11 @@ public class BaseUserServiceImpl implements BaseUserService {
 
 	@Override
 	public void resetPasswordRequest(String email) {
-		final BaseUser user = dao.findFirstByFilter("email", email);
+		final BaseUser user = findByEmail(email);
 		if (user == null) {
 			throw new ValidationException();
 		}
-		verificationTokenService.generateAndSendToken(user.getUsername(), TokenType.RESET_PASSWORD);
+		verificationTokenService.generateAndSendToken(user.getEmail(), TokenType.RESET_PASSWORD);
 	}
 	
 	@Override
@@ -82,7 +82,7 @@ public class BaseUserServiceImpl implements BaseUserService {
 	}
 	
 	@Override
-	public BaseUser findByUsername(String username) {
-		return dao.findFirstByFilter("username", username);
+	public BaseUser findByEmail(String email) {
+		return dao.findByEmail(email);
 	}
 }

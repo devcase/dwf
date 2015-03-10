@@ -13,20 +13,26 @@ import dwf.user.domain.BaseUser;
 @Transactional
 public class BaseUserDAOImpl extends BaseDAOImpl<BaseUser> implements BaseUserDAO {
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
 	
-	public BaseUserDAOImpl() {
+	@Autowired
+	public BaseUserDAOImpl(PasswordEncoder passwordEncoder) {
 		super(BaseUser.class);
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
 	protected void prepareEntity(BaseUser entity) {
 		if (entity.getId() == null) {
-			entity.setHashedpass(passwordEncoder.encode(entity.getUsername()));
+			entity.setHashedpass(passwordEncoder.encode(entity.getEmail()));
 		} else {
 			final String hashedpass = findById(entity.getId()).getHashedpass();
 			entity.setHashedpass(hashedpass);
 		}
+	}
+
+	@Override
+	public BaseUser findByEmail(String email) {
+		return findFirstByFilter("email", email);
 	}
 }

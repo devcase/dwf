@@ -38,13 +38,13 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 	}
 	
 	@Override
-	public VerificationToken generateToken(String username, TokenType type) {
-		return newVerificationToken(username, type);
+	public VerificationToken generateToken(String email, TokenType type) {
+		return newVerificationToken(email, type);
 	}
 	
 	@Override
-	public void generateAndSendToken(String username, TokenType type) {
-		final VerificationToken token = newVerificationToken(username, type);
+	public void generateAndSendToken(String email, TokenType type) {
+		final VerificationToken token = newVerificationToken(email, type);
 		final SimpleMailMessage mail = newMailMessage(token);
 		
 		try {
@@ -63,8 +63,8 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 		return mail;
 	}
 	
-	private VerificationToken newVerificationToken(String username, TokenType type) {
-		final BaseUser user = baseUserDAO.findFirstByFilter("username", username);
+	private VerificationToken newVerificationToken(String email, TokenType type) {
+		final BaseUser user = baseUserDAO.findByEmail(email);
 		final VerificationToken token = new VerificationToken(UUID.randomUUID().toString(), user, type);
 		verificationTokenDAO.saveNew(token);
 		return token;

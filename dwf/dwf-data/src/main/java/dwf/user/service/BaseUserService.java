@@ -8,5 +8,5 @@ public interface BaseUserService {
 	void changePassword(ChangePasswordBean changePasswordBean);
 	void resetPasswordRequest(String email);
 	void resetPasswordChange(String token, ResetPasswordBean resetPasswordBean);
-	BaseUser findByUsername(String username);
+	BaseUser findByEmail(String email);
 }

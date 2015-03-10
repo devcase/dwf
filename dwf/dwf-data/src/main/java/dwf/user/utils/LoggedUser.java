@@ -1,5 +1,5 @@
 package dwf.user.utils;
 
 public interface LoggedUser {
-	String getUsername();
+	String getEmail();
 }

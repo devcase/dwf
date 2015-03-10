@@ -61,10 +61,10 @@ public class BaseUserServiceImplTest {
 	
 	@Test(expected = ValidationException.class)
 	public void throwsValidationExceptionWhenDatabasePasswordIsDifferent() {
-		final BaseUser user = newBaseUser("travenup");
+		final BaseUser user = newBaseUser("user@devcase.com.br");
 		
-		when(loggedUserMock.getUsername()).thenReturn("travenup");
-		when(daoMock.findFirstByFilter("username", "travenup")).thenReturn(user);
+		when(loggedUserMock.getEmail()).thenReturn("user@devcase.com.br");
+		when(daoMock.findByEmail("user@devcase.com.br")).thenReturn(user);
 		when(passwordEncoderMock.matches(anyString(), anyString())).thenReturn(false);
 		
 		service.changePassword(validChangePasswordBean());
@@ -72,10 +72,10 @@ public class BaseUserServiceImplTest {
 	
 	@Test
 	public void testValidChangepasswordBean() {
-		final BaseUser user = newBaseUser("travenup");
+		final BaseUser user = newBaseUser("user@devcase.com.br");
 		
-		when(loggedUserMock.getUsername()).thenReturn("travenup");
-		when(daoMock.findFirstByFilter("username", "travenup")).thenReturn(user);
+		when(loggedUserMock.getEmail()).thenReturn("user@devcase.com.br");
+		when(daoMock.findByEmail("user@devcase.com.br")).thenReturn(user);
 		when(passwordEncoderMock.matches(anyString(), anyString())).thenReturn(true);
 		
 		service.changePassword(validChangePasswordBean());
@@ -85,10 +85,10 @@ public class BaseUserServiceImplTest {
 	}
 	
 	@Test
-	public void findByUsernameCallsFindFirstByFilter() {
-		service.findByUsername("travenup");
+	public void findByEmail() {
+		service.findByEmail("user@devcase.com.br");
 		
-		verify(daoMock).findFirstByFilter("username", "travenup");
+		verify(daoMock).findByEmail("user@devcase.com.br");
 	}
 	
 	@Test(expected = ValidationException.class)
@@ -103,7 +103,7 @@ public class BaseUserServiceImplTest {
 	
 	@Test
 	public void testValidResetPasswordChange() {
-		final BaseUser userSpy = spy(newBaseUser("travenup"));
+		final BaseUser userSpy = spy(newBaseUser("user@devcase.com.br"));
 		final VerificationToken tokenSpy = spy(validResetPasswordToken());
 		tokenSpy.setUser(userSpy);
 		
@@ -119,16 +119,16 @@ public class BaseUserServiceImplTest {
 	
 	@Test(expected = ValidationException.class)
 	public void throwsValidationExceptionWhenResetPasswordRequestUserIsNull() {
-		when(daoMock.findFirstByFilter("email", "teste@email.com")).thenReturn(null);
+		when(daoMock.findByEmail("teste@email.com")).thenReturn(null);
 		service.resetPasswordRequest("teste@email.com");
 	}
 	
 	@Test
 	public void testValidResetPasswordRequest() {
-		when(daoMock.findFirstByFilter("email", "teste@email.com")).thenReturn(newBaseUser("travenup"));
+		when(daoMock.findByEmail("user@devcase.com.br")).thenReturn(newBaseUser("user@devcase.com.br"));
 		
-		service.resetPasswordRequest("teste@email.com");
+		service.resetPasswordRequest("user@devcase.com.br");
 		
-		verify(verificationTokenServiceDAOMock).generateAndSendToken("travenup", TokenType.RESET_PASSWORD);
+		verify(verificationTokenServiceDAOMock).generateAndSendToken("user@devcase.com.br", TokenType.RESET_PASSWORD);
 	}
 }

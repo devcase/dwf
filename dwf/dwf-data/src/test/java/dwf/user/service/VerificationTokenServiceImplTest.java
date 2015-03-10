@@ -50,9 +50,9 @@ public class VerificationTokenServiceImplTest {
 	
 	@Test
 	public void generateAndSendEmailConfirmationTokenSuccess() {
-		when(baseUserDAOMock.findFirstByFilter("username", "travenup")).thenReturn(newBaseUser("travenup"));
+		when(baseUserDAOMock.findByEmail("user@devcase.com.br")).thenReturn(newBaseUser("user@devcase.com.br"));
 		
-		service.generateAndSendToken("travenup", TokenType.EMAIL_CONFIRMATION);
+		service.generateAndSendToken("user@devcase.com.br", TokenType.EMAIL_CONFIRMATION);
 		
 		InOrder inOrder = inOrder(verificationTokenDAOMock, mailSenderMock); 
 		inOrder.verify(verificationTokenDAOMock).saveNew(any(VerificationToken.class));
@@ -61,9 +61,9 @@ public class VerificationTokenServiceImplTest {
 	
 	@Test
 	public void generateAndSendResetPasswordTokenSuccess() {
-		when(baseUserDAOMock.findFirstByFilter("username", "travenup")).thenReturn(newBaseUser("travenup"));
+		when(baseUserDAOMock.findByEmail("user@devcase.com.br")).thenReturn(newBaseUser("user@devcase.com.br"));
 		
-		service.generateAndSendToken("travenup", TokenType.RESET_PASSWORD);
+		service.generateAndSendToken("user@devcase.com.br", TokenType.RESET_PASSWORD);
 		
 		InOrder inOrder = inOrder(verificationTokenDAOMock, mailSenderMock); 
 		inOrder.verify(verificationTokenDAOMock).saveNew(any(VerificationToken.class));
@@ -90,7 +90,7 @@ public class VerificationTokenServiceImplTest {
 	
 	@Test
 	public void confirmEmailConfirmationTokenSuccess() {
-		final BaseUser userSpy = spy(newBaseUser("travenup"));
+		final BaseUser userSpy = spy(newBaseUser("user@devcase.com.br"));
 		final VerificationToken tokenSpy = spy(validEmailConfirmationToken());
 		tokenSpy.setUser(userSpy);
 		
@@ -106,7 +106,7 @@ public class VerificationTokenServiceImplTest {
 	
 	@Test
 	public void confirmResetPasswordTokenSuccess() {
-		final BaseUser userSpy = spy(newBaseUser("travenup"));
+		final BaseUser userSpy = spy(newBaseUser("user@devcase.com.br"));
 		final VerificationToken tokenSpy = spy(validResetPasswordToken());
 		tokenSpy.setUser(userSpy);
 		
@@ -122,9 +122,9 @@ public class VerificationTokenServiceImplTest {
 	
 	@Test
 	public void generateTokenSuccessfully() {
-		service.generateToken("travenup", TokenType.CHANGE_PASSWORD);
+		service.generateToken("user@devcase.com.br", TokenType.CHANGE_PASSWORD);
 		
-		verify(baseUserDAOMock).findFirstByFilter("username", "travenup");
+		verify(baseUserDAOMock).findByEmail("user@devcase.com.br");
 		verify(verificationTokenDAOMock).saveNew(any(VerificationToken.class));
 	}
 	

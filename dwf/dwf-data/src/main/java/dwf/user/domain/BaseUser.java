@@ -14,7 +14,6 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import dwf.persistence.annotations.UniqueValue;
-import dwf.persistence.annotations.constraints.Username;
 import dwf.persistence.domain.BaseEntity;
 
 @Entity
@@ -23,7 +22,6 @@ public class BaseUser extends BaseEntity<Long> {
 
 	private static final long serialVersionUID = 3161746215465593657L;
 	
-	private String username;
 	private String email;
 	private String hashedpass;
 	private Date expirationDate;
@@ -32,27 +30,16 @@ public class BaseUser extends BaseEntity<Long> {
 
 	public BaseUser() {}
 	
-	public BaseUser(String username, String email, String hashedpass, Date expirationDate, BaseUserRole role) {
-		this.username = username;
+	public BaseUser(String email, String hashedpass, Date expirationDate, BaseUserRole role) {
 		this.email = email;
 		this.hashedpass = hashedpass;
 		this.expirationDate = expirationDate;
 		this.role = role;
 	}
 	
-	@NaturalId(mutable=true)
-	@Column(length=200)
-	@Username
-	public String getUsername() {
-		return username;
-	}
-	
-	public void setUsername(String username) {
-		this.username = username;
-	}
-	
 	@NotEmpty
 	@Email
+	@NaturalId(mutable=true)
 	public String getEmail() {
 		return email;
 	}
@@ -99,6 +86,6 @@ public class BaseUser extends BaseEntity<Long> {
 	
 	@Override
 	protected String displayText() {
-		return username;
+		return email;
 	}
 }
