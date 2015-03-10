@@ -8,7 +8,7 @@ import dwf.user.domain.BaseUserRole;
 public class BaseUserTestHelper {
 
 	public static BaseUser newBaseUser(String email) {
-		return newBaseUser(email, null, null, BaseUserRole.BACKOFFICE_ADMIN);
+		return newBaseUser(email, "abcd1234", null, BaseUserRole.BACKOFFICE_ADMIN);
 	}
 
 	public static BaseUser newBaseUser(String email, String hashedpass,

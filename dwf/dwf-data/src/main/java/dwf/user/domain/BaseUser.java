@@ -17,7 +17,7 @@ import dwf.persistence.annotations.UniqueValue;
 import dwf.persistence.domain.BaseEntity;
 
 @Entity
-@UniqueValue(field="username")
+@UniqueValue(field="email")
 public class BaseUser extends BaseEntity<Long> {
 
 	private static final long serialVersionUID = 3161746215465593657L;
