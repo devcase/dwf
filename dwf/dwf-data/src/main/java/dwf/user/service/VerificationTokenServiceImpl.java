@@ -56,6 +56,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
 	private SimpleMailMessage newMailMessage(VerificationToken token) {
 		final SimpleMailMessage mail = new SimpleMailMessage();
+		mail.setFrom("dwf@devcase.com.br");
 		mail.setTo(token.getUser().getEmail());
 		mail.setSubject(token.toString());
 		mail.setText("http://localhost:8080/" + token.getType().getUrl() + "/" + token.getToken());
