@@ -61,8 +61,6 @@ $(document).on('dwf-postupdate', function() {
 			initTime: false,
 			minDate: 0,
 			onChangeDateTime: function(current_time) {
-				console.log(timezoneoffset);
-				console.log(current_time.getTimezoneOffset()*60000);
 				selectedDate = new Date(current_time.getTime() + current_time.getTimezoneOffset()*60000 + timezoneoffset);
 			},
 			onGenerate: function(current_time) {
