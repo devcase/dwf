@@ -26,6 +26,9 @@
 <c:if test="${!empty attrMap.value}">
 	<c:set var="value" value="${attrMap.value}"/>
 </c:if>
+<c:if test="${!empty attrMap.formLayout}">
+	<c:set var="formLayout" value="${attrMap.formLayout}"/>
+</c:if>
 
 
 <div class="form-group ${!empty violation ?  'has-error' : ''}">

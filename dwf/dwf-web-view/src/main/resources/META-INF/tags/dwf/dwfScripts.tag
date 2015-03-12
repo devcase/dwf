@@ -9,6 +9,7 @@
 </script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery-1.10.2.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery-ui-1.10.4.custom.min.js"></script>
+<script type="text/javascript" src="${appPath}/resources/js/jquery.datetimepicker.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery.validate-1.11.1.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/serializeObject.js"></script>

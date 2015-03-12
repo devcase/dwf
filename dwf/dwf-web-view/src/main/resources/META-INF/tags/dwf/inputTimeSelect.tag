@@ -19,8 +19,8 @@ if(attrMap.containsKey("items")) {
 	
 } else {
 	DateFormat dateformat = new SimpleDateFormat("HH:mm");
-	Date from = dateformat.parse((String) attrMap.get("from"));
-	Date to = dateformat.parse((String) attrMap.get("to"));
+	Date from = attrMap.containsKey("from") ? dateformat.parse((String) attrMap.get("from")) : dateformat.parse("00:00");
+	Date to = attrMap.containsKey("to") ? dateformat.parse((String) attrMap.get("to")) : dateformat.parse("23:59");
 	Date currentDate = from;
 
 	while(currentDate.compareTo(to) <= 0) {

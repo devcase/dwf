@@ -1,9 +1,10 @@
-<link href="${appPath}/resources/css/bootstrap.min.css" rel="stylesheet"/>
-<link href="${appPath}/resources/css/dwf.css" rel="stylesheet"/>
-<link href="${appPath}/resources/css/jquery-ui-1.10.4.custom.min.css" rel="stylesheet"/>
-<link rel="stylesheet" href="${appPath}/resources/css/font-awesome.min.css"/>
-<link href="${appPath}/resources/css/default.css" rel="stylesheet"/>
-<link href="${appPath}/resources/css/token-input.css" rel="stylesheet"/>
-<link href="${appPath}/resources/css/token-input-facebook.css" rel="stylesheet"/>
-<link href="${appPath}/resources/css/token-input-mac.css" rel="stylesheet"/>
-<link href="${appPath}/resources/css/token-input.dwfcustom.css" rel="stylesheet"/>
+<link rel="stylesheet" type="text/css" href="${appPath}/resources/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="${appPath}/resources/css/dwf.css" />
+<link rel="stylesheet" type="text/css" href="${appPath}/resources/css/jquery-ui-1.10.4.custom.min.css" />
+<link rel="stylesheet" type="text/css" href="${appPath}/resources/css/font-awesome.min.css"/>
+<link rel="stylesheet" type="text/css" href="${appPath}/resources/css/default.css" />
+<link rel="stylesheet" type="text/css" href="${appPath}/resources/css/token-input.css" />
+<link rel="stylesheet" type="text/css" href="${appPath}/resources/css/token-input-facebook.css" />
+<link rel="stylesheet" type="text/css" href="${appPath}/resources/css/token-input-mac.css" />
+<link rel="stylesheet" type="text/css" href="${appPath}/resources/css/token-input.dwfcustom.css" />
+<link rel="stylesheet" type="text/css" href="${appPath}/resources/css/jquery.datetimepicker.css" />

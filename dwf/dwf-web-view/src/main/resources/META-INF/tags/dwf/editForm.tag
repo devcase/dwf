@@ -5,7 +5,9 @@
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
 <%@ tag dynamic-attributes="attrMap"%>
 <%@ variable name-given="entity" scope="NESTED" variable-class="java.lang.Object"%>
-<dwf:resolveEL el="${entityName}" var="entity"/>
+<c:if test="${!empty entityName}">
+	<dwf:resolveEL el="${entityName}" var="entity"/>
+</c:if>
 <dwf:mergeMaps map1="${attrMap}" map2="${attrMap.parentAttrMap}" var="attrMap"/>
 <c:set var="formaction" value="${attrMap.formaction}"/>
 <c:if test="${empty attrMap.formaction}">
@@ -19,11 +21,11 @@
 	<c:when test="${!empty attrMap.labelKey}">
 		<spring:message code="${attrMap.labelKey}" var="panelTitle"/>
 	</c:when>
-	<c:otherwise>
+	<c:when test="${!empty entityName}">
 		<spring:message code="label.editForm.header.${empty entity.id ? 'create' : 'edit'}" var="panelTitle"/>
 		<spring:message code="domain.${entityName}" var="entityDisplayName"/>
 		<c:set var="panelTitle" value="${panelTitle} ${entityDisplayName }"/>
-	</c:otherwise>
+	</c:when>
 </c:choose><%-- /DETERMINAR TÍTULO --%>
 <%-- DETERMINAR LABEL DO BOTÃO --%>
 <c:set var="buttonLabelKey" value="${!empty attrMap.buttonLabelKey ? attrMap.buttonLabelKey : 'action.save'}"/>
@@ -37,9 +39,11 @@
 </c:if>
 
 
-		<form class="form-horizontal validate" method="POST" action="${formaction}" role="form">
+		<form class="form-horizontal validate" method="POST" action="${formaction}" role="form" <c:if test="${!empty attrMap.formId}">id="${attrMap.formId}"</c:if>>
 			<sec:csrfInput />
-			<input type="hidden" name="id" value="${entity.id}"/>
+			<c:if test="${!empty entity }">
+				<input type="hidden" name="id" value="${entity.id}"/>
+			</c:if>
 			<jsp:doBody />
 			<div class="text-right">
 				<c:if test="${attrMap.closemodalbutton eq true}"><%-- Close button, when in a modal (see modal.tag) --%>
@@ -49,7 +53,7 @@
 			 		<spring:message code="${buttonLabelKey}"/>
 				</button>
 			</div>
-		</form>
+		
 		
 <c:if test="${!attrMap.panelless}">
 		</div><!-- /.box-content -->

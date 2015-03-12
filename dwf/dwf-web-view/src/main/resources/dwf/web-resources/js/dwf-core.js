@@ -45,6 +45,39 @@ $(document).on('dwf-postupdate', function() {
 });
 
 /**
+ * Enables jquery-datepicker (após carregamento da página e após 
+ * carregamento de trecho da página via ajax (ver dwf-remoteload.js)
+ * Ver inputDateTime.tag e DwfCustomDateEditor 
+ */
+$(document).on('dwf-postupdate', function() {
+	$(this).find(".date-time-picker").each(function() {
+		var domJQ = $(this);
+		var selectedDate;
+		var timezoneoffset = parseInt($(this).attr('timezoneoffset'));
+		$(this).datetimepicker({step: 30,
+			formatDate: $(this).attr('datetimepicker-date-format'),
+			formatTime: $(this).attr('datetimepicker-time-format'),
+			format: $(this).attr('datetimepicker-date-format') + ' ' + $(this).attr('datetimepicker-time-format'),
+			initTime: false,
+			minDate: 0,
+			onChangeDateTime: function(current_time) {
+				console.log(timezoneoffset);
+				console.log(current_time.getTimezoneOffset()*60000);
+				selectedDate = new Date(current_time.getTime() + current_time.getTimezoneOffset()*60000 + timezoneoffset);
+			},
+			onGenerate: function(current_time) {
+				selectedDate = new Date(current_time.getTime() + current_time.getTimezoneOffset()*60000 + timezoneoffset);
+			}
+		});
+		
+		$(this).closest('form').on('submit', function(evt) {
+			domJQ.val(selectedDate.toISOString());
+		});
+	});
+});
+
+
+/**
  * Disables buttons with data-loading-text attr - after validation
  */
 $(document).on('submit', function(evt) {

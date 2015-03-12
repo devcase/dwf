@@ -66,6 +66,10 @@
 		<path>/META-INF/tags/dwf/inputDate.tag</path>
 	</tag-file>
 	<tag-file>
+		<name>inputDateTime</name>
+		<path>/META-INF/tags/dwf/inputDateTime.tag</path>
+	</tag-file>
+	<tag-file>
 		<name>inputTextarea</name>
 		<path>/META-INF/tags/dwf/inputTextarea.tag</path>
 	</tag-file>

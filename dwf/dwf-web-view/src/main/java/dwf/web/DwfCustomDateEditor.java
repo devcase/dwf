@@ -52,16 +52,20 @@ public class DwfCustomDateEditor extends PropertyEditorSupport implements Custom
 		Locale locale = localeContext.getLocale();
 		
 		String datePatternJava;
+		String timePatternJava;
 		if(locale.equals(Locale.US)) {
 			datePatternJava = "MM/dd/yyyy";
+			timePatternJava="hh:mm a";
 		} else if(locale.equals(Locale.JAPAN) || locale.equals(Locale.CHINA) || locale.equals(Locale.KOREAN)){
 			datePatternJava = "yyyy/MM/dd";
+			timePatternJava="hh:mm a";
 		} else {
 			datePatternJava = "dd/MM/yyyy";
+			timePatternJava="HH:mm";
 		}
 		
-		this.dateFormat = new SimpleDateFormat(datePatternJava);
-		this.timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
+		this.dateFormat = new SimpleDateFormat(datePatternJava, locale);
+		this.timeFormat = new SimpleDateFormat(timePatternJava, locale);
 		
 		isoFormatter = ISODateTimeFormat.dateTimeParser();
 	}
