@@ -45,14 +45,17 @@
 				<input type="hidden" name="id" value="${entity.id}"/>
 			</c:if>
 			<jsp:doBody />
-			<div class="text-right">
-				<c:if test="${attrMap.closemodalbutton eq true}"><%-- Close button, when in a modal (see modal.tag) --%>
-			 		<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="action.cancel"/></button>
-			 	</c:if>
-				<button type="submit" class="btn btn-primary" data-loading-text="<spring:message code="action.wait"/>" formaction="${formaction}">
-			 		<spring:message code="${buttonLabelKey}"/>
-				</button>
-			</div>
+			
+			<c:if test="${attrMap.ommitbuttons ne true }">
+				<div class="text-right">
+					<c:if test="${attrMap.closemodalbutton eq true}"><%-- Close button, when in a modal (see modal.tag) --%>
+				 		<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="action.cancel"/></button>
+				 	</c:if>
+					<button type="submit" class="btn btn-primary" data-loading-text="<spring:message code="action.wait"/>" formaction="${formaction}">
+				 		<spring:message code="${buttonLabelKey}"/>
+					</button>
+				</div>
+			</c:if>
 		
 		
 <c:if test="${!attrMap.panelless}">
