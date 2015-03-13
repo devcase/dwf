@@ -45,7 +45,7 @@ $(document).on('dwf-postupdate', function() {
 });
 
 /**
- * Enables jquery-datepicker (após carregamento da página e após 
+ * Enables jquery-datetime (após carregamento da página e após 
  * carregamento de trecho da página via ajax (ver dwf-remoteload.js)
  * Ver inputDateTime.tag e DwfCustomDateEditor 
  */
@@ -61,15 +61,18 @@ $(document).on('dwf-postupdate', function() {
 			initTime: false,
 			minDate: 0,
 			onChangeDateTime: function(current_time) {
-				selectedDate = new Date(current_time.getTime() + current_time.getTimezoneOffset()*60000 + timezoneoffset);
+				if (current_time != null)
+					selectedDate = new Date(current_time.getTime() + current_time.getTimezoneOffset()*60000 + timezoneoffset);
 			},
 			onGenerate: function(current_time) {
-				selectedDate = new Date(current_time.getTime() + current_time.getTimezoneOffset()*60000 + timezoneoffset);
+				if (domJQ.val() != "")
+					selectedDate = new Date(current_time.getTime() + current_time.getTimezoneOffset()*60000 + timezoneoffset);
 			}
 		});
 		
 		$(this).closest('form').on('submit', function(evt) {
-			domJQ.val(selectedDate.toISOString());
+			if (selectedDate != null)
+				domJQ.val(selectedDate.toISOString());
 		});
 	});
 });
