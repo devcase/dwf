@@ -26,7 +26,7 @@ public class AjaxController extends BaseController {
 	@Autowired
 	private AjaxHashKeyManager ajaxHashKeyManager;
 
-	@RequestMapping("/tokenInput/{hashkey}")
+	@RequestMapping(value="/tokenInput/{hashkey}", produces="text/plain;charset=UTF-8")
 	public Callable<String> tokenInput (@PathVariable final int hashkey, final String q) {
 		return new Callable<String>() {
 			@SuppressWarnings("unchecked")

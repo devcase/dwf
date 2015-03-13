@@ -205,7 +205,7 @@ function reCaptchaRemoveError() {
 
 // token-input (autocomplete input with "tags")
 $(document).on("dwf-postupdate", function () {
-	$(this).find('.token-input').each(function () {
+	$(this).find('.token-input:visible').each(function () {
 		var containerDiv = $(this).parent().find('.token-div');
 		var property = $(this).attr('property');
 		var inpt = $(this);
@@ -216,6 +216,7 @@ $(document).on("dwf-postupdate", function () {
 									noResultsText: null,
 									searchingText: null,
 									theme: th,
+									tokenLimit: $(this).attr('maxTokens'),
 									onAdd: function (item) {
 										containerDiv.append("<input type=\"hidden\" name=\""+property+"[].id\" token-id=\""+item.id+"\" class=\"token-id\" value=\""+item.id+"\" />");
 										containerDiv.append("<input type=\"hidden\" name=\""+property+"[].name\" token-id=\""+item.id+"\" class=\"token-name\" value=\""+item.name+"\" />");
