@@ -56,7 +56,7 @@
 					</button>
 				</div>
 			</c:if>
-		
+		</form>
 		
 <c:if test="${!attrMap.panelless}">
 		</div><!-- /.box-content -->
