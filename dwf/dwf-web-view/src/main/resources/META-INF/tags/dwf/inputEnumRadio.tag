@@ -23,7 +23,7 @@ getJspContext().setAttribute("enumValues", values);
 		<div class="col-12">
 			<label class= "float-left btn btn-borderless ">
 				<input type="radio" name="${name}" value="${enumValue}"
-					${value.equals(enumValue) ? 'checked="checked"' : '' } ${attrMap.required? ' required="true"' : '' }>
+					${value == enumValue ? 'checked="checked"' : '' } ${attrMap.required? ' required="true"' : '' }>
 					<spring:message code="${attrMap.enumtype}.${enumValue}" text="?${attrMap.enumtype}.${enumValue}?" />
 			</label>
 		</div>

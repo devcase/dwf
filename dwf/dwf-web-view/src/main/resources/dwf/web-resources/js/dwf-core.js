@@ -244,3 +244,23 @@ $(document).on("dwf-postupdate", function () {
 		
 	});
 });
+
+
+$(document).on("ready dwf-postupdate", function () {
+	$(".inputEntityImageCheckbox").trigger("verifyChecked");
+});
+
+$(document).on("verifyChecked", ".inputEntityImageCheckbox", function () {
+	console.log("verifyChecked");
+	$(this).find(".checked").remove();
+	if ($(this).find('input').prop('checked')) {
+		$(this).addClass("selected");
+		$(this).append("<span class=\"checked glyphicon glyphicon-ok\"></span>");
+	} else {
+		$(this).removeClass("selected");
+		$(this).find(".checked").remove();
+	}
+});
+$(document).on("click", ".inputEntityImageCheckbox", function () {
+	$(this).trigger("verifyChecked");
+});

@@ -102,6 +102,10 @@
 		<path>/META-INF/tags/dwf/inputEntityCheckboxList.tag</path>
 	</tag-file>
 	<tag-file>
+		<name>inputEntityImageCheckbox</name>
+		<path>/META-INF/tags/dwf/inputEntityImageCheckbox.tag</path>
+	</tag-file>
+	<tag-file>
 		<name>inputTimeCheckboxList</name>
 		<path>/META-INF/tags/dwf/inputTimeCheckboxList.tag</path>
 	</tag-file>

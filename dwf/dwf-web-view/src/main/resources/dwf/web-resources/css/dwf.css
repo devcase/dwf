@@ -174,3 +174,32 @@ fieldset[disabled] .btn-borderless.active {
   border: none;
 }
 
+/* inputEntityImageCheckbox */
+.inputEntityImageCheckbox {
+	display: inline-block;
+	position: relative;
+	text-align: center;
+	border-radius: 2px;
+	border: 3px #DDD solid;
+	padding: 5px;
+}
+.inputEntityImageCheckbox input {
+	display: none;
+}
+.inputEntityImageCheckbox.selected {
+	border: 3px #0A0 solid;
+}
+.inputEntityImageCheckbox span {
+	display: block;
+}
+.inputEntityImageCheckbox span.checked {
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-size: x-small;
+	padding: 2px 2px 4px 4px;
+	color: white;
+	background: #0A0;
+	border-radius: 0 0 0 5px;
+	z-index: 999;
+}
