@@ -264,3 +264,20 @@ $(document).on("verifyChecked", ".inputEntityImageCheckbox", function () {
 $(document).on("click", ".inputEntityImageCheckbox", function () {
 	$(this).trigger("verifyChecked");
 });
+
+/*
+ * price format mask (inputPrice.tag)
+ */
+$(document).on("dwf-postupdate", function (evt) {
+	$(evt.target).find(".price-format").each(function () {
+		var inpt = $(this);
+		inpt.priceFormat({
+			prefix: '',
+			centsSeparator: $(this).attr('decimalSeparator'),
+			thousandsSeparator: $(this).attr('groupingSeparator')
+		});
+		inpt.closest('form').on("submit", function () {
+			inpt.val(inpt.val().replace(new RegExp("\\"+inpt.attr('groupingSeparator'), 'g'), ''));
+		});
+	});
+});

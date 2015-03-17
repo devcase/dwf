@@ -20,3 +20,4 @@
 <script type="text/javascript" src="${appPath}/resources/js/ckeditor/ckeditor.js"></script>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery.tokeninput.js"></script>
+<script type="text/javascript" src="${appPath}/resources/js/jquery.price_format.2.0.min.js"></script>
