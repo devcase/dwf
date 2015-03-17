@@ -17,7 +17,6 @@ $(document).on('click', '[dwf-toggle="paginator"]', function (evt) {
     	    		$target.html(data);
     	    		$target.trigger('dwf-postupdate');
     	    		$target.fadeIn();
-    	    		$target.trigger('dwf-postupdate');
     	    		var top = $target.scrollTop(); //Getting Y of target element
     	    	    window.scrollTo(0, top);
 				}

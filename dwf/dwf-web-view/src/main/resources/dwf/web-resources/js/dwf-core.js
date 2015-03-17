@@ -16,8 +16,8 @@ $(document).on('click', 'form [type="submit"]', function(evt) {
 /**
  * Enables jquery-validate and adapts to bootstrap
  */
-$(document).on('dwf-postupdate', function() {
-	$(this).find("form.validate").validate({
+$(document).on('dwf-postupdate', function(evt) {
+	$(evt.target).find("form.validate").validate({
 		errorElement: 'span',
 		errorClass: 'help-block',
 		errorPlacement: function(label, element) {
@@ -36,8 +36,8 @@ $(document).on('dwf-postupdate', function() {
  * Enables jquery-datepicker (após carregamento da página e após 
  * carregamento de trecho da página via ajax (ver dwf-remoteload.js)
  */
-$(document).on('dwf-postupdate', function() {
-	$(this).find(".date-picker").each(function() {
+$(document).on('dwf-postupdate', function(evt) {
+	$(evt.target).find(".date-picker").each(function() {
 		$(this).datepicker({
 			dateFormat: $(this).attr('data-date-format') 
 		});
@@ -49,8 +49,8 @@ $(document).on('dwf-postupdate', function() {
  * carregamento de trecho da página via ajax (ver dwf-remoteload.js)
  * Ver inputDateTime.tag e DwfCustomDateEditor 
  */
-$(document).on('dwf-postupdate', function() {
-	$(this).find(".date-time-picker").each(function() {
+$(document).on('dwf-postupdate', function(evt) {
+	$(evt.target).find(".date-time-picker").each(function() {
 		var domJQ = $(this);
 		var selectedDate;
 		var timezoneoffset = parseInt($(this).attr('timezoneoffset'));
@@ -140,8 +140,8 @@ $(document).ready(function() {
 /**
  * Tratamento da propriedade minproperty para combos (ver inputNumberSelect.tag)
  */ 
-$(document).on('dwf-postupdate', function() {
-	$(this).find('[minproperty]').each(function() {
+$(document).on('dwf-postupdate', function(evt) {
+	$(evt.target).find('[minproperty]').each(function() {
 		var minPropertyName = $(this).attr('minproperty');
 		var targetDom = $(this);
 		$(this).closest('form').find('[name="' + minPropertyName + '"]').on('change', function(e) {
@@ -166,14 +166,14 @@ $(document).on('dwf-postupdate', function() {
 /**
  * Inicializa os CKEditors da tela (ver <dwf:inputRichText/>)
  */
-$(document).on('dwf-postupdate', function() {
-	$(this).find('.ckeditor').each(function() {
+$(document).on('dwf-postupdate', function(evt) {
+	$(evt.target).find('.ckeditor').each(function() {
 		CKEDITOR.replace(this);
 	});
 });
 
-$(document).on('dwf-postupdate', function() {
-	$(this).find('.g-recaptcha').each(function() {
+$(document).on('dwf-postupdate', function(evt) {
+	$(evt.target).find('.g-recaptcha').each(function() {
 		var recaptcha = $(this);
 		$(this).closest('form').submit(function (evt) {
 			var res = grecaptcha.getResponse();
@@ -204,8 +204,8 @@ function reCaptchaRemoveError() {
 }
 
 // token-input (autocomplete input with "tags")
-$(document).on("dwf-postupdate", function () {
-	$(this).find('.token-input:visible').each(function () {
+$(document).on('dwf-postupdate', function(evt) {
+	$(evt.target).find('.token-input:visible').each(function () {
 		var containerDiv = $(this).parent().find('.token-div');
 		var property = $(this).attr('property');
 		var inpt = $(this);
@@ -246,8 +246,8 @@ $(document).on("dwf-postupdate", function () {
 });
 
 
-$(document).on("ready dwf-postupdate", function () {
-	$(".inputEntityImageCheckbox").trigger("verifyChecked");
+$(document).on("dwf-postupdate", function (evt) {
+	$(evt.target).find(".inputEntityImageCheckbox").trigger("verifyChecked");
 });
 
 $(document).on("verifyChecked", ".inputEntityImageCheckbox", function () {
