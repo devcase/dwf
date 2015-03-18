@@ -5,10 +5,12 @@ import java.util.concurrent.Callable;
 import javax.validation.ValidationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.WebApplicationContext;
 
 import dwf.user.domain.BaseUser;
 import dwf.user.domain.TokenType;
@@ -17,6 +19,7 @@ import dwf.web.controller.BaseCrudController;
 import dwf.web.message.UserMessageType;
 
 @Controller
+@Scope(WebApplicationContext.SCOPE_REQUEST)
 @RequestMapping("/baseUser/")
 public class BaseUserController extends BaseCrudController<BaseUser, Long> {
 

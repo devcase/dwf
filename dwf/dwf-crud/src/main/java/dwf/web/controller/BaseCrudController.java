@@ -97,8 +97,8 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 * 
 	 */
 	@Override
-	public void setupController(RedirectAttributes redirectAttributes, Model model, HttpServletResponse response, HttpServletRequest request) {
-		super.setupController(redirectAttributes, model, response, request);
+	public void setupController(RedirectAttributes redirectAttributes, Model model) {
+		super.setupController(redirectAttributes, model);
 		model.addAttribute("entityName", entityName);
 	}
 

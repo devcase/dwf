@@ -15,13 +15,7 @@ getJspContext().setAttribute("grouping", grouping);
 %>
 <dwf:formGroup parentAttrMap="${attrMap}">
 	<div class="row">
- 		<div class="col-lg-3">
-	 		<input type="text" value="<fmt:formatNumber value='${value.value}' pattern='#.00' />" name="${name}.value"
-			decimalSeparator="${decimal}" groupingSeparator="${grouping}"
-			<c:if test="${attrMap.required}">required="required"</c:if>
-			class='form-control price-format <c:if test="${attrMap.required}">required</c:if>' />
-		</div>
-	 	<div class="col-lg-9">
+	 	<div class="col-xs-6 col-sm-3">
 		  	<select name="${name}.currencyCode"
 				<c:if test="${attrMap.required}">required="required"</c:if> class="form-control">
 				<option value=""><spring:message code="label.select.empty${attrMap.required ? '.required' : ''}"/></option>
@@ -32,6 +26,12 @@ getJspContext().setAttribute("grouping", grouping);
 						><spring:message code="currency.${currencyCode }" /></option>
 				</c:forTokens>
 			</select>
+		</div>
+ 		<div class="col-xs-6 col-sm-4 col-md-3">
+	 		<input type="text" value="<fmt:formatNumber value='${value.value}' pattern='#.00' />" name="${name}.value"
+			decimalSeparator="${decimal}" groupingSeparator="${grouping}"
+			<c:if test="${attrMap.required}">required="required"</c:if>
+			class='form-control price-format <c:if test="${attrMap.required}">required</c:if>' />
 		</div>
 	</div>
 </dwf:formGroup>

@@ -17,10 +17,12 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Path;
 import javax.validation.ValidationException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,11 +34,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
 
+import dwf.user.domain.BaseUser;
+import dwf.user.domain.LoggedUserDetails;
 import dwf.web.conversion.CustomPropertyEditorFactory;
 import dwf.web.message.UserMessage;
 import dwf.web.message.UserMessageType;
 
-@Scope(WebApplicationContext.SCOPE_REQUEST)
 public abstract class BaseController implements ApplicationContextAware {
 	protected static final String USER_MESSAGES_FLASH_MAP_KEY = "userMessagesList";
 	protected static final String VALIDATION_EXCEPTION_FLASH_MAP_KEY = "validationException";
@@ -44,7 +47,9 @@ public abstract class BaseController implements ApplicationContextAware {
 	protected static final String BACK_TO_URL_FLASH_MAP_KEY = "backToUrl";
 	protected RedirectAttributes redirectAttributes;
 	protected Model model;
+	@Autowired
 	protected HttpServletResponse response;
+	@Autowired
 	protected HttpServletRequest request;
 	protected ApplicationContext applicationContext;
 
@@ -55,11 +60,9 @@ public abstract class BaseController implements ApplicationContextAware {
 	 * @param redirectAttributes
 	 */
 	@ModelAttribute
-	public void setupController(RedirectAttributes redirectAttributes, Model model, HttpServletResponse response, HttpServletRequest request) {
+	public void setupController(RedirectAttributes redirectAttributes, Model model) {
 		this.model = model;
 		this.redirectAttributes = redirectAttributes;
-		this.response = response;
-		this.request = request;
 	}
 
 	/**
@@ -181,6 +184,13 @@ public abstract class BaseController implements ApplicationContextAware {
 			return mav;
 		}
 		return null;
+	}
+	
+	protected BaseUser getCurrentBaseUser() {
+		Object currentUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if(currentUser instanceof LoggedUserDetails) {
+			return ((LoggedUserDetails) currentUser).getBaseUser();
+		} return null;
 	}
 
 }
