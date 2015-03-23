@@ -1,4 +1,4 @@
-package dwf.web;
+package dwf.web.rest.conversion;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
@@ -18,10 +18,6 @@ import org.springframework.context.i18n.LocaleContext;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
-
-import dwf.web.conversion.CustomPropertyEditorFactory;
-
-
 
 /**
  * Accepts 3 types of formats - time only (locale dependent), date only  (locale dependent) and ISO8601 

@@ -1,4 +1,4 @@
-package dwf.web.spring;
+package dwf.web.rest.spring;
 
 import java.util.List;
 
@@ -6,10 +6,10 @@ import org.springframework.web.method.annotation.InitBinderDataBinderFactory;
 import org.springframework.web.method.support.InvocableHandlerMethod;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
-import dwf.web.autoconfigure.DwfWebViewAutoConfiguration;
+import dwf.web.rest.autoconfigure.DwfWebRestAutoConfiguration;
 
 /**
- * Custom RequestMappingHandlerAdapter - configurado em {@link DwfWebViewAutoConfiguration}
+ * Custom RequestMappingHandlerAdapter - configurado em {@link DwfWebRestAutoConfiguration}
  * @author Hirata
  *
  */

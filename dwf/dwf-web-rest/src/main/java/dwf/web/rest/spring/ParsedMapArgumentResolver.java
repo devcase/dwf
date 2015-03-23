@@ -1,4 +1,4 @@
-package dwf.web.spring;
+package dwf.web.rest.spring;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -22,7 +22,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import dwf.utils.ParsedMap;
-import dwf.web.DwfCustomDateEditor;
+import dwf.web.rest.conversion.DwfCustomDateEditor;
 
 /**
  * Resolves {@link ParsedMap} method arguments annotated with an @{@link RequestParam} where the annotation does

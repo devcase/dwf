@@ -1,4 +1,4 @@
-package dwf.web.spring;
+package dwf.web.rest.spring;
 
 import java.util.HashSet;
 import java.util.Set;

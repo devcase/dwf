@@ -12,6 +12,7 @@
 		<module>dwf-commons</module>
 		<module>dwf-user</module>
 		<module>dwf-crud</module>
+		<module>dwf-web-rest</module>
 		<module>dwf-web-view</module>
 		<module>dwf-tools</module>
 	</modules>

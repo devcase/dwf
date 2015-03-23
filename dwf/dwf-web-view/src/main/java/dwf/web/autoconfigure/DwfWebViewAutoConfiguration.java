@@ -3,25 +3,16 @@ package dwf.web.autoconfigure;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Context;
-import org.apache.catalina.LifecycleEvent;
-import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.WebResourceRoot.ResourceSetType;
 import org.apache.catalina.core.StandardContext;
-import org.apache.catalina.webresources.StandardRoot;
 import org.apache.tomcat.util.scan.StandardJarScanner;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -38,31 +29,21 @@ import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
-import org.springframework.orm.hibernate4.support.OpenSessionInViewInterceptor;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import dwf.upload.UploadManager;
 import dwf.web.AjaxHashKeyManager;
 import dwf.web.sitemesh.SitemeshView;
 import dwf.web.spring.DwfReCaptchaInterceptor;
-import dwf.web.spring.DwfRequestMappingHandlerAdapter;
-import dwf.web.spring.ParsedMapArgumentResolver;
 import dwf.web.upload.FileSystemUploadManager;
 import dwf.web.upload.S3UploadManager;
 
@@ -70,9 +51,6 @@ import dwf.web.upload.S3UploadManager;
 @ComponentScan(basePackages = {"dwf.web"})
 @EnableWebMvc
 public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
-	
-	@Autowired
-	private ParsedMapArgumentResolver parsedMapArgumentResolver;
 	
 	@Bean
 	public MessageSource messageSource() {
@@ -95,17 +73,6 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		return viewResolver;
 	}
 	
-	@Bean()
-	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-	@Lazy(false)
-	public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {
-		DwfRequestMappingHandlerAdapter requestMappingHandlerAdapter = new DwfRequestMappingHandlerAdapter();
-		requestMappingHandlerAdapter.setIgnoreDefaultModelOnRedirect(true);//TODO comentar o motivo
-		requestMappingHandlerAdapter.setCustomArgumentResolvers(new ArrayList<HandlerMethodArgumentResolver>());
-		requestMappingHandlerAdapter.getCustomArgumentResolvers().add(parsedMapArgumentResolver);
-		return requestMappingHandlerAdapter;
-	}
-
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		//<!-- Ao acessar urls do tipo /resources/, ele procura na pasta da aplicação e, depois, nos arquivos do dwf -->
@@ -143,31 +110,6 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		return new AjaxHashKeyManager();
 	}
 
-	
-	/**
-	 * Configuração do OpenSessionInViewInterceptor - se o DwfData estiver no classpath
-	 * @author Hirata
-	 *
-	 */
-	@Configuration
-	@ConditionalOnClass(name="dwf.data.autoconfigure.DwfDataAutoConfiguration")
-	static class OpenSessionInViewInterceptorConfiguration extends WebMvcConfigurerAdapter {
-		@Autowired
-		private SessionFactory sessionFactory;
-
-		@Bean
-		public OpenSessionInViewInterceptor openSessionInViewInterceptor() {
-			OpenSessionInViewInterceptor o = new OpenSessionInViewInterceptor();
-			o.setSessionFactory(sessionFactory);
-			return o;
-		}
-		
-		@Override
-		public void addInterceptors(InterceptorRegistry registry) {
-			registry.addWebRequestInterceptor(openSessionInViewInterceptor());
-		}
-	}
-	
 	@Configuration
 	static class LocaleChangeInterceptorConfiguration extends WebMvcConfigurerAdapter {
 
