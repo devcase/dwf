@@ -7,7 +7,6 @@ import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
@@ -15,10 +14,12 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.GenericGenerators;
+
+import com.fasterxml.jackson.annotation.JsonView;
 
 import dwf.persistence.annotations.ExcludeFromSerialization;
 import dwf.persistence.annotations.NotEditableProperty;
+import dwf.serialization.View;
 
 @MappedSuperclass
 @Access(AccessType.PROPERTY)
@@ -42,6 +43,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	@GeneratedValue(generator="baseEntityIdGenerator")
 	@GenericGenerator(name="baseEntityIdGenerator", strategy="dwf.persistence.domain.BaseEntityIdGenerator")
 	@NotEditableProperty()
+	@JsonView(View.Summary.class)
 	public ID getId() {
 		return id;
 	}
