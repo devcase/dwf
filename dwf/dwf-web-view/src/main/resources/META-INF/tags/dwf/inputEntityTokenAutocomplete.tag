@@ -5,6 +5,7 @@
 <%@attribute name="filter" type="java.lang.String" description="filtro da busca" %>
 <%@attribute name="maxTokens" type="java.lang.Integer" description="número máximo de elementos adicionados" %>
 <%@attribute name="property" type="java.lang.String"%>
+<%@ tag dynamic-attributes="attrMap"%>
 <%@taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
@@ -17,7 +18,7 @@ AjaxHashKeyManager keyManager = (AjaxHashKeyManager) WebApplicationContextUtils.
 getJspContext().setAttribute("hashkey", keyManager.generateHashKey(entityName, filter));
 %>
 
-<dwf:formGroup targetEntity="${targetEntity}" property="${property}">
+<dwf:formGroup targetEntity="${targetEntity}" property="${property}" parentAttrMap="${attrMap}">
 	<input class="token-input" theme="${theme}" property="${property}" <c:if test="${!empty maxTokens}">maxTokens="${maxTokens}"</c:if> hashkey="${hashkey}" />
 	<div class="token-div" style="display: none">
 		<c:forEach items="${value}" var="item">
