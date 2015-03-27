@@ -7,35 +7,27 @@ import javax.servlet.ServletRequest;
 
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
-import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequestDataBinder;
+import org.springframework.web.bind.ServletRequestParameterPropertyValues;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor;
 
-/**
- * Trata de casos como 
- * @author Hirata
- * 
- */
-public class DwfServletRequestDataBinder extends ExtendedServletRequestDataBinder {
+public class DwfServletModelAttributeProcessor extends ServletModelAttributeMethodProcessor {
 
-	public DwfServletRequestDataBinder(Object target, String objectName) {
-		super(target, objectName);
-	}
+    public DwfServletModelAttributeProcessor() {
+        super(true);
+    }
 
-	public DwfServletRequestDataBinder(Object target) {
-		super(target);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequestDataBinder#addBindValues(org.springframework.beans.MutablePropertyValues, javax.servlet.ServletRequest)
-	 */
-	@Override
-	protected void addBindValues(MutablePropertyValues mpvs, ServletRequest request) {
-		super.addBindValues(mpvs, request);
-		transformArraysToIndexedValues(mpvs);
+    @Override
+    protected void bindRequestParameters(WebDataBinder binder, NativeWebRequest nativeWebRequest) {
+    	ServletRequest request = nativeWebRequest.getNativeRequest(ServletRequest.class);
+    	MutablePropertyValues mpvs = new ServletRequestParameterPropertyValues(request);
+    	transformArraysToIndexedValues(mpvs);
 		ignoreEmptyEntityId(mpvs, request);
-		
-	}
-
-	/**
+		binder.bind(mpvs);
+    }
+    
+    /**
 	 * Transforma um parâmetro do tipo array com [] no nome para vários parâmetros
 	 * indexados.
 	 * ex: categories[].id={1,2} vira categories[0].id=1 e categories[1].id=2
@@ -100,6 +92,4 @@ public class DwfServletRequestDataBinder extends ExtendedServletRequestDataBinde
 		}
 	
 	}
-	
-
 }
