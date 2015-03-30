@@ -3,6 +3,7 @@ package dwf.web.autoconfigure;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Locale;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -13,9 +14,9 @@ import org.apache.catalina.WebResourceRoot.ResourceSetType;
 import org.apache.catalina.core.StandardContext;
 import org.apache.tomcat.util.scan.StandardJarScanner;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
@@ -29,6 +30,7 @@ import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.web.servlet.LocaleResolver;
@@ -40,12 +42,9 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
-import dwf.upload.UploadManager;
 import dwf.web.AjaxHashKeyManager;
 import dwf.web.sitemesh.SitemeshView;
 import dwf.web.spring.DwfReCaptchaInterceptor;
-import dwf.web.upload.FileSystemUploadManager;
-import dwf.web.upload.S3UploadManager;
 
 @Configuration
 @ComponentScan(basePackages = {"dwf.web"})
@@ -101,8 +100,11 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	}
 
 	@Bean
+	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public LocaleResolver localeResolver() {
-		return new SessionLocaleResolver();
+		SessionLocaleResolver localeResolver = new SessionLocaleResolver();
+		localeResolver.setDefaultLocale(Locale.getDefault());
+		return localeResolver;
 	}
 	
 	@Bean
@@ -120,37 +122,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		
 	}
 	
-	@Configuration
-	@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "s3")
-	static class S3UploadManagerConfiguration {
 
-		@Value("${dwf.web.uploadmanager.bucketname:testdb}")
-		private String bucketName = "testdb";
-		
-		@Bean
-		public UploadManager uploadManager() {
-			S3UploadManager s = new S3UploadManager();
-			s.setBucketName(bucketName);
-			return s;
-			
-		}
-	}
-	
-
-	@Configuration
-	@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "filesystem")
-	static class FileSystemUploadManagerConfiguration {
-
-		@Value("${dwf.web.uploadmanager.directory:testdb}")
-		private String directory = "testdb";
-
-		@Bean
-		public FileSystemUploadManager uploadManager() {
-			FileSystemUploadManager s = new FileSystemUploadManager();
-			s.setDirectory(directory);
-			return s;
-		}
-	}
 	
 	/**
 	 * <p>Workaround maldito para usar a taglib do dwf-web-view como item do classpath como diretório
