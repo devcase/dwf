@@ -1,20 +1,20 @@
 package dwf.multilang.domain;
 
-import java.lang.reflect.Type;
 import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.MapKey;
-import javax.persistence.MapKeyColumn;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.persistence.domain.BaseEntity;
+import dwf.serialization.View;
 
 @MappedSuperclass
 public abstract class BaseMultilangEntity<T extends Translation<?>> extends BaseEntity<Long> {
@@ -47,6 +47,7 @@ public abstract class BaseMultilangEntity<T extends Translation<?>> extends Base
 
 	@NotEmpty
 	@Column(length=400)
+	@JsonView(View.Summary.class)
 	public String getName() {
 		return name;
 	}
