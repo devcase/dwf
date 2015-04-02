@@ -28,7 +28,7 @@ public class DwfNamingStrategy implements NamingStrategy {
 	 */
 	public String propertyToColumnName(String propertyName) {
 		
-		return addUnderscores( StringHelper.unqualify(propertyName) );
+		return columnName( StringHelper.unqualify(propertyName) );
 	}
 	/**
 	 * Convert mixed case to underscores
