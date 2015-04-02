@@ -1,4 +1,14 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%--
+Atributos:
+
+  * formaction: 	Action da tag <form/>
+  * title:			Cabeçalho do painel
+  * labelKey: 		Chave para o cabeçalho do painel (se title não informado)
+  * buttonLabelKey:	Chave para o texto do botão submit (padrão: action.save)
+  * panelless:		Não imprime o painel ou o título - basicamente apenas o formulário
+
+
+ --%><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>

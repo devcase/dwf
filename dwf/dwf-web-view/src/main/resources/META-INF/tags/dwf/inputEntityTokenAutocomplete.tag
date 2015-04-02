@@ -1,7 +1,7 @@
 <%@tag import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@tag import="dwf.web.AjaxHashKeyManager"%>
 <%@attribute name="targetEntity" required="true" type="java.lang.String"%>
-<%@attribute name="theme" type="java.lang.String" description="theme: null, facebook or mac"%>
+<%@attribute name="theme" type="java.lang.String" description="theme: null, facebook or mac" %>
 <%@attribute name="filter" type="java.lang.String" description="filtro da busca" %>
 <%@attribute name="maxTokens" type="java.lang.Integer" description="número máximo de elementos adicionados" %>
 <%@attribute name="property" type="java.lang.String"%>
@@ -17,6 +17,7 @@ AjaxHashKeyManager keyManager = (AjaxHashKeyManager) WebApplicationContextUtils.
 
 getJspContext().setAttribute("hashkey", keyManager.generateHashKey(entityName, filter));
 %>
+<c:set var="theme" value="${empty theme ? 'facebook' : theme }"/>
 
 <dwf:formGroup targetEntity="${targetEntity}" property="${property}" parentAttrMap="${attrMap}">
 	<input class="token-input" theme="${theme}" property="${property}" <c:if test="${!empty maxTokens}">maxTokens="${maxTokens}"</c:if> hashkey="${hashkey}" />
