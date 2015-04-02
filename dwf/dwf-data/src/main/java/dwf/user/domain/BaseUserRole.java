@@ -1,7 +1,6 @@
 package dwf.user.domain;
 
-public enum BaseUserRole {
-	BACKOFFICE_ADMIN,
-	BACKOFFICE_USER,
-	CLIENT
+public interface BaseUserRole {
+	public static String BACKOFFICE_ADMIN = "ROLE_BACKOFFICE_ADMIN";
+	public static String BACKOFFICE_USER = "ROLE_BACKOFFICE_USER";
 }

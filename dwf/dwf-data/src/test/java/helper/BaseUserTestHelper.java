@@ -12,7 +12,7 @@ public class BaseUserTestHelper {
 	}
 
 	public static BaseUser newBaseUser(String email, String hashedpass,
-			Date expirationDate, BaseUserRole role) {
+			Date expirationDate, String role) {
 		return new BaseUser(email, hashedpass, expirationDate, role);
 	}
 }

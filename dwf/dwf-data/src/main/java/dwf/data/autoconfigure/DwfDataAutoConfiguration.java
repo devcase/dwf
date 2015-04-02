@@ -50,7 +50,6 @@ public class DwfDataAutoConfiguration  {
 	@Bean
 	public javax.validation.Validator beanValidator() {
 		LocalValidatorFactoryBean a = new LocalValidatorFactoryBean();
-//		a.setConstraintValidatorFactory(new DwfConstraintValidatorFactory(applicationContext));
 		a.setMessageInterpolator(
 				new LocaleContextMessageInterpolator(
 						new ResourceBundleMessageInterpolator(

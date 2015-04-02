@@ -1,8 +1,12 @@
 package dwf.user.domain;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -26,15 +30,15 @@ public class BaseUser extends BaseEntity<Long> {
 	private String hashedpass;
 	private Date expirationDate;
 	private boolean verified;
-	private BaseUserRole role;
+	private List<String> roles;
 
 	public BaseUser() {}
 	
-	public BaseUser(String email, String hashedpass, Date expirationDate, BaseUserRole role) {
+	public BaseUser(String email, String hashedpass, Date expirationDate, String... roles) {
 		this.email = email;
 		this.hashedpass = hashedpass;
 		this.expirationDate = expirationDate;
-		this.role = role;
+		this.roles = roles != null ? Arrays.asList(roles) : Collections.emptyList();
 	}
 	
 	@NotEmpty
@@ -66,16 +70,6 @@ public class BaseUser extends BaseEntity<Long> {
 		this.expirationDate = expirationDate;
 	}
 	
-	@Column(nullable = false)
-	@Enumerated(EnumType.STRING)
-	public BaseUserRole getRole() {
-		return role;
-	}
-	
-	public void setRole(BaseUserRole role) {
-		this.role = role;
-	}
-
 	public boolean isVerified() {
 		return verified;
 	}
@@ -88,4 +82,14 @@ public class BaseUser extends BaseEntity<Long> {
 	protected String displayText() {
 		return email;
 	}
+
+	@ElementCollection
+	public List<String> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<String> roles) {
+		this.roles = roles;
+	}
+	
 }

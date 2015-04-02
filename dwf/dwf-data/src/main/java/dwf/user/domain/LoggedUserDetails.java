@@ -12,7 +12,7 @@ public class LoggedUserDetails extends User {
 
 	public LoggedUserDetails(BaseUser baseUser) {
 		super(baseUser.getEmail(), baseUser.getHashedpass(), AuthorityUtils
-				.createAuthorityList(baseUser.getRole().toString()));
+				.createAuthorityList(baseUser.getRoles().toArray(new String[0])));
 		this.id = baseUser.getId();
 		this.baseUser = baseUser;
 	}
