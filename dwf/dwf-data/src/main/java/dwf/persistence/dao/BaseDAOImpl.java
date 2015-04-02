@@ -42,6 +42,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
+import org.hibernate.NaturalIdLoadAccess;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -80,6 +81,7 @@ import dwf.utils.SimpleParsedMap;
  * 
  */
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+@Transactional
 public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> implements DAO<D> {
 	private Log log = LogFactory.getLog(getClass());
 
@@ -119,6 +121,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	private List<NotSyncPropertyDescriptor> propertyList;
 	private Set<String> propertyNames;
 	private final Set<String> readAndWritePropertyNames;
+	
 
 	public BaseDAOImpl(Class<D> clazz) {
 		super();
@@ -452,6 +455,9 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		prepareEntity(entity);
 		validate(entity, ValidationGroups.MergePersist.class);
 		validate(entity); // valida campos sem grupos definidos
+		if(findByNaturalId(entity) != null) {
+			throw new ValidationException("NaturalId repetido");
+		}
 		entity.setUpdateTime(new Date());
 		entity.setCreationTime(new Date());
 		getSession().persist(entity);
@@ -485,7 +491,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	}
 
 	/**
-	 * 
+	 * TODO - comentar!!!!!
 	 * @param entity
 	 * @return
 	 */
@@ -545,6 +551,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 
 		
 		ClassMetadata cm = sessionFactory.getClassMetadata(clazz);
+		
 
 		for (final PropertyDescriptor property : this.updatableProperties.keySet()) {
 			try {
@@ -911,6 +918,34 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	@Override
 	public Class<D> getEntityClass() {
 		return clazz;
+	}
+	
+	/**
+	 * Searches based on naturalIds defined in the provided instance.
+	 */
+	@Override
+	public D findByNaturalId(D instance) {
+		ClassMetadata classMetadata = sessionFactory.getClassMetadata(getEntityClass());
+		int[] natIds = classMetadata.getNaturalIdentifierProperties();
+		if(natIds == null || natIds.length == 0) return null; 
+		Object[] propertyValues = classMetadata.getPropertyValues(instance);
+		String[] propertyNames = classMetadata.getPropertyNames();
+		NaturalIdLoadAccess natIdLoadAcc =  null;
+		
+		for (int naturalIdIdx : natIds) {
+			if(propertyValues[naturalIdIdx] != null) {
+				if(natIdLoadAcc == null) natIdLoadAcc = getSession().byNaturalId(getEntityClass());
+				natIdLoadAcc = natIdLoadAcc.using(propertyNames[naturalIdIdx], propertyValues[naturalIdIdx]);
+			}
+		}
+		return natIdLoadAcc == null ? null : (D) natIdLoadAcc.load();
+	}
+
+	@Override
+	public D findOrSaveNew(D instance) {
+		if(instance == null) return null;
+		D existent = instance.getId() != null ? findById(instance.getId()) : findByNaturalId(instance);
+		return existent != null ? existent : saveNew(instance);
 	}
 	
 	

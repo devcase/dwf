@@ -57,4 +57,7 @@ public interface DAO<D extends BaseEntity<?>> {
 	D retrieveCopy(Serializable id);
 	void evict(D entity);
 	Class<D> getEntityClass();
+	
+	D findByNaturalId(D instance);
+	D findOrSaveNew(D instance);
 }
