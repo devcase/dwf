@@ -18,6 +18,7 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import dwf.persistence.annotations.ExcludeFromSerialization;
+import dwf.persistence.annotations.MongoId;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.serialization.View;
 
@@ -29,7 +30,6 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	 * 
 	 */
 	private static final long serialVersionUID = 6441974999647599671L;
-
 	private ID id;
 	
 	@ExcludeFromSerialization
@@ -39,7 +39,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	@ExcludeFromSerialization
 	private Date updateTime;
 
-	@Id
+	@Id @MongoId
 	@GeneratedValue(generator="baseEntityIdGenerator")
 	@GenericGenerator(name="baseEntityIdGenerator", strategy="dwf.persistence.domain.BaseEntityIdGenerator")
 	@NotEditableProperty()
