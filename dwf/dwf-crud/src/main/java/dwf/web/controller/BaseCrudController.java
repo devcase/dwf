@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ValidationException;
 
@@ -121,7 +120,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 * @return
 	 */
 	@RequestMapping(value = { "/{id}", "/view/{id}" }, method = RequestMethod.GET)
-	public String view(@PathVariable Long id) {
+	public String view(@PathVariable ID id) {
 		D entity = getDAO().findById(id);
 		if (entity == null) {
 			addUserMessage("crud.view.notfound", UserMessageType.DANGER);
@@ -141,7 +140,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 * @return
 	 */
 	@RequestMapping(value = "/edit/{id}")
-	public String edit(@PathVariable Long id) {
+	public String edit(@PathVariable ID id) {
 		D entity = getDAO().findById(id);
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
@@ -156,7 +155,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	/**
 	 */
 	@RequestMapping(value = { "/restore/{id}" }, method = RequestMethod.GET)
-	public String restore(@PathVariable Long id) {
+	public String restore(@PathVariable ID id) {
 		D entity = getDAO().findById(id);
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
@@ -192,7 +191,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	/**
 	 */
 	@RequestMapping(value = { "/restore/{id}" }, method = RequestMethod.POST)
-	public String restore(@RequestParam(value = "comments", required = true) String comments, @PathVariable Long id) {
+	public String restore(@RequestParam(value = "comments", required = true) String comments, @PathVariable ID id) {
 		D entity = getDAO().findById(id);
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
@@ -206,7 +205,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	/**
 	 */
 	@RequestMapping(value = { "/delete/{id}" }, method = RequestMethod.GET)
-	public String delete(@PathVariable Long id) {
+	public String delete(@PathVariable ID id) {
 		D entity = getDAO().findById(id);
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
@@ -221,7 +220,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	/**
 	 */
 	@RequestMapping(value = { "/delete/{id}" }, method = RequestMethod.POST)
-	public String delete(@RequestParam(value = "comments", required = true) String comments, @PathVariable Long id) {
+	public String delete(@RequestParam(value = "comments", required = true) String comments, @PathVariable ID id) {
 		D entity = getDAO().findById(id);
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
@@ -262,7 +261,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	}
 
 	@RequestMapping(value = { "/log/{id}" }, method = RequestMethod.GET)
-	public String log(@PathVariable Long id) {
+	public String log(@PathVariable ID id) {
 		D entity = getDAO().findById(id);
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
@@ -276,7 +275,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	}
 	
 	@RequestMapping(value = { "/updateUpload/{id}" }, method = RequestMethod.POST)
-	public Callable<String> updateUpload(@PathVariable final Long id, final String propertyName, final MultipartFile file) {
+	public Callable<String> updateUpload(@PathVariable final ID id, final String propertyName, final MultipartFile file) {
 		return new Callable<String>() {
 			@Override
 			public String call() throws Exception {

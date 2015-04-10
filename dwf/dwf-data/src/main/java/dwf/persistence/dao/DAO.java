@@ -22,11 +22,11 @@ public interface DAO<D extends BaseEntity<?>> {
 	/**
 	 * 
 	 * @param filter
-	 * @param pageNumber inicia em 0
+	 * @param offset inicia em 0
 	 * @param maxResults tamanho da página
 	 * @return
 	 */
-	List<D> findByFilter(ParsedMap filter, int pageNumber, int fetchSize);
+	List<D> findByFilter(ParsedMap filter, int offset, int fetchSize);
 	<T> List<T> findByFilter(ParsedMap filter, QueryReturnType<T> returnType, int pageNumber, int fetchSize);
 	List<D> findByFilter(ParsedMap filter);
 	List<?> findAll();
