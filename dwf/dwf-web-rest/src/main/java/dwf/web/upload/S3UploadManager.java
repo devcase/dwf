@@ -91,14 +91,16 @@ public class S3UploadManager implements UploadManager {
 		try {
 			ImageOutputStream ios = ImageIO.createImageOutputStream(tmpFile);
 			String formatName = "jpeg";
-			if(!"image/jpeg".equals(contentType))
+			boolean isJpeg = "image/jpeg".equals(contentType); 
+			if(!isJpeg)
 				formatName = "png";
 			Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName(formatName);
-			
 			ImageWriter writer = iter.next();
 			ImageWriteParam iwp = writer.getDefaultWriteParam();
-			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-			iwp.setCompressionQuality(0.9f);
+			if(isJpeg) {
+				iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+				iwp.setCompressionQuality(0.95f);
+			}
 			writer.setOutput(ios);
 			writer.write(null, new IIOImage(image, null, null), iwp);
 			writer.dispose();
