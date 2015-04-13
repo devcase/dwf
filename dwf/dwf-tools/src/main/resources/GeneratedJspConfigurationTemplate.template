@@ -1,0 +1,25 @@
+package $targetPackage;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class GeneratedJspConfiguration {
+	@Autowired
+	private ServerProperties server;
+
+ 
+#foreach( $generatedJsp in $generatedJsps )
+	@Bean()
+	public ServletRegistrationBean $generatedJsp[2]() {
+		ServletRegistrationBean registration = new ServletRegistrationBean(
+				new $generatedJsp[0](), "$generatedJsp[1]");
+		registration.setName("$generatedJsp[2]");
+		return registration;
+	}
+#end
+
+}
