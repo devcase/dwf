@@ -19,10 +19,10 @@ public class DwfJspC extends org.apache.jasper.JspC {
 
 	public static void main(String[] args)  {
 		try {
-			File dir = new File(args[0]);
+//			File dir = new File(args[0]);
 //			FileUtils.deleteDirectory(dir);
 			DwfJspC jspc = new DwfJspC();
-			jspc.setUriroot("src/main/webapp");
+			jspc.setUriroot(args[2]);
 			jspc.setOutputDir(args[0]);
 			jspc.targetPackage = args[1];
 			jspc.execute();
@@ -43,7 +43,6 @@ public class DwfJspC extends org.apache.jasper.JspC {
             thisServletName = packageName + '.' + className;
         }
         generatedJsps.add(new String[] {thisServletName , file.replace('\\', '/'), file.replace('\\', '_').replace('.', '_').replace('-', '_')});
-        System.out.println(thisServletName);
 	}
 	
 	public void generate() throws IOException {
@@ -59,7 +58,7 @@ public class DwfJspC extends org.apache.jasper.JspC {
 		File targDir = new File(scratchDir, targetPackage.replace('.', '/'));
 		targDir.mkdir();
 		File outputFile = new File(targDir, "GeneratedJspConfiguration.java");
-		generateFile(ve, context, outputFile, "GeneratedJspConfigurationTemplate.template", true);
+		generateFile(ve, context, outputFile, "GeneratedJspConfigurationTemplate.template", false);
 
 	}
 	

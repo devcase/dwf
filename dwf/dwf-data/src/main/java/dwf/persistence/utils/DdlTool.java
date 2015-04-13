@@ -36,14 +36,20 @@ public class DdlTool {
 
 
 	public String[] generateSchemaCreationScript()  throws SQLException, IOException, ClassNotFoundException {
-		Configuration cfg = sessionFactoryBean.getConfiguration();
 		Connection conn = dataSource.getConnection();
-		String originalDefaultSchema = cfg.getProperty(Environment.DEFAULT_SCHEMA);
 		try {
 			Dialect dialect = new StandardDialectResolver().resolveDialect(new DatabaseMetaDataDialectResolutionInfoAdapter(conn.getMetaData()));
-			DatabaseMetadata database = new DatabaseMetadata(conn, dialect, cfg);
+			return generateSchemaCreationScript(dialect);
+		} finally {
+			conn.close();
+		}
+	}
+	
+	public String[] generateSchemaCreationScript(Dialect dialect)  throws SQLException, IOException, ClassNotFoundException {
+		Configuration cfg = sessionFactoryBean.getConfiguration();
+		String originalDefaultSchema = cfg.getProperty(Environment.DEFAULT_SCHEMA);
+		try {
 			cfg.getProperties().put( Environment.DEFAULT_SCHEMA , dwfConfig.getDatabaseSchema());
-			
 			return cfg.generateSchemaCreationScript(dialect);
 		} finally {
 			//restore previous default schema
@@ -52,7 +58,6 @@ public class DdlTool {
 			} else {
 				cfg.getProperties().put(Environment.DEFAULT_SCHEMA, originalDefaultSchema);
 			}
-			conn.close();
 		}
 	}
 	
