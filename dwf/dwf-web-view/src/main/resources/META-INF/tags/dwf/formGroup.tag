@@ -1,4 +1,15 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%--
+Atributos:
+
+  * formLayout: 	horizontal
+  * value:			
+  * property:			
+  * ignoreParams:			
+  * labelStyleClass
+  * withoutLabel:	para não mostrar nenhum label
+  * label:			'none' para não mostrar nenhum label
+
+ --%><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>

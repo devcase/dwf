@@ -7,7 +7,6 @@ Atributos:
   * buttonLabelKey:	Chave para o texto do botão submit (padrão: action.save)
   * panelless:		Não imprime o painel ou o título - basicamente apenas o formulário
 
-
  --%><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
@@ -40,6 +39,7 @@ Atributos:
 <%-- DETERMINAR LABEL DO BOTÃO --%>
 <c:set var="buttonLabelKey" value="${!empty attrMap.buttonLabelKey ? attrMap.buttonLabelKey : 'action.save'}"/>
 
+<c:set var="formLayout" value="${!empty formLayout ? formLayout : attrMap.formLayout}" scope="request"/>
 <c:set var="formLayout" value="${!empty formLayout ? formLayout : 'horizontal'}" scope="request"/>
 
 <c:if test="${!attrMap.panelless}">
@@ -49,7 +49,7 @@ Atributos:
 </c:if>
 
 
-		<form class="form-horizontal validate" method="POST" action="${formaction}" role="form" <c:if test="${!empty attrMap.formId}">id="${attrMap.formId}"</c:if>>
+		<form class="form-${formLayout} validate" method="POST" action="${formaction}" role="form" <c:if test="${!empty attrMap.formId}">id="${attrMap.formId}"</c:if>>
 			<sec:csrfInput />
 			<c:if test="${!empty entity }">
 				<input type="hidden" name="id" value="${entity.id}"/>
