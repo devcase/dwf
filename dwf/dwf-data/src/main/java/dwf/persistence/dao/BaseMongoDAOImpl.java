@@ -34,6 +34,7 @@ import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
+import org.jongo.Aggregate;
 import org.jongo.Find;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
@@ -61,7 +62,7 @@ import dwf.user.DwfUserUtils;
 import dwf.utils.ParsedMap;
 import dwf.utils.SimpleParsedMap;
 
-public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements DAO<D> {
+public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<D> {
 	private final static Class<?>[] DEFAULT_VALIDATION_GROUP = { Default.class };
 
 	@Autowired
@@ -109,10 +110,8 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements DAO<D> {
 		this.filledWithUser = new HashMap<NotSyncPropertyDescriptor, FillWithCurrentUser>();
 		this.entityProperties = new HashMap<String, PropertyDescriptor>();
 		
-		//TODO ver como faz pra pegar a coleção (db autowired com collection com nome da classe?)
-		// variável de ambiente (dev - local):
-		// MONGOLAB_URI = mongodb://localhost:27017/systemagic
-		// (rodando servidor mongo na porta 27017 (default))
+		//TODO mudar origem da URI?
+		// Variável de ambiente: MONGOLAB_URI
 		MongoClientURI uri = new MongoClientURI(System.getenv("MONGOLAB_URI"));
 		try {
 			processClazzPropertiesRecursive(clazz);
@@ -120,6 +119,40 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements DAO<D> {
 			throw new RuntimeException("Couldn't create the DAO. Check the Entity configuration.", e);
 		}
 
+	}
+	
+	@Override
+	public D findFirstByMap(Map<String, Object> mongoMap) {
+		return getCollection().findOne(new BasicDBObject(mongoMap).toString()).as(clazz);
+	}
+
+
+
+	@Override
+	public List<D> findByMap(Map<String, Object> mongoMap) {
+		MongoCursor<D> cursor = getCollection().find(new BasicDBObject(mongoMap).toString()).as(clazz);
+		List<D> list = IteratorUtils.toList(cursor);
+		try {
+			cursor.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+
+	@Override
+	public <T> List<T> aggregateByListOfMap(List<Map<String, Object>> mongoAggregatePipeline, Class<T> resultClass) {
+		// see MongoDB documentation on Aggregation Pipelines
+		// http://docs.mongodb.org/manual/core/aggregation-introduction/
+		if (mongoAggregatePipeline != null && mongoAggregatePipeline.size() > 0) {
+			Aggregate aggr = getCollection().aggregate(new BasicDBObject(mongoAggregatePipeline.get(0)).toString());
+			for (int i = 1; i < mongoAggregatePipeline.size(); i++) {
+				aggr.and(new BasicDBObject(mongoAggregatePipeline.get(i)).toString());
+			}
+			return aggr.as(resultClass);
+		}
+		return null;
 	}
 
 	private MongoCollection getCollection() {
@@ -194,6 +227,15 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements DAO<D> {
 			} else if(filter.containsKey(pName+ ".id")) {
 				//Não funciona para collection, só objeto único embedded
 				obj.append(pName+".id", filter.get(pName+".id"));
+			} else if (filter.containsKey(pName+".center") && filter.containsKey(pName+".radius")) {
+				//busca por geolocalização
+				
+				// para buscar pro geolocalização, o filtro tem que ter as duas propriedades:
+				// {propriedade}.center -> array de float ou double no formato [longitude, latitude]
+				// {propriedade}.radius -> int, raio da busca a ser feita
+				
+				BasicDBObject geometry = new BasicDBObject("type", "Point").append("coordinates", filter.get(pName+".center"));
+				obj.append(pName, new BasicDBObject("$near", new BasicDBObject("$geometry", geometry).append("$maxDistance", filter.get(pName+".radius"))));
 			}
 		}
 		return obj;
