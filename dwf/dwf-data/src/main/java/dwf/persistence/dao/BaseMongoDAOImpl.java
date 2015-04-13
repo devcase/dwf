@@ -145,6 +145,9 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 	public <T> List<T> aggregateByListOfMap(List<Map<String, Object>> mongoAggregatePipeline, Class<T> resultClass) {
 		// see MongoDB documentation on Aggregation Pipelines
 		// http://docs.mongodb.org/manual/core/aggregation-introduction/
+		
+		// REMEMBER: $match has to have '"enabled": true' if you don't want deleted/disabled entries
+		
 		if (mongoAggregatePipeline != null && mongoAggregatePipeline.size() > 0) {
 			Aggregate aggr = getCollection().aggregate(new BasicDBObject(mongoAggregatePipeline.get(0)).toString());
 			for (int i = 1; i < mongoAggregatePipeline.size(); i++) {
@@ -236,6 +239,15 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 				
 				BasicDBObject geometry = new BasicDBObject("type", "Point").append("coordinates", filter.get(pName+".center"));
 				obj.append(pName, new BasicDBObject("$near", new BasicDBObject("$geometry", geometry).append("$maxDistance", filter.get(pName+".radius"))));
+			} else if (filter.containsKey(pName+".after") || filter.containsKey(pName+".gte")) {
+				// filtrar após uma data ou maior que um número
+				
+				// {propriedade}.after -> Date
+				// {propriedade}.gte -> numero
+				
+				Object key = filter.get(pName+".after");
+				if (key == null) key = filter.get(pName+".gte");
+				obj.append(pName, new BasicDBObject("$gte", key));
 			}
 		}
 		return obj;
