@@ -24,50 +24,62 @@ public class GenerateCrud {
 //		String[] entityClassesName = { "systemagiclabs.smservices.persistence.domain.flightplan.FlightPlanStep"};
 //		String daopackage = "systemagiclabs.smservices.persistence.dao";
 //		String controllerpackage = "systemagiclabs.smservices.backoffice.controller";
+		String userDir = System.getProperty("user.dir");
 		String[] entityClassesName = { "travenup.persistence.domain.product.Product", "travenup.persistence.domain.user.TravenupUser", "travenup.persistence.domain.user.PersonalProfile"};
 		String daopackage = "travenup.persistence.dao";
 		String controllerpackage = "travenup.backoffice.controller";
-		String javaSrcPath = "/target/generated/main/java";
-		String viewSrcPath = "/target/generated/main/webapp/WEB-INF/jsp/";
-
+		String javaSrcDAOPath = userDir+ "/target/generated/main/java";
+		String javaSrcControllerPath = userDir+"/target/generated/main/java";
+		String viewSrcPath = userDir +"/target/generated/main/webapp/WEB-INF/jsp/";
+		File srcDaoDir = new File(javaSrcDAOPath);
+		File srcControllerDir = new File(javaSrcControllerPath);
+		File viewSrcDir = new File(viewSrcPath);
+		boolean override = false;
 
 		for (String entityClassName : entityClassesName) {
-
 			Class<?> entityClass = Class.forName(entityClassName);
-			
-			
-			Properties p = new Properties();
-		    p.setProperty("resource.loader", "class");
-		    p.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-			VelocityEngine ve = new VelocityEngine(p);
-
-			VelocityContext context = new VelocityContext();
-			context.put("daopackage", daopackage );
-			context.put("controllerpackage", controllerpackage);
-			context.put("entityClass", new ClassTool().inspect(entityClass));
-			
-			File srcDir = new File(System.getProperty("user.dir") + javaSrcPath);
-			File viewSrcDir = new File(System.getProperty("user.dir") + viewSrcPath);
-			
-			System.out.println("Processando entidade " + entityClassName);
-			generateFile(ve, context, new File(srcDir, daopackage.replaceAll("\\.", "/") + "/" + entityClass.getSimpleName() + "DAO.java"), "DAOTemplate.template");
-			generateFile(ve, context, new File(srcDir, daopackage.replaceAll("\\.", "/") + "/" + entityClass.getSimpleName() + "DAOImpl.java"), "DAOImplTemplate.template");
-			generateFile(ve, context, new File(srcDir, controllerpackage.replaceAll("\\.", "/") + "/" + entityClass.getSimpleName() + "Controller.java"), "ControllerTemplate.template");
-			generateFile(ve, context, new File(viewSrcDir, "/" + entityClass.getSimpleName().substring(0, 1).toLowerCase() +  entityClass.getSimpleName().substring(1) + "/edit.jsp"), "editTemplate.template");
-			generateFile(ve, context, new File(viewSrcDir, "/" + entityClass.getSimpleName().substring(0, 1).toLowerCase() +  entityClass.getSimpleName().substring(1) + "/list.jsp"), "listTemplate.template");
-			generateFile(ve, context, new File(viewSrcDir, "/" + entityClass.getSimpleName().substring(0, 1).toLowerCase() +  entityClass.getSimpleName().substring(1) + "/view.jsp"), "viewTemplate.template");
+			generateCrud(daopackage, controllerpackage, srcDaoDir, srcControllerDir, viewSrcDir, override, entityClass);
 		}
 	}
 
-	private static FileWriter generateFile(VelocityEngine ve, VelocityContext context, File generatedFile, String templateName)
+	public static void generateCrud(String daopackage, String controllerpackage, File srcDaoDir, File srcControllerDir, File viewSrcDir, boolean override,
+			Class<?> entityClass) throws IOException {
+		
+		String entityClassName = entityClass.getName();
+		Properties p = new Properties();
+		p.setProperty("resource.loader", "class");
+		p.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+		VelocityEngine ve = new VelocityEngine(p);
+
+		VelocityContext context = new VelocityContext();
+		context.put("daopackage", daopackage );
+		context.put("controllerpackage", controllerpackage);
+		context.put("entityClass", new ClassTool().inspect(entityClass));
+		
+		
+		System.out.println("Processando entidade " + entityClassName);
+		generateFile(ve, context, new File(srcDaoDir, daopackage.replaceAll("\\.", "/") + "/" + entityClass.getSimpleName() + "DAO.java"), "DAOTemplate.template", override);
+		generateFile(ve, context, new File(srcDaoDir, daopackage.replaceAll("\\.", "/") + "/" + entityClass.getSimpleName() + "DAOImpl.java"), "DAOImplTemplate.template", override);
+		generateFile(ve, context, new File(srcControllerDir, controllerpackage.replaceAll("\\.", "/") + "/" + entityClass.getSimpleName() + "Controller.java"), "ControllerTemplate.template", override);
+		generateFile(ve, context, new File(viewSrcDir, "/" + entityClass.getSimpleName().substring(0, 1).toLowerCase() +  entityClass.getSimpleName().substring(1) + "/edit.jsp"), "editTemplate.template", override);
+		generateFile(ve, context, new File(viewSrcDir, "/" + entityClass.getSimpleName().substring(0, 1).toLowerCase() +  entityClass.getSimpleName().substring(1) + "/list.jsp"), "listTemplate.template", override);
+		generateFile(ve, context, new File(viewSrcDir, "/" + entityClass.getSimpleName().substring(0, 1).toLowerCase() +  entityClass.getSimpleName().substring(1) + "/view.jsp"), "viewTemplate.template", override);
+	}
+
+	private static void generateFile(VelocityEngine ve, VelocityContext context, File generatedFile, String templateName, boolean override)
 			throws IOException {
 		FileWriter fileWriter = null;
 		try {
 			if(!generatedFile.exists()) {
 				System.out.println("Creating " + generatedFile.getAbsolutePath());
 			} else {
-				System.out.println("Overriding " + generatedFile.getAbsolutePath());
-				generatedFile.delete();
+				if(override) {
+					System.out.println("Overriding " + generatedFile.getAbsolutePath());
+					generatedFile.delete();
+				} else {
+					System.out.println("Skipping " + generatedFile.getAbsolutePath());
+					return;
+				}
 			}
 			Template template = ve.getTemplate(templateName);
 			FileUtils.touch(generatedFile);
@@ -76,6 +88,6 @@ public class GenerateCrud {
 		} finally {
 			if(fileWriter != null )fileWriter.close();
 		}
-		return fileWriter;
+		return;
 	}
 }

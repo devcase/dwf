@@ -1,7 +1,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
-<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ tag dynamic-attributes="attrMap" %>
+<c:set var="bindingResults" value="${requestScope['org.springframework.validation.BindingResult.form']}"/>
 
 <c:if test="${!empty userMessagesList}">
 	<c:forEach items="${userMessagesList}" var="userMessage">
@@ -18,10 +20,21 @@
 </c:if>
 
 
-<c:if test="${!empty validationException}">
+
+<c:if test="${!empty validationException || bindingResults.errorCount > 0}">
 	<div class="alert alert-danger alert-dismissable  fade in">
 		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
 		<c:choose>
+			<c:when test="${empty validationException}"><%-- bindingResults --%>
+				<spring:message code="validationexception.message" />
+				<ul>
+					<c:forEach items="${bindingResults.allErrors}" var="objectError" varStatus="loopStatus">
+						<li>
+							<dwf:escapeHtml value="${objectError.defaultMessage}"/>
+						</li>
+					</c:forEach>
+				</ul>
+			</c:when>
 			<c:when test="${validationException.getClass().name eq 'javax.validation.ConstraintViolationException' }">
 				<spring:message code="validationexception.message" />
 				<ul>
@@ -38,7 +51,6 @@
 				${validationException.message }
 			</c:otherwise>
 		</c:choose>
-		
 	</div>
 	
 </c:if>

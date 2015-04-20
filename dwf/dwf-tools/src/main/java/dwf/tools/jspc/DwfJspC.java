@@ -15,7 +15,7 @@ import org.apache.velocity.app.VelocityEngine;
 
 public class DwfJspC extends org.apache.jasper.JspC {
 	List<String[]> generatedJsps = new ArrayList<String[]>();
-	String targetPackage;
+	public String targetPackage;
 
 	public static void main(String[] args)  {
 		try {
@@ -25,6 +25,7 @@ public class DwfJspC extends org.apache.jasper.JspC {
 			jspc.setUriroot(args[2]);
 			jspc.setOutputDir(args[0]);
 			jspc.targetPackage = args[1];
+			jspc.setSmapSuppressed(true);
 			jspc.execute();
 			jspc.generate();
 		} catch (IOException e) {

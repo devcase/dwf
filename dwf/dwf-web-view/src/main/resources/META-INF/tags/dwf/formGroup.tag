@@ -18,7 +18,6 @@ Atributos:
 <%@ variable name-given="value" scope="AT_BEGIN" variable-class="java.lang.Object"%>
 <%@ variable name-given="label" scope="AT_BEGIN" variable-class="java.lang.String"%>
 <dwf:mergeMaps map1="${attrMap}" map2="${attrMap.parentAttrMap}" var="attrMap"/>
-<dwf:findViolation path="${attrMap.property}" var="violation"/>
 <dwf:simpleLabel parentAttrMap="${attrMap}" var="label"/>
 <%-- VALOR PADRÃO E NOME DO INPUT --%>
 <c:choose>
@@ -40,15 +39,21 @@ Atributos:
 <c:if test="${!empty attrMap.formLayout}">
 	<c:set var="formLayout" value="${attrMap.formLayout}"/>
 </c:if>
-
-
-<div class="form-group ${!empty violation ?  'has-error' : ''}">
+<dwf:findViolation path="${name}" var="violation"/>
+<%-- Search for BindingResults, when using @Valid annotations --%>
+<c:set var="bindingErrors" value="${requestScope['org.springframework.validation.BindingResult.form'].getFieldErrors(name)}"/>
+<div class="form-group ${(!empty violation || !empty bindingErrors) ?  'has-error' : ''}">
 	<c:choose>
 		<c:when test="${attrMap.withoutLabel || label eq 'none'}"><%-- WITHOU LABEL--%>
 			<div class="${formLayout eq 'horizontal' ? 'col-sm-8 col-sm-offset-4' : 'col-xs-12'}">
 				<jsp:doBody/>
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
 					<span class="help-block">${violation.message}</span>
+				</c:if>
+				<c:if test="${!empty bindingErrors}"><%-- SPRING MVC BINDING ERROR --%>
+					<c:forEach items="${bindingErrors}" var="fieldError">
+						<span class="help-block">${fieldError.defaultMessage}</span>
+					</c:forEach>
 				</c:if>
 		</c:when>
 		<c:when test="${formLayout eq 'horizontal'}"><%-- LAYOUT HORIZONTAL --%>
@@ -58,6 +63,11 @@ Atributos:
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
 					<span class="help-block">${violation.message}</span>
 				</c:if>
+				<c:if test="${!empty bindingErrors}"><%-- SPRING MVC BINDING ERROR --%>
+					<c:forEach items="${bindingErrors}" var="fieldError">
+						<span class="help-block"><spring:message code="${fieldError.code}" text="${fieldError.defaultMessage}"/></span>
+					</c:forEach>
+				</c:if>
 		</c:when>
 		<c:otherwise><%-- LAYOUT PADRÃO --%>
 			<label class="col-sm-12 control-label text-left ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${label}<c:if test="${attrMap.required}">*</c:if></strong> </label>
@@ -65,6 +75,11 @@ Atributos:
 				<jsp:doBody/>
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
 					<span class="help-block">${violation.message}</span>
+				</c:if>
+				<c:if test="${!empty bindingErrors}"><%-- SPRING MVC BINDING ERROR --%>
+					<c:forEach items="${bindingErrors}" var="fieldError">
+						<span class="help-block">${fieldError.code}</span>
+					</c:forEach>
 				</c:if>
 		</c:otherwise>
 	</c:choose>

@@ -34,7 +34,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -48,7 +47,6 @@ import dwf.web.spring.DwfReCaptchaInterceptor;
 
 @Configuration
 @ComponentScan(basePackages = {"dwf.web"})
-@EnableWebMvc
 public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	
 	@Bean
@@ -76,7 +74,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		//<!-- Ao acessar urls do tipo /resources/, ele procura na pasta da aplicação e, depois, nos arquivos do dwf -->
 		//<mvc:resources mapping="/resources/**" location="/resources/, classpath:/dwf/web-resources/" />
-        registry.addResourceHandler("/resources/**").addResourceLocations("/resources/", "classpath:/dwf/web-resources/");
+        registry.addResourceHandler("/resources/**").addResourceLocations("/resources/", "classpath:/dwf/web-resources/", "classpath:/resources/");
 	}
 	
 	
@@ -121,9 +119,6 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		}
 		
 	}
-	
-
-	
 	/**
 	 * <p>Workaround maldito para usar a taglib do dwf-web-view como item do classpath como diretório
 	 * ao invés de jar (resolução do workspace do m2e), com TomcatEmbedded.</p>
@@ -136,13 +131,15 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	 * </ol>
 	 * <p>Só vai ser habilitado se detectar que o dwf-web-view está no classpath como diretório, ao invés
 	 * de via jar</p>
+	 * 
+	 * TODO: Analisar outras estratégias - sobrescrever JasperInitializer? TldScanner?
 	 * @return
 	 */
 	@Configuration
 	@ConditionalOnClass(org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory.class)
-	@Conditional(ConfiguracaoMalditaConfigurationCondition.class)
+	@Conditional(AdicionaDwfTagLibCondition.class)
 	@AutoConfigureAfter(EmbeddedServletContainerAutoConfiguration.class)
-	static class ConfiguracaoMalditaConfiguration extends WebMvcConfigurerAdapter {
+	static class AdicionaDwfTaglibConfiguration extends WebMvcConfigurerAdapter {
 		@Bean
 		public EmbeddedServletContainerCustomizer tomcatContextCustomizer() {
 			return new EmbeddedServletContainerCustomizer() {
@@ -153,7 +150,6 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 				public void customize(ConfigurableEmbeddedServletContainer container) {
 					//Habilita a busca de taglibs
 					if (container instanceof TomcatEmbeddedServletContainerFactory) {
-						
 						TomcatEmbeddedServletContainerFactory factory = (TomcatEmbeddedServletContainerFactory) container;
 						
 						factory.addInitializers(new ServletContextInitializer() {
@@ -163,15 +159,11 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 								//Adiciona diretório do classpath como participante dos WebResources - assim o jasper encontrará
 								//os arquivos .tag durante a compilação do JSP
 								WebResourceRoot resources = standardContext.getResources();
-//								if(resources == null) {
-//									resources = new StandardRoot(standardContext);
-//									standardContext.setResources(resources);
-//								}
 								ClassLoader loader = getClass().getClassLoader();
 								if (loader instanceof URLClassLoader) {
 									for (URL url : ((URLClassLoader) loader).getURLs()) {
 										String urlString = url.toString();
-										if (urlString.startsWith("file:")) {
+										if (urlString.startsWith("file:") && urlString.contains("dwf-web-view")) {
 											String dir = urlString.substring("file:".length());
 											if (new File(dir).isDirectory()) {
 												resources.createWebResourceSet(
@@ -180,9 +172,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 										}
 									}
 								}
-								
 							}
-							
 						});
 						
 						factory.addContextCustomizers(new TomcatContextCustomizer() {
@@ -201,12 +191,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 			};
 		}
 	}
-	/**
-	 * 
-	 * @author Hirata
-	 *
-	 */
-	static class ConfiguracaoMalditaConfigurationCondition implements Condition {
+	static class AdicionaDwfTagLibCondition implements Condition {
 		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 			ClassLoader loader = getClass().getClassLoader();
 			if (loader instanceof URLClassLoader) {

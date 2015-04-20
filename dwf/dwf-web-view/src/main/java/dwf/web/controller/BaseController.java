@@ -21,14 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
@@ -52,6 +51,8 @@ public abstract class BaseController implements ApplicationContextAware {
 	@Autowired
 	protected HttpServletRequest request;
 	protected ApplicationContext applicationContext;
+	@Autowired
+	protected MessageSource messageSource;
 
 	/**
 	 * Chamado pelo SpringMVC antes da execução de um método RedirectMapping
@@ -89,6 +90,26 @@ public abstract class BaseController implements ApplicationContextAware {
 	public static List<UserMessage> getUserMessageList(HttpServletRequest request) {
 		return (List<UserMessage>) request.getAttribute(USER_MESSAGES_FLASH_MAP_KEY);
 	}
+
+	/**
+	 * 
+	 * @param fieldName
+	 * @param key
+	 * @param userMessageType
+	 */
+//	protected void addFieldError(String fieldName, String key, UserMessageType userMessageType) {
+//		
+//		FieldError fe = new FieldError(null, fieldName, );
+//		//request.setAttribute(BindingResult.MODEL_KEY_PREFIX + fieldName, arg1);
+//		@SuppressWarnings("unchecked")
+//		List<UserMessage> list = (List<UserMessage>) redirectAttributes.getFlashAttributes().get(USER_MESSAGES_FLASH_MAP_KEY);
+//		if (list == null) {
+//			list = new ArrayList<UserMessage>();
+//			redirectAttributes.addFlashAttribute(USER_MESSAGES_FLASH_MAP_KEY, list);
+//		}
+//		request.setAttribute(USER_MESSAGES_FLASH_MAP_KEY, list);
+//		list.add(new UserMessage(key, userMessageType));
+//	}
 
 	/**
 	 * 
@@ -191,6 +212,11 @@ public abstract class BaseController implements ApplicationContextAware {
 		if(currentUser instanceof LoggedUserDetails) {
 			return ((LoggedUserDetails) currentUser).getBaseUser();
 		} return null;
+	}
+	
+	protected String getMessage(String code, String... args) {
+		Locale locale = RequestContextUtils.getLocale(request);
+		return messageSource.getMessage(code, args, locale);
 	}
 
 }
