@@ -17,8 +17,11 @@
 		<spring.boot.version>1.2.1.RELEASE</spring.boot.version>
 	</properties>
 
+
+
 	<build>
 		<pluginManagement>
+
 			<plugins>
 				<plugin>
 					<groupId>com.heroku.sdk</groupId>
@@ -54,23 +57,6 @@
 						<uriRoot>${basedir}/src/main/webapp</uriRoot>
 					</configuration>
 				</plugin>
-				<plugin><!-- includes the generated servlets into the compilation source -->
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>build-helper-maven-plugin</artifactId>
-					<executions>
-						<execution>
-							<phase>generate-sources</phase>
-							<goals>
-								<goal>add-source</goal>
-							</goals>
-							<configuration>
-								<sources>
-									<source>${project.build.directory}/generated-sources/jsp</source>
-								</sources>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
 				<plugin>
@@ -103,7 +89,6 @@
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
-
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -114,10 +99,6 @@
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
 		</plugins>
 		<extensions>
 			<extension>
@@ -127,14 +108,20 @@
 			</extension>
 		</extensions>
 		<resources>
-      		<resource>
-        		<directory>${basedir}/src/main/webapp/resources</directory>
-        		<includes>
-        			<include>**</include>
-        		</includes>
-        		<targetPath>resources</targetPath>
-        	</resource>
-        </resources>	
+			<resource>
+				<directory>${basedir}/src/main/webapp/resources</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<targetPath>resources</targetPath>
+			</resource>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+			</resource>
+		</resources>
 	</build>
 
 	<!-- see configuration instructions (settings.xml): https://github.com/spring-projects/aws-maven -->
@@ -162,7 +149,7 @@
 		<repository>
 			<id>devcase-repo</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>s3://devcase-repo/release</url>
+			<url>https://s3.amazonaws.com/devcase-repo/release</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
@@ -170,12 +157,38 @@
 		<repository>
 			<id>devcase-repo-snapshots</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>s3://devcase-repo/snapshot</url>
+			<url>https://s3.amazonaws.com/devcase-repo/snapshot</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
 	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>central</id>
+			<name>Maven Repository Switchboard</name>
+			<url>http://repo1.maven.org/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>devcase-repo</id>
+			<name>Devcase Repository S3 Bucket</name>
+			<url>https://s3.amazonaws.com/devcase-repo/release</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>devcase-repo-snapshots</id>
+			<name>Devcase Repository S3 Bucket</name>
+			<url>https://s3.amazonaws.com/devcase-repo/snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
