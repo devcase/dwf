@@ -43,7 +43,7 @@ public class DwfJspC extends org.apache.jasper.JspC {
         } else {
             thisServletName = packageName + '.' + className;
         }
-        generatedJsps.add(new String[] {thisServletName , file.replace('\\', '/'), file.replace('\\', '_').replace('.', '_').replace('-', '_')});
+        generatedJsps.add(new String[] {thisServletName , file.replace('\\', '/'), file.replace('\\', '_').replace('.', '_').replace('-', '_').replace('/', '_')});
 	}
 	
 	public void generate() throws IOException {
