@@ -51,19 +51,21 @@ public class BaseSecurityExpressionRoot extends SecurityExpressionRoot implement
     }
     
     public LoggedUserDetails getLoggedUserDetails() {
-    	if(authentication instanceof LoggedUserDetails) {
-    		return (LoggedUserDetails) authentication.getPrincipal();
+    	if (authentication == null) {
+    		return null;
+    	} else if(authentication instanceof LoggedUserDetails) {
+    		return (LoggedUserDetails) authentication;
+    	} else if(authentication.getPrincipal() instanceof LoggedUserDetails) {
+        		return (LoggedUserDetails) authentication.getPrincipal();
     	} else {
     		return null;
     	}
     }
     
     public Long getLoggedUserId() {
-    	if(authentication != null && authentication instanceof LoggedUserDetails) { 
-    		return ((LoggedUserDetails) authentication.getPrincipal()).getId();
-    	} else {
-    		return null;
-    	}
+    	LoggedUserDetails l = getLoggedUserDetails();
+    	if(l != null) return l.getId();
+    	else return null;
     }
 
 }

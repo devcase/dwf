@@ -20,7 +20,7 @@ getJspContext().setAttribute("hashkey", keyManager.generateHashKey(entityName, f
 <c:set var="theme" value="${empty theme ? 'facebook' : theme }"/>
 
 <dwf:formGroup targetEntity="${targetEntity}" property="${property}" parentAttrMap="${attrMap}">
-	<input class="token-input" theme="${theme}" property="${property}" <c:if test="${!empty maxTokens}">maxTokens="${maxTokens}"</c:if> hashkey="${hashkey}" />
+	<input type="text" autocomplete="off" class="token-input" theme="${theme}" property="${property}" <c:if test="${!empty maxTokens}">maxTokens="${maxTokens}"</c:if> hashkey="${hashkey}" />
 	<div class="token-div" style="display: none">
 		<c:forEach items="${value}" var="item">
 			<input type="hidden" token-id="${item.id}" class="init-token-id" value="${item.id}" />

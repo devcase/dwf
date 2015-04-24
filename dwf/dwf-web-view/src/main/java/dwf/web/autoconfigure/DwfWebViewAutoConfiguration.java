@@ -34,6 +34,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -47,6 +48,7 @@ import dwf.web.spring.DwfReCaptchaInterceptor;
 
 @Configuration
 @ComponentScan(basePackages = {"dwf.web"})
+@EnableWebMvc
 public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	
 	@Bean

@@ -93,26 +93,6 @@ public abstract class BaseController implements ApplicationContextAware {
 
 	/**
 	 * 
-	 * @param fieldName
-	 * @param key
-	 * @param userMessageType
-	 */
-//	protected void addFieldError(String fieldName, String key, UserMessageType userMessageType) {
-//		
-//		FieldError fe = new FieldError(null, fieldName, );
-//		//request.setAttribute(BindingResult.MODEL_KEY_PREFIX + fieldName, arg1);
-//		@SuppressWarnings("unchecked")
-//		List<UserMessage> list = (List<UserMessage>) redirectAttributes.getFlashAttributes().get(USER_MESSAGES_FLASH_MAP_KEY);
-//		if (list == null) {
-//			list = new ArrayList<UserMessage>();
-//			redirectAttributes.addFlashAttribute(USER_MESSAGES_FLASH_MAP_KEY, list);
-//		}
-//		request.setAttribute(USER_MESSAGES_FLASH_MAP_KEY, list);
-//		list.add(new UserMessage(key, userMessageType));
-//	}
-
-	/**
-	 * 
 	 * @param validationException
 	 */
 	protected void addValidationExceptionMessage(ValidationException validationException) {
@@ -173,7 +153,7 @@ public abstract class BaseController implements ApplicationContextAware {
 	public void setApplicationContext(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
 	}
-
+	
 	@InitBinder
 	public void bindingPreparation(WebDataBinder binder, HttpServletRequest request) {
 		Locale locale = RequestContextUtils.getLocale(request);

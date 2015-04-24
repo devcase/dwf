@@ -15,6 +15,7 @@
 <script type="text/javascript" src="${appPath}/resources/js/serializeObject.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-core.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-remoteload.js"></script>
+<script type="text/javascript" src="${appPath}/resources/js/dwf-remotecontents.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-paginator.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-horizontal-scroller.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/ckeditor/ckeditor.js"></script>

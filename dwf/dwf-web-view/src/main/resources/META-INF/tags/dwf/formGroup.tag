@@ -84,7 +84,7 @@ Atributos:
 		</c:otherwise>
 	</c:choose>
 	<c:if test="${!empty attrMap.helpText}">
-		<p class="help-block">${!empty attrMap.helpText}</p>
+		<p class="help-block"><spring:message code="${attrMap.helpText}" text="${attrMap.helpText}"/></p>
 	</c:if>
 	</div>
 </div>

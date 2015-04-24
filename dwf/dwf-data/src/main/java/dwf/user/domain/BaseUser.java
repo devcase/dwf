@@ -8,8 +8,6 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -18,7 +16,9 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import dwf.persistence.annotations.UniqueValue;
+import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.domain.BaseEntity;
+import dwf.persistence.validation.ValidationGroups;
 
 @Entity
 @UniqueValue(field="email")
@@ -53,6 +53,7 @@ public class BaseUser extends BaseEntity<Long> {
 	}
 	
 	@Column(length=200)
+	@UpdatableProperty(groups=ValidationGroups.ChangePassword.class)
 	public String getHashedpass() {
 		return hashedpass;
 	}
