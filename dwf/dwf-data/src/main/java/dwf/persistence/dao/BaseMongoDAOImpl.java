@@ -44,7 +44,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.mongodb.MongoClientURI;
 
 import dwf.activitylog.domain.UpdatedProperty;
 import dwf.activitylog.service.ActivityLogService;
@@ -110,9 +109,6 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 		this.filledWithUser = new HashMap<NotSyncPropertyDescriptor, FillWithCurrentUser>();
 		this.entityProperties = new HashMap<String, PropertyDescriptor>();
 		
-		//TODO mudar origem da URI?
-		// Variável de ambiente: MONGOLAB_URI
-		MongoClientURI uri = new MongoClientURI(System.getenv("MONGOLAB_URI"));
 		try {
 			processClazzPropertiesRecursive(clazz);
 		} catch (IllegalAccessException | InvocationTargetException | IntrospectionException e) {

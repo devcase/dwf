@@ -99,12 +99,23 @@ public class DwfDataAutoConfiguration  {
 	
 	@Configuration
 	@ConditionalOnClass(Jongo.class)
+	@ConfigurationProperties("mongodb")
 	static class MongoConfig {
+		
+		private String uri;
+		
+		public String getUri() {
+			return uri;
+		}
+		public void setUri(String uri) {
+			this.uri = uri;
+		}
+
 		@Bean
 		@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 		public Jongo jongo() throws UnknownHostException {
-			MongoClientURI uri = new MongoClientURI(System.getenv("MONGOLAB_URI"));
-			DB db = new MongoClient(uri).getDB(uri.getDatabase());
+			MongoClientURI mongoUri = new MongoClientURI(uri);
+			DB db = new MongoClient(mongoUri).getDB(mongoUri.getDatabase());
 			return new Jongo(db,  MongoIdModule.getMapperBuilder().build());
 		}
 	}
