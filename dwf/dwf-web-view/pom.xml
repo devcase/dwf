@@ -156,6 +156,11 @@
 			<artifactId>ckeditor-java-core</artifactId>
 			<version>3.5.3</version>
 		</dependency>
-
+  		<dependency>
+            <groupId>de.javakaffee.msm</groupId>
+            <artifactId>memcached-session-manager-tc7</artifactId>
+            <version>1.8.3</version>
+            <optional>true</optional>
+        </dependency>
 	</dependencies>
 </project>

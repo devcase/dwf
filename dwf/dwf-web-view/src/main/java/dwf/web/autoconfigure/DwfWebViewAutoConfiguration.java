@@ -17,9 +17,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
+import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.boot.context.embedded.tomcat.TomcatContextCustomizer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
@@ -42,6 +44,7 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
+import de.javakaffee.web.msm.MemcachedBackupSessionManager;
 import dwf.web.AjaxHashKeyManager;
 import dwf.web.sitemesh.SitemeshView;
 import dwf.web.spring.DwfReCaptchaInterceptor;
@@ -121,6 +124,57 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		}
 		
 	}
+	
+	
+	@Configuration
+	@ConditionalOnClass(MemcachedBackupSessionManager.class)
+	@ConditionalOnProperty("dwf.webview.memcachedsessionmanager.servers")
+	static class MemcachedSessionManagerConfiguration {
+		@Value("${dwf.webview.memcachedsessionmanager.servers:void}")
+		private String memcacheservers;
+		@Value("${dwf.webview.memcachedsessionmanager.username:void}")
+		private String username;
+		@Value("${dwf.webview.memcachedsessionmanager.password:void}")
+		private String password;
+		@Bean
+		public TomcatContextCustomizer tomcatContextCustomizer() {
+			return new TomcatContextCustomizer() {
+
+				@Override
+				public void customize(Context context) {
+					 MemcachedBackupSessionManager manager = new MemcachedBackupSessionManager();
+	                   
+		            String[] servers = memcacheservers.split(",");
+		            if (servers.length > 1) {
+		              for (int i = 0; i < servers.length; ++i) {
+		                servers[i] = "mc" + i + ":" + servers[i];
+		              }
+		            }
+		            String serversStr = servers[0];
+		            for (int i = 1; i < servers.length; ++i) {
+		              serversStr += "," + servers[i];
+		            }
+		            manager.setMemcachedNodes(serversStr);
+		            manager.setUsername(username);
+		            manager.setPassword(password);
+			        
+			        manager.setMemcachedProtocol("binary");
+			        manager.setSticky(false);
+			        manager.setSessionBackupAsync(false);
+			        manager.setEnabled(true);
+			        manager.setEnableStatistics(true);
+//				        manager.setOperationTimeout(commandLineParams.sessionStoreOperationTimout);
+//				        manager.setLockingMode(commandLineParams.sessionStoreLockingMode);
+//				        manager.setRequestUriIgnorePattern(commandLineParams.sessionStoreIgnorePattern);
+			        context.setManager(manager);
+				}
+				
+
+			};
+		}
+		
+	}
+	
 	/**
 	 * <p>Workaround maldito para usar a taglib do dwf-web-view como item do classpath como diretório
 	 * ao invés de jar (resolução do workspace do m2e), com TomcatEmbedded.</p>
@@ -211,3 +265,4 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		}
 	}
 }
+
