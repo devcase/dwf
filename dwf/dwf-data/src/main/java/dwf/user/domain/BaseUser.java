@@ -15,6 +15,7 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import dwf.persistence.annotations.HideActivityLogValues;
 import dwf.persistence.annotations.UniqueValue;
 import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.domain.BaseEntity;
@@ -54,6 +55,7 @@ public class BaseUser extends BaseEntity<Long> {
 	
 	@Column(length=200)
 	@UpdatableProperty(groups=ValidationGroups.ChangePassword.class)
+	@HideActivityLogValues
 	public String getHashedpass() {
 		return hashedpass;
 	}

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import dwf.persistence.validation.ValidationGroups;
 import dwf.user.dao.BaseUserDAO;
 import dwf.user.domain.BaseUser;
 import dwf.user.domain.ChangePasswordBean;
@@ -48,7 +49,7 @@ public class BaseUserServiceImpl implements BaseUserService {
 		
 		if (passwordEncoder.matches(changePasswordBean.getCurrentPassword(), currentUser.getHashedpass())) {
 			currentUser.setHashedpass(passwordEncoder.encode(changePasswordBean.getNewPassword()));
-			dao.updateByAnnotation(currentUser);
+			dao.updateByAnnotation(currentUser, ValidationGroups.ChangePassword.class);
 		} else {
 			throw new ValidationException();
 		}

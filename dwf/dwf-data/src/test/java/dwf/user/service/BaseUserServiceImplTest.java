@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import dwf.persistence.validation.ValidationGroups;
 import dwf.user.dao.BaseUserDAO;
 import dwf.user.domain.BaseUser;
 import dwf.user.domain.TokenType;
@@ -81,7 +82,7 @@ public class BaseUserServiceImplTest {
 		service.changePassword(validChangePasswordBean());
 		
 		verify(passwordEncoderMock).encode(anyString());
-		verify(daoMock).updateByAnnotation(user);
+		verify(daoMock).updateByAnnotation(user, ValidationGroups.ChangePassword.class);
 	}
 	
 	@Test

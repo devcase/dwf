@@ -208,9 +208,9 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	
 	@Override
 	public D find(D copyWithId) {
-		//TODO - naturalids?
 		if(copyWithId == null || copyWithId.getId() == null) {
-			return null;
+			//TODO - naturalids?
+			return findByNaturalId(copyWithId);
 		} else {
 			return findById(copyWithId.getId());
 		}
