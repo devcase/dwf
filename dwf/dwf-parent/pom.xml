@@ -34,7 +34,7 @@
 						<jdkVersion>${java.version}</jdkVersion>
 						<includeTarget>false</includeTarget>
 						<includes>
-							<include>target/${project.build.finalName}.${project.packaging}</include>
+							<include>${project.build.directory}/${project.build.finalName}.${project.packaging}</include>
 						</includes>
 					</configuration>
 				</plugin>
