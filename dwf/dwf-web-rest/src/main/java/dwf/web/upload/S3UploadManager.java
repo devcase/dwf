@@ -14,6 +14,7 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.GroupGrantee;
@@ -42,7 +43,11 @@ public class S3UploadManager implements UploadManager {
 	public S3UploadManager() {
 		super();
 		this.awsS3Client = new AmazonS3Client();
-		
+	}
+	
+	public S3UploadManager(String accessKey, String secretKey) {
+		super();
+		this.awsS3Client = new AmazonS3Client(new BasicAWSCredentials(accessKey, secretKey));
 	}
 	
 	protected String generateKey(String fileName, String folderName) {

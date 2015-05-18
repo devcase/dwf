@@ -50,10 +50,15 @@ public class DwfWebRestAutoConfiguration {
 
 		@Value("${dwf.web.uploadmanager.bucketname:testdb}")
 		private String bucketName = "testdb";
+		@Value("${aws.accessKeyId:testdb}")
+		private String accessKeyId = "testdb";
+		@Value("${aws.secretKey:testdb}")
+		private String secretKey = "testdb";
+
 		
 		@Bean
 		public UploadManager uploadManager() {
-			S3UploadManager s = new S3UploadManager();
+			S3UploadManager s = new S3UploadManager(accessKeyId, secretKey);
 			s.setBucketName(bucketName);
 			return s;
 			
