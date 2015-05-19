@@ -43,8 +43,15 @@ Atributos:
 <c:set var="formLayout" value="${!empty formLayout ? formLayout : 'horizontal'}" scope="request"/>
 
 <c:if test="${!attrMap.panelless}">
-	<c:if test="${!empty panelTitle and panelTitle ne 'none'}"><h1>${panelTitle} </h1></c:if>
-	<div class="panel panel-default">
+	<c:if test="${empty attrMap.titleType or attrMap.titleType eq 'h1'}">
+		<c:if test="${!empty panelTitle and panelTitle ne 'none'}"><h1>${panelTitle}</h1></c:if>
+	</c:if>
+	<div class="panel panel-default center-block" style="${attrMap.panelStyle}">
+	<c:if test="${attrMap.titleType eq 'panel-heading'}">
+		<c:if test="${!empty panelTitle and panelTitle ne 'none'}">
+		<div class="panel-heading"><h3 class="panel-title">${panelTitle}</h3></div>
+		</c:if>
+	</c:if>
 		<div class="panel-body">
 </c:if>
 
