@@ -114,7 +114,7 @@ public class BaseUserServiceImplTest {
 		
 		verify(passwordEncoderMock).encode(anyString());
 		verify(userSpy).setHashedpass(anyString());
-		verify(daoMock).updateByAnnotation(userSpy);
+		verify(daoMock).updateByAnnotation(userSpy, ValidationGroups.ChangePassword.class);
 		verify(verificationTokenServiceDAOMock).verifyToken(tokenSpy);
 	}
 	
