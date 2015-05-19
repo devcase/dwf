@@ -14,7 +14,6 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import javax.validation.ReportAsSingleViolation;
-import javax.validation.constraints.Pattern;
 
 /**
  * Validates to ensure that the field complies with the following rules:
@@ -23,14 +22,15 @@ import javax.validation.constraints.Pattern;
  *
  */
 @Documented
-@Constraint(validatedBy = {UsernameConstraintValidator.class})
+@Constraint(validatedBy = {PasswordConstraintValidator.class})
 @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
 @Retention(RUNTIME)
 @ReportAsSingleViolation
-@Pattern(regexp = "^[a-z0-9_-]{3,15}$")
-public @interface Username {
-	String message() default "{dwf.persistence.annotations.constraints.Username.message}";
+public @interface Password {
+	String message() default "{dwf.persistence.annotations.constraints.Password.message}";
 	Class<?>[] groups() default {};
 	Class<? extends Payload>[] payload() default {};
-
+	int minLowerCase() default 1;
+	int minUpperCase() default 1;
+	int minDigits() default 1;
 }

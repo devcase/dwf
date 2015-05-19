@@ -1,10 +1,16 @@
 package dwf.user.domain;
 
+import javax.validation.constraints.Size;
+
 import org.hibernate.validator.constraints.NotEmpty;
+
+import dwf.persistence.annotations.constraints.Password;
 
 public class ResetPasswordBean {
 
 	@NotEmpty
+	@Password
+	@Size(min=8, max=100)
 	private String newPassword;
 	
 	@NotEmpty

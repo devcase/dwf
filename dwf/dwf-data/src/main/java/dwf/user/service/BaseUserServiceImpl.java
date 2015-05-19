@@ -77,7 +77,7 @@ public class BaseUserServiceImpl implements BaseUserService {
 
 		final BaseUser user = verificationToken.getUser();
 		user.setHashedpass(passwordEncoder.encode(resetPasswordBean.getNewPassword()));
-		dao.updateByAnnotation(user);
+		dao.updateByAnnotation(user, ValidationGroups.ChangePassword.class);
 		
 		verificationTokenService.verifyToken(verificationToken);
 	}

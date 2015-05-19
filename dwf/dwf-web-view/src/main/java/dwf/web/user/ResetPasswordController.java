@@ -16,6 +16,7 @@ import dwf.user.domain.ResetPasswordBean;
 import dwf.user.domain.VerificationToken;
 import dwf.user.service.BaseUserService;
 import dwf.user.service.VerificationTokenService;
+import dwf.web.ReCaptcha;
 import dwf.web.controller.BaseController;
 import dwf.web.message.UserMessageType;
 
@@ -37,6 +38,7 @@ public class ResetPasswordController extends BaseController {
 	}
 	
 	@RequestMapping(value = "/resetPassword", method = RequestMethod.POST)
+	@ReCaptcha
 	public String doResetPassword(@RequestParam String email) {
 		try {
 			userService.resetPasswordRequest(email);
