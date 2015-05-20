@@ -8,7 +8,9 @@
 <%
 Locale locale = LocaleContextHolder.getLocale();
 String datePatternDatePicker;
-if(locale.equals(Locale.US)) {
+if (locale == null) {
+	datePatternDatePicker="dd/mm/yy";
+} if(locale.equals(Locale.US)) {
 	datePatternDatePicker="mm/dd/yy";
 } else if(locale.equals(Locale.JAPAN) || locale.equals(Locale.CHINA) || locale.equals(Locale.KOREAN)){
 	datePatternDatePicker="yy/mm/dd";
