@@ -1,4 +1,4 @@
-package dwf.web.rest.conversion;
+package dwf.web.conversion;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
@@ -83,6 +83,7 @@ public class DwfCustomDateEditor extends PropertyEditorSupport implements Custom
 	 */
 	@Override
 	public void setAsText(String text) throws IllegalArgumentException {
+		System.out.println(this.getClass() + "==================" + text);
 		if (StringUtils.isBlank(text)) {
 			setValue(null);
 			return;
