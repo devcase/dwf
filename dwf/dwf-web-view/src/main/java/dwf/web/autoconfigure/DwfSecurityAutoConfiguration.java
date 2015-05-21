@@ -113,50 +113,5 @@ public class DwfSecurityAutoConfiguration  {
 		}
 	}
 	
-	/**
-	 * Configuração de segurança baseada em requisições HTTP
-	 * @author Hirata
-	 *
-	 */
-	@Configuration
-	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-	public static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-		@Autowired
-		private UserDetailsService userDetailsService;
-		@Autowired
-		private PasswordEncoder passwordEncoder;
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.userDetailsService(userDetailsService)
-				.passwordEncoder(passwordEncoder);
-		}
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.formLogin()
-					.loginPage("/signin")
-					.loginProcessingUrl("/signin/authenticate")
-					.failureUrl("/signin?error")
-					.permitAll()
-					.and()
-				.logout()
-					.logoutUrl("/logout")
-					.logoutSuccessUrl("/signin?logout").permitAll()
-					.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-					.invalidateHttpSession(true)
-					.and()
-				.authorizeRequests()
-					.antMatchers("/resources/**").permitAll()
-					.antMatchers("/registration", "/resetPassword/**").permitAll()
-					.anyRequest().authenticated()
-					.and()
-				.rememberMe();
-		}
-	}
-
-		
 }
 
