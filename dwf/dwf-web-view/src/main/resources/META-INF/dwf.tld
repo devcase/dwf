@@ -214,4 +214,9 @@
 		<name>locale</name>
 		<path>/META-INF/tags/dwf/locale.tag</path>
 	</tag-file>
+		<tag-file>
+		<name>inputTextCheckboxList</name>
+		<path>/META-INF/tags/dwf/inputTextCheckboxList.tag</path>
+	</tag-file>
+	
 </taglib>

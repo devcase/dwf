@@ -152,6 +152,11 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+			<version>${spring-boot.version}</version>
+		</dependency>		
+		<dependency>
 			<groupId>com.ckeditor</groupId>
 			<artifactId>ckeditor-java-core</artifactId>
 			<version>3.5.3</version>
