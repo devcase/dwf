@@ -13,6 +13,7 @@ import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.WebResourceRoot.ResourceSetType;
 import org.apache.catalina.core.StandardContext;
 import org.apache.tomcat.util.scan.StandardJarScanner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -21,7 +22,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.boot.context.embedded.tomcat.TomcatContextCustomizer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
@@ -33,9 +33,11 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -115,14 +117,35 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		return new AjaxHashKeyManager();
 	}
 
+	/**
+	 * Registers LocaleChangeInterceptor, that looks for a request paramenter called `locale`
+	 * @author Hirata
+	 *
+	 */
 	@Configuration
 	static class LocaleChangeInterceptorConfiguration extends WebMvcConfigurerAdapter {
-
 		@Override
 		public void addInterceptors(InterceptorRegistry registry) {
 			registry.addInterceptor(new LocaleChangeInterceptor());
 		}
+	}
+	
+	
+	@Configuration
+	static class ErrorPageConfiguration   {
+		@Autowired
+		private InternalResourceViewResolver internalResourceViewResolver;
+		private View fallbackerrorview = new SitemeshView("/WEB-INF/jsp/error.jsp");
 		
+		@Bean(name = "error") //Overrides default error
+		public View defaultErrorView() {
+			View v = null;
+			try {
+				v = internalResourceViewResolver.resolveViewName("error", LocaleContextHolder.getLocale());
+			} catch (Exception ex) {
+			}
+			return v != null ? v : fallbackerrorview; 
+		}
 	}
 	
 	

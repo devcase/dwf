@@ -30,6 +30,15 @@ import dwf.web.message.UserMessage;
  * 
  */
 public class SitemeshView extends JstlView {
+	
+
+	public SitemeshView() {
+		super();
+	}
+
+	public SitemeshView(String url) {
+		super(url);
+	}
 
 	@Override
 	protected RequestDispatcher getRequestDispatcher(final HttpServletRequest request, final String path) {
