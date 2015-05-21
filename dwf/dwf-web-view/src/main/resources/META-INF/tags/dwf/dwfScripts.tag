@@ -18,6 +18,7 @@
 <script type="text/javascript" src="${appPath}/resources/js/jquery.validate/localization/messages_<dwf:locale format="underscore"/>.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/serializeObject.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-core.js"></script>
+<script type="text/javascript" src="${appPath}/resources/js/dwf-token-input.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-remoteload.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-remotecontents.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-paginator.js"></script>

@@ -20,17 +20,17 @@ getJspContext().setAttribute("hashkey", keyManager.generateHashKey(entityName, f
 <c:set var="theme" value="${empty theme ? 'facebook' : theme }"/>
 
 <dwf:formGroup targetEntity="${targetEntity}" property="${property}" parentAttrMap="${attrMap}">
-	<input type="text" autocomplete="off" class="token-input" theme="${theme}" property="${property}" <c:if test="${!empty maxTokens}">maxTokens="${maxTokens}"</c:if> hashkey="${hashkey}" />
-	<div class="token-div" style="display: none">
+	<div class="token-input-container" >
+		<input type="text" autocomplete="off" class="form-control" theme="${theme}" property="${property}" <c:if test="${!empty maxTokens}">maxTokens="${maxTokens}"</c:if> hashkey="${hashkey}" />
 		<c:forEach items="${value}" var="item">
 			<input type="hidden" token-id="${item.id}" class="init-token-id" value="${item.id}" />
 			<input type="hidden" token-id="${item.id}" class="init-token-name" value="${item.name}" />
 		</c:forEach>
+		<c:if test="${!empty attrMap.exampleList}">
+			<p class="help-block">Exemplos: 
+				<c:forEach items="${attrMap.exampleList}" var="example" varStatus="loopStatus">${loopStatus.count >1 ? ',':'' }
+				<a href="#" class="token-input-example" id="${example.id}" name="${example}">${example}</a></c:forEach>
+			</p>
+		</c:if>
 	</div>
-	<c:if test="${!empty attrMap.exampleList}">
-		<p class="help-block">Exemplos: 
-			<c:forEach items="${!empty attrMap.exampleList}" var="example" varStatus="loopStatus">${loopStatus.count >1 ? ',':'' }
-			<a href="">${example}</a></c:forEach>
-		</p>
-	</c:if>
 </dwf:formGroup>
