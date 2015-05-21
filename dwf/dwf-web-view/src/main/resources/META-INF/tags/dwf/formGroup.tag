@@ -70,8 +70,8 @@ Atributos:
 				</c:if>
 		</c:when>
 		<c:otherwise><%-- LAYOUT PADRÃO --%>
-			<label class="col-sm-12 control-label text-left ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${label}<c:if test="${attrMap.required}">*</c:if></strong> </label>
-			<div class="col-sm-12">
+			<label class="control-label text-left ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${label}<c:if test="${attrMap.required}">*</c:if></strong> </label>
+			<div >
 				<jsp:doBody/>
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
 					<span class="help-block">${violation.message}</span>

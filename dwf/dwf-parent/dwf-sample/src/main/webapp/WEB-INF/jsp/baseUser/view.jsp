@@ -1,0 +1,19 @@
+<%@ page contentType="text/html;charset=UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
+<dwf:resolveEL el="${entityName}" var="entity" />
+<html>
+<head>
+<meta name="decorator" content="crud" />
+<title>${service}</title>
+</head>
+<body>
+	<dwf:viewPanel>
+  		<dwf:outputText property="email"/>
+  		<dwf:outputText property="expirationDate"/>
+  		<dwf:outputText property="roles"/>
+  		<dwf:outputText property="verified"/>
+ 	</dwf:viewPanel>
+</body>
+</html>

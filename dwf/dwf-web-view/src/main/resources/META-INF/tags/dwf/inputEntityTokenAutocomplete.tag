@@ -27,4 +27,10 @@ getJspContext().setAttribute("hashkey", keyManager.generateHashKey(entityName, f
 			<input type="hidden" token-id="${item.id}" class="init-token-name" value="${item.name}" />
 		</c:forEach>
 	</div>
+	<c:if test="${!empty attrMap.exampleList}">
+		<p class="help-block">Exemplos: 
+			<c:forEach items="${!empty attrMap.exampleList}" var="example" varStatus="loopStatus">${loopStatus.count >1 ? ',':'' }
+			<a href="">${example}</a></c:forEach>
+		</p>
+	</c:if>
 </dwf:formGroup>

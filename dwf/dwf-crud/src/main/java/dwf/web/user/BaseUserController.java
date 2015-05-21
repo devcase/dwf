@@ -27,7 +27,7 @@ import dwf.web.message.UserMessageType;
 
 @Controller
 @Scope(WebApplicationContext.SCOPE_REQUEST)
-@RequestMapping("/baseUser/")
+@RequestMapping("/baseUser")
 public class BaseUserController extends BaseCrudController<BaseUser, Long> {
 
 	private final VerificationTokenService verificationTokenService;
