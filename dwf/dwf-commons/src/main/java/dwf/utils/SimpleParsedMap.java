@@ -132,7 +132,9 @@ public class SimpleParsedMap implements ParsedMap {
 	 */
 	@Override
 	public <T> Object get(String key, Class<T> expectedClass) {
-
+		Object v = get(key);
+		if(v == null) return null;
+		else if (v.getClass().isArray()) return v;
 		if(Boolean.class.equals(expectedClass) || 
 				boolean.class.equals(expectedClass)) {
 			return getBoolean(key);
