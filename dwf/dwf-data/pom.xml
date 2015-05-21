@@ -8,7 +8,6 @@
 	</parent>
 	<artifactId>dwf-data</artifactId>
 	<dependencies>
-
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
@@ -51,12 +50,6 @@
 			<artifactId>poi-ooxml</artifactId>
 			<version>3.10.1</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.1</version>
-		</dependency>
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
@@ -94,7 +87,6 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.8.1</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>br.com.devcase.dwf</groupId>
 			<artifactId>dwf-commons</artifactId>

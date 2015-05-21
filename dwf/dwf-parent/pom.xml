@@ -148,7 +148,7 @@
 		<repository>
 			<id>devcase-repo</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>https://s3.amazonaws.com/devcase-repo/release</url>
+			<url>http://devcase-repo.s3-website-us-east-1.amazonaws.com/release</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
@@ -156,7 +156,7 @@
 		<repository>
 			<id>devcase-repo-snapshots</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>https://s3.amazonaws.com/devcase-repo/snapshot</url>
+			<url>http://devcase-repo.s3-website-us-east-1.amazonaws.com/snapshot</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
@@ -174,7 +174,7 @@
 		<pluginRepository>
 			<id>devcase-repo</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>https://s3.amazonaws.com/devcase-repo/release</url>
+			<url>http://devcase-repo.s3-website-us-east-1.amazonaws.com/release</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
@@ -182,7 +182,7 @@
 		<pluginRepository>
 			<id>devcase-repo-snapshots</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>https://s3.amazonaws.com/devcase-repo/snapshot</url>
+			<url>http://devcase-repo.s3-website-us-east-1.amazonaws.com/snapshot</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
