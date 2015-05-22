@@ -30,7 +30,8 @@ public interface DAO<D extends BaseEntity<?>> {
 	<T> List<T> findByFilter(ParsedMap filter, QueryReturnType<T> returnType, int pageNumber, int fetchSize);
 	List<D> findByFilter(ParsedMap filter);
 	List<?> findAll();
-	List<?> findByFilter(Object... params);
+//	List<?> findByFilter(Object... params);
+	<T> List<T> findByFilter(Object... params);
 	D findFirstByFilter(Object... params);
 	D findFirstByFilter(ParsedMap filter);
 	D find(D copyWithId);

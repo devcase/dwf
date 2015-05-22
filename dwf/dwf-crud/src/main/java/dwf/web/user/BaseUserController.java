@@ -10,6 +10,7 @@ import javax.validation.groups.Default;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.WebApplicationContext;
 
 import dwf.persistence.annotations.constraints.Password;
+import dwf.persistence.validation.ValidationGroups;
 import dwf.user.domain.BaseUser;
 import dwf.user.domain.TokenType;
 import dwf.user.service.VerificationTokenService;
@@ -30,15 +32,16 @@ import dwf.web.message.UserMessageType;
 @RequestMapping("/baseUser")
 public class BaseUserController extends BaseCrudController<BaseUser, Long> {
 
-	private final VerificationTokenService verificationTokenService;
-	
 	@Autowired
-	public BaseUserController(VerificationTokenService verificationTokenService) {
+	private VerificationTokenService verificationTokenService;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
+	public BaseUserController() {
 		super(BaseUser.class);
-		this.verificationTokenService = verificationTokenService;
 	}
 
-	@PreAuthorize("hasPermission(#form, 'save')")
+	@PreAuthorize("hasPermission(#form.id,  'baseUser', 'save')")
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public Callable<String> save(@Validated(Default.class) final BaseUser form, final BindingResult bindingResult) {
 		return new Callable<String>() {
@@ -82,10 +85,14 @@ public class BaseUserController extends BaseCrudController<BaseUser, Long> {
 		}
 		
 		if(bindingResult.hasErrors()) {
+			model.addAttribute(BindingResult.MODEL_KEY_PREFIX + "form", bindingResult);
 			return "redirect:/baseUser/view/" + form.getId();
 		}
-		
-		
+		BaseUser b = new BaseUser();
+		b.setId(form.getId());
+		b.setHashedpass(passwordEncoder.encode(form.getPassword()));
+		getDAO().updateByAnnotation(b, ValidationGroups.ChangePassword.class);
+		addUserMessage("message.password.change.success", UserMessageType.SUCCESS);
 		return "redirect:/baseUser/view/" + form.getId();
 	}
 	

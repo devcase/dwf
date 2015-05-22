@@ -4,7 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class WebSecurityUtils {
 	
-	@Autowired(required=false)
+	@Autowired
 	private AuthenticationManager authenticationManager;
 	
 	public void authenticate(String username, String password, HttpServletRequest request) {
@@ -22,8 +21,12 @@ public class WebSecurityUtils {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
         token.setDetails(new WebAuthenticationDetails(request));
         
-        Authentication authentication = authenticationManager.authenticate(token);
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!" + authentication);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            Authentication authentication = authenticationManager.authenticate(token);
+	        SecurityContextHolder.getContext().setAuthentication(authentication);
+	        authenticationManager.authenticate(authentication);
+        } catch (Exception ex) {
+        	ex.printStackTrace();
+        }
     }
 }
