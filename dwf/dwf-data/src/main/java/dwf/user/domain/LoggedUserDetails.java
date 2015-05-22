@@ -11,8 +11,13 @@ public class LoggedUserDetails extends User {
 	private final BaseUser baseUser;
 
 	public LoggedUserDetails(BaseUser baseUser) {
-		super(baseUser.getEmail(), baseUser.getHashedpass(), AuthorityUtils
-				.createAuthorityList(baseUser.getRoles().toArray(new String[0])));
+		super(baseUser.getEmail(),
+				baseUser.getHashedpass(), 
+				baseUser.isEnabled(),
+				!baseUser.isExpired(),
+				true,
+				true,
+				AuthorityUtils.createAuthorityList(baseUser.getRoles().toArray(new String[0])));
 		this.id = baseUser.getId();
 		this.baseUser = baseUser;
 	}

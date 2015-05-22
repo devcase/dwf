@@ -3,6 +3,7 @@ package dwf.user.service;
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -84,6 +85,9 @@ public class BaseUserServiceImpl implements BaseUserService {
 	
 	@Override
 	public BaseUser findByEmail(String email) {
-		return dao.findByEmail(email);
+		BaseUser b = dao.findByEmail(email);
+		if(b != null)
+			Hibernate.initialize(b.getRoles());
+		return b;
 	}
 }

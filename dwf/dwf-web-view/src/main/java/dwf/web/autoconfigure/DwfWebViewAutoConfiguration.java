@@ -74,6 +74,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		viewResolver.setViewClass(SitemeshView.class);
 		viewResolver.setPrefix("/WEB-INF/jsp/");
 		viewResolver.setSuffix(".jsp");
+		viewResolver.setExposeContextBeansAsAttributes(true);
 		return viewResolver;
 	}
 	

@@ -10,6 +10,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.Email;
@@ -93,6 +94,11 @@ public class BaseUser extends BaseEntity<Long> {
 
 	public void setRoles(List<String> roles) {
 		this.roles = roles;
+	}
+	
+	@Transient
+	public boolean isExpired() {
+		return expirationDate != null && expirationDate.getTime() < System.currentTimeMillis();
 	}
 	
 }

@@ -86,7 +86,11 @@ public class BaseUserController extends BaseCrudController<BaseUser, Long> {
 		
 		if(bindingResult.hasErrors()) {
 			model.addAttribute(BindingResult.MODEL_KEY_PREFIX + "form", bindingResult);
-			return "redirect:/baseUser/view/" + form.getId();
+			BaseUser entity = getDAO().findById(form.getId());
+			model.addAttribute(entityName, entity);
+			model.addAttribute("entity", entity);
+			setupNavCrud(OPERATION_VIEW, entity);
+			return "/baseUser/view";
 		}
 		BaseUser b = new BaseUser();
 		b.setId(form.getId());

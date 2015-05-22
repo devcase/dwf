@@ -15,16 +15,6 @@ public class BaseUserDAOImpl extends BaseDAOImpl<BaseUser> implements BaseUserDA
 		super(BaseUser.class);
 	}
 
-//	@Override
-//	protected void prepareEntity(BaseUser entity) {
-//		if (entity.getId() == null) {
-////			entity.setHashedpass(passwordEncoder.encode(entity.getEmail()));
-//		} else if (StringUtils.isBlank(entity.getHashedpass())) {
-//			final String hashedpass = findById(entity.getId()).getHashedpass();
-//			entity.setHashedpass(hashedpass);
-//		}
-//	}
-
 	@Override
 	public BaseUser findByEmail(String email) {
 		return findFirstByFilter("email", email);
