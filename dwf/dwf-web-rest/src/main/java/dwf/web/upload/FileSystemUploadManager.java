@@ -20,12 +20,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.context.support.WebApplicationObjectSupport;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
@@ -33,7 +32,10 @@ import dwf.upload.UploadManager;
 
 
 @RequestMapping // responds to requests via /dl/**
-public class FileSystemUploadManager extends WebApplicationObjectSupport implements UploadManager, InitializingBean, ApplicationContextAware {
+public class FileSystemUploadManager  implements UploadManager, InitializingBean {
+	
+	@Autowired
+	private ApplicationContext applicationContext;
 	
 	private SecureRandom random = new SecureRandom();
 
@@ -55,7 +57,7 @@ public class FileSystemUploadManager extends WebApplicationObjectSupport impleme
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		resourceHttpRequestHandler = new ResourceHttpRequestHandler();
-		resourceHttpRequestHandler.setApplicationContext(this.getApplicationContext());
+		resourceHttpRequestHandler.setApplicationContext(applicationContext);
 		
 		File rootDir = new File(getDirectory());
 		if(!rootDir.exists()) {
@@ -139,7 +141,7 @@ public class FileSystemUploadManager extends WebApplicationObjectSupport impleme
 	 */
 	@Override
 	public String remoteUrl(String uploadKey) {
-		return getWebApplicationContext().getServletContext().getContextPath() + "/dl" + (uploadKey.startsWith("/") ? "" : "/") + uploadKey;
+		return  "/dl" + (uploadKey.startsWith("/") ? "" : "/") + uploadKey;
 	}
 	
 	

@@ -56,7 +56,8 @@ Atributos:
 </c:if>
 
 
-		<form class="form-${formLayout} validate" method="POST" action="${formaction}" role="form" <c:if test="${!empty attrMap.formId}">id="${attrMap.formId}"</c:if>>
+		<form class="form-${formLayout} validate" method="POST" action="${formaction}" role="form" <c:if test="${!empty attrMap.formId}">id="${attrMap.formId}"</c:if>
+			<c:if test="${!empty attrMap.enctype}">enctype="${attrMap.enctype}"</c:if>>
 			<sec:csrfInput />
 			<c:if test="${!empty entity }">
 				<input type="hidden" name="id" value="${entity.id}"/>

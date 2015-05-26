@@ -11,6 +11,23 @@ public class UpdatedProperty {
 	private String oldValue;
 	private String newValue;
 	private boolean hiddenValues;
+	
+	
+	
+	public UpdatedProperty() {
+		super();
+	}
+	
+	
+	public UpdatedProperty(String propertyName, String oldValue, String newValue, boolean hiddenValues) {
+		super();
+		this.propertyName = propertyName;
+		this.oldValue = oldValue;
+		this.newValue = newValue;
+		this.hiddenValues = hiddenValues;
+	}
+
+
 	@Column(length=200, updatable=false)
 	public String getOldValue() {
 		return oldValue;

@@ -1,5 +1,6 @@
 package dwf.activitylog.service;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +47,12 @@ public class ActivityLogServiceImpl implements ActivityLogService {
 	@Transactional
 	public void logEntityUpdate(BaseEntity<?> entity, List<UpdatedProperty> updatedProperties, Class<?>... groups) {
 		getSession().save(createActivityLog(entity, OPERATION_UPDATE, null, updatedProperties)); //TODO - colocar as modificações aqui
+	}
+	
+
+	@Override
+	public void logEntityPropertyUpdate(BaseEntity<?> entity, UpdatedProperty updatedProperty) {
+		getSession().save(createActivityLog(entity, OPERATION_UPDATE, null, Collections.singletonList(updatedProperty)));
 	}
 
 	/**

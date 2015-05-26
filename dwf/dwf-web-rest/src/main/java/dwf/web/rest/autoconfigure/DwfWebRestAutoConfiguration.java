@@ -70,7 +70,7 @@ public class DwfWebRestAutoConfiguration {
 	@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "filesystem")
 	static class FileSystemUploadManagerConfiguration {
 
-		@Value("${dwf.web.uploadmanager.directory:testdb}")
+		@Value("${dwf.web.uploadmanager.directory:'/temp'}")
 		private String directory = "testdb";
 
 		@Bean

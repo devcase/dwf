@@ -21,6 +21,7 @@ public interface ActivityLogService {
 	void log(BaseEntity<?> entity, String operationId);
 	void log(BaseEntity<?> entity, String operationId, String comments);
 	void logEntityUpdate(BaseEntity<?> entity, List<UpdatedProperty> updatedProperties,  Class<?>... groups);
+	void logEntityPropertyUpdate(BaseEntity<?> entity, UpdatedProperty updatedProperty);
 	List<ActivityLog> viewLog(BaseEntity<?> entity);
 	
 }

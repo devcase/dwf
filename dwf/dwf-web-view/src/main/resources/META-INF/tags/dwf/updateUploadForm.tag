@@ -12,37 +12,16 @@
 <c:if test="${empty attrMap.formaction}">
 	<c:set var="formaction" value="${appPath}/${entityName}/updateUpload/${entity.id}"/>
 </c:if>
-
-<c:if test="${!attrMap.panelless}">
-<h2>
-	<dwf:simpleLabel textOnly="true" property="${attrMap.property}" labelKey="${attrMap.labelKey }" />
-</h2>
-<div class="panel panel-default">
-	<div class="panel-body">
-</c:if>
-		<c:if test="${!empty uploadKey}">
+<dwf:simpleLabel textOnly="true" property="${attrMap.property}" labelKey="${attrMap.labelKey }" var="title"/>
+<dwf:form formaction="${formaction}" enctype="multipart/form-data" parentAttrMap="${attrMap}" title="${title }">
+	<c:if test="${!empty uploadKey}">
+		<dwf:formGroup label="none">
 			<dwf:remoteUrl uploadKey="${uploadKey}" var="url" />
 			<img src="${url}?ts=${timestamp}" class="img-responsive"/>
-		</c:if>
-		<form class="form-horizontal validate" method="POST" action="${formaction}" role="form" enctype="multipart/form-data">
-			<sec:csrfInput />
-			<input type="hidden" name="propertyName" value="${attrMap.property}"/>
-			<div class="form-group ${!empty violation ?  'has-error' : ''}">
-				<div class="col-sm-12">
-					<input type="file" name="file" />
-				</div>
-			</div>
-
-			<div class="form-group">
-				<div class=" col-sm-12 text-right">
-					<button type="submit" class="btn btn-primary" data-loading-text="<spring:message code="action.wait"/>" formaction="${formaction}">
-						<spring:message code="action.update" />
-					</button>
-				</div>
-			</div>
-		</form>
-<c:if test="${!attrMap.panelless}">
-	</div>
-	<!-- /.box-content -->
-</div>
-</c:if>
+		</dwf:formGroup>
+	</c:if>
+	<input type="hidden" name="propertyName" value="${attrMap.property}"/>
+	<dwf:formGroup labelKey="label.file">
+		<input type="file" name="file" class="btn btn-default"  accept="image/*"/>
+	</dwf:formGroup>
+</dwf:form>

@@ -104,10 +104,8 @@ public class BaseUserController extends BaseCrudController<BaseUser, Long> {
 		@NotNull
 		private Long id;
 		@NotNull
-		@Password
 		private String password;
 		@NotNull
-		@Password
 		private String confirmPassword;
 		public Long getId() {
 			return id;
