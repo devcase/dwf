@@ -9,20 +9,25 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleException;
 import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.WebResourceRoot.ResourceSetType;
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.tomcat.util.scan.StandardJarScanner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.ErrorMvcAutoConfiguration;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.boot.context.embedded.ServletContextInitializer;
+import org.springframework.boot.context.embedded.tomcat.TomcatConnectorCustomizer;
 import org.springframework.boot.context.embedded.tomcat.TomcatContextCustomizer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.MessageSource;
@@ -35,6 +40,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.PropertySource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.View;
@@ -132,13 +139,32 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	}
 	
 	
+	/**
+	 * Overrides WhitelabelErrorViewConfiguration
+	 * {@link org.springframework.boot.autoconfigure.web.ErrorMvcAutoConfiguration}
+	 * @author Hirata
+	 *
+	 */
 	@Configuration
+	@AutoConfigureBefore(ErrorMvcAutoConfiguration.class)
 	static class ErrorPageConfiguration   {
 		@Autowired
 		private InternalResourceViewResolver internalResourceViewResolver;
-		private View fallbackerrorview = new SitemeshView("/WEB-INF/jsp/error.jsp");
 		
-		@Bean(name = "error") //Overrides default error
+		private View fallbackerrorview = new SitemeshView("/WEB-INF/jsp/error.jsp");
+
+		/**
+		 * Disables org.springframework.boot.autoconfigure.web.ErrorMvcAutoConfiguration.WhitelabelErrorViewConfiguration.defaultErrorView()
+		 * Also, avoid breaking signin.jsp
+		 * @return
+		 */
+		@Deprecated
+		@Bean (name="error")
+		public Boolean error() {
+			return null;
+		}
+		
+		@Bean(name = "errorView") 
 		public View defaultErrorView() {
 			View v = null;
 			try {
@@ -198,6 +224,25 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		}
 		
 	}
+
+	/**
+	 * Antecipa o binding à porta http, por causa do heroku
+	 * @return
+	 */
+	@Bean
+	public TomcatConnectorCustomizer tomcatcustomizer() {
+		return new TomcatConnectorCustomizer() {
+			@Override
+			public void customize(Connector connector) {
+				connector.setProperty("bindOnInit", "true");
+				try {
+					connector.init();
+				} catch (LifecycleException e) {
+					throw new RuntimeException (e);
+				}
+			}
+		};
+	}
 	
 	/**
 	 * <p>Workaround maldito para usar a taglib do dwf-web-view como item do classpath como diretório
@@ -220,6 +265,8 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	@Conditional(AdicionaDwfTagLibCondition.class)
 	@AutoConfigureAfter(EmbeddedServletContainerAutoConfiguration.class)
 	static class AdicionaDwfTaglibConfiguration extends WebMvcConfigurerAdapter {
+		@Autowired
+		TomcatConnectorCustomizer tomcatConnectorCustomizer;
 		@Bean
 		public EmbeddedServletContainerCustomizer tomcatContextCustomizer() {
 			return new EmbeddedServletContainerCustomizer() {
@@ -266,6 +313,8 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 								standardJarScanner.setScanAllDirectories(true);
 							}
 						});
+						
+						factory.addConnectorCustomizers(tomcatConnectorCustomizer);
 					}
 				}
 			};

@@ -18,7 +18,7 @@ public class SigninController extends BaseController {
 			Model model) {
 		
 		if (error != null) {
-			model.addAttribute("error", true);
+			model.addAttribute("loginerror", true);
 		}
 		if (logout != null) {
 			model.addAttribute("logout", true);

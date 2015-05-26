@@ -12,7 +12,7 @@
 </head>
 <body>
 		<h1>Login</h1>
-		<c:if test="${error}">
+		<c:if test="${loginerror}">
 			<div class="alert alert-danger alert-dismissable"><spring:message code="message.login.error"/></div>
 		</c:if>
 		<c:if test="${logout}">
