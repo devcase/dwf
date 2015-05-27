@@ -121,15 +121,15 @@ public class BaseUserServiceImplTest {
 	@Test(expected = ValidationException.class)
 	public void throwsValidationExceptionWhenResetPasswordRequestUserIsNull() {
 		when(daoMock.findByEmail("teste@email.com")).thenReturn(null);
-		service.resetPasswordRequest("teste@email.com");
+		service.generateResetPasswordToken("teste@email.com");
 	}
 	
 	@Test
 	public void testValidResetPasswordRequest() {
 		when(daoMock.findByEmail("user@devcase.com.br")).thenReturn(newBaseUser("user@devcase.com.br"));
 		
-		service.resetPasswordRequest("user@devcase.com.br");
+		service.generateResetPasswordToken("user@devcase.com.br");
 		
-		verify(verificationTokenServiceDAOMock).generateAndSendToken("user@devcase.com.br", TokenType.RESET_PASSWORD);
+		verify(verificationTokenServiceDAOMock).generateToken("user@devcase.com.br", TokenType.RESET_PASSWORD);
 	}
 }

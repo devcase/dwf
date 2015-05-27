@@ -1,9 +1,14 @@
 package dwf.web.user;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -11,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.WebApplicationContext;
 
 import dwf.user.domain.ResetPasswordBean;
 import dwf.user.domain.VerificationToken;
@@ -18,18 +24,28 @@ import dwf.user.service.BaseUserService;
 import dwf.user.service.VerificationTokenService;
 import dwf.web.ReCaptcha;
 import dwf.web.controller.BaseController;
+import dwf.web.mail.JspBasedMailBuilder;
 import dwf.web.message.UserMessageType;
 
 @Controller
+@Scope(WebApplicationContext.SCOPE_REQUEST)
 public class ResetPasswordController extends BaseController {
 
-	private final BaseUserService userService;
-	private final VerificationTokenService verificationTokenService;
-	
 	@Autowired
-	public ResetPasswordController(BaseUserService userService, VerificationTokenService verificationTokenService) {
-		this.userService = userService;
-		this.verificationTokenService = verificationTokenService;
+	private BaseUserService userService;
+	@Autowired
+	private VerificationTokenService verificationTokenService;
+	@Autowired
+	private JspBasedMailBuilder jspBasedMailBuilder;
+	
+	@Value("${dwf.resetpassword.email.from:dwf@devcase.com.br}")
+	private String from ="dwf@devcase.com.br";
+	@Value("${dwf.resetpassword.email.subject:Password reset}")
+	private String resetPasswordSubject ="Password reset";
+	@Value("${dwf.resetpassword.email.template:/WEB-INF/jsp/reset_password_mail.jsp}")
+	private String resetPasswordTemplate ="/WEB-INF/jsp/reset_password_mail.jsp";
+
+	public ResetPasswordController() {
 	}
 
 	@RequestMapping(value = "/resetPassword", method = RequestMethod.GET)
@@ -41,7 +57,10 @@ public class ResetPasswordController extends BaseController {
 	@ReCaptcha
 	public String doResetPassword(@RequestParam String email) {
 		try {
-			userService.resetPasswordRequest(email);
+			String passwordToken = userService.generateResetPasswordToken(email);
+			Map <String, Object> m =  new HashMap<String, Object>(1);
+			m.put("passwordToken", passwordToken);
+			jspBasedMailBuilder.sendMail(from, new String[] {email}, resetPasswordSubject, resetPasswordTemplate, m);
 		} catch (ValidationException e) {
 			addUserMessage("dwf.user.registration.reset.error", UserMessageType.DANGER);
 			return "reset_password_request";

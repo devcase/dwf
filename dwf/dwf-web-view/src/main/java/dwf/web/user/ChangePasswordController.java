@@ -38,12 +38,14 @@ public class ChangePasswordController extends BaseController {
 
 		if (result.hasErrors()) {
 			addUserMessage("message.password.change.error", UserMessageType.DANGER);
+			model.addAttribute(BindingResult.MODEL_KEY_PREFIX + "form", result);
 			return "change_password";
 		}
 		
 		try {
 			userService.changePassword(changePasswordBean);
 		} catch (ValidationException e) {
+			//addValidationExceptionMessage(e);
 			addUserMessage("message.password.change.error", UserMessageType.DANGER);
 			return "change_password";
 		}

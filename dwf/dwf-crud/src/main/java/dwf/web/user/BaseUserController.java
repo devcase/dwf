@@ -58,7 +58,7 @@ public class BaseUserController extends BaseCrudController<BaseUser, Long> {
 					if (form.getId() == null) {
 						getDAO().saveNew(form);
 						addUserMessage("crud.save.new.success", UserMessageType.SUCCESS);
-						verificationTokenService.generateAndSendToken(form.getEmail(), TokenType.EMAIL_CONFIRMATION);
+						verificationTokenService.generateToken(form.getEmail(), TokenType.EMAIL_CONFIRMATION);
 					} else {
 						getDAO().updateByAnnotation(form);
 						addUserMessage("crud.save.update.success", UserMessageType.SUCCESS);

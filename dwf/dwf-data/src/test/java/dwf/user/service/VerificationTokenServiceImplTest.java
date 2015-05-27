@@ -45,25 +45,24 @@ public class VerificationTokenServiceImplTest {
 	
 	@Before
 	public void before() {
-		this.service = new VerificationTokenServiceImpl(verificationTokenDAOMock, baseUserDAOMock, mailSenderMock);
+		this.service = new VerificationTokenServiceImpl(verificationTokenDAOMock, baseUserDAOMock);
 	}
 	
 	@Test
 	public void generateAndSendEmailConfirmationTokenSuccess() {
 		when(baseUserDAOMock.findByEmail("user@devcase.com.br")).thenReturn(newBaseUser("user@devcase.com.br"));
 		
-		service.generateAndSendToken("user@devcase.com.br", TokenType.EMAIL_CONFIRMATION);
+		service.generateToken("user@devcase.com.br", TokenType.EMAIL_CONFIRMATION);
 		
 		InOrder inOrder = inOrder(verificationTokenDAOMock, mailSenderMock); 
 		inOrder.verify(verificationTokenDAOMock).saveNew(any(VerificationToken.class));
-		inOrder.verify(mailSenderMock).send(any(SimpleMailMessage.class));
 	}
 	
 	@Test
 	public void generateAndSendResetPasswordTokenSuccess() {
 		when(baseUserDAOMock.findByEmail("user@devcase.com.br")).thenReturn(newBaseUser("user@devcase.com.br"));
 		
-		service.generateAndSendToken("user@devcase.com.br", TokenType.RESET_PASSWORD);
+		service.generateToken("user@devcase.com.br", TokenType.RESET_PASSWORD);
 		
 		InOrder inOrder = inOrder(verificationTokenDAOMock, mailSenderMock); 
 		inOrder.verify(verificationTokenDAOMock).saveNew(any(VerificationToken.class));

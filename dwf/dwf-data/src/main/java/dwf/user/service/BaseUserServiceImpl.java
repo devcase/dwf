@@ -56,13 +56,12 @@ public class BaseUserServiceImpl implements BaseUserService {
 		}
 	}
 
-	@Override
-	public void resetPasswordRequest(String email) {
+	public String generateResetPasswordToken(String email) {
 		final BaseUser user = findByEmail(email);
 		if (user == null) {
 			throw new ValidationException();
 		}
-		verificationTokenService.generateAndSendToken(user.getEmail(), TokenType.RESET_PASSWORD);
+		return verificationTokenService.generateToken(user.getEmail(), TokenType.RESET_PASSWORD).getToken();
 	}
 	
 	@Override

@@ -2,13 +2,16 @@ package dwf.user.service;
 
 import java.util.UUID;
 
+import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
-import org.springframework.mail.MailSender;
+import org.springframework.mail.MailMessage;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import dwf.user.dao.BaseUserDAO;
@@ -23,13 +26,11 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
 	private final VerificationTokenDAO verificationTokenDAO;
 	private final BaseUserDAO baseUserDAO;
-	private final MailSender mailSender;
 	
 	@Autowired
-	public VerificationTokenServiceImpl(VerificationTokenDAO verificationTokenDAO, BaseUserDAO baseUserDAO, MailSender mailSender) {
+	public VerificationTokenServiceImpl(VerificationTokenDAO verificationTokenDAO, BaseUserDAO baseUserDAO) {
 		this.verificationTokenDAO = verificationTokenDAO;
 		this.baseUserDAO = baseUserDAO;
-		this.mailSender = mailSender;
 	}
 
 	@Override
@@ -42,26 +43,17 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 		return newVerificationToken(email, type);
 	}
 	
-	@Override
-	public void generateAndSendToken(String email, TokenType type) {
-		final VerificationToken token = newVerificationToken(email, type);
-		final SimpleMailMessage mail = newMailMessage(token);
-		
-		try {
-			mailSender.send(mail);
-		} catch (MailException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private SimpleMailMessage newMailMessage(VerificationToken token) {
-		final SimpleMailMessage mail = new SimpleMailMessage();
-		mail.setFrom("dwf@devcase.com.br");
-		mail.setTo(token.getUser().getEmail());
-		mail.setSubject(token.toString());
-		mail.setText("http://localhost:8080/" + token.getType().getUrl() + "/" + token.getToken());
-		return mail;
-	}
+//
+//	protected MimeMessage buildMessage(VerificationToken token) {
+//		javaMailSender.createMimeMessage();
+//		
+//		final SimpleMailMessage mail = new SimpleMailMessage();
+//		mail.setFrom(from);
+//		mail.setTo(token.getUser().getEmail());
+//		mail.setSubject(token.toString());
+//		mail.setText("http://localhost:8080/" + token.getType().getUrl() + "/" + token.getToken());
+//		return mail;
+//	}
 	
 	private VerificationToken newVerificationToken(String email, TokenType type) {
 		final BaseUser user = baseUserDAO.findByEmail(email);

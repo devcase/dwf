@@ -6,7 +6,7 @@ import dwf.user.domain.ResetPasswordBean;
 
 public interface BaseUserService {
 	void changePassword(ChangePasswordBean changePasswordBean);
-	void resetPasswordRequest(String email);
+	String generateResetPasswordToken(String email);
 	void resetPasswordChange(String token, ResetPasswordBean resetPasswordBean);
 	BaseUser findByEmail(String email);
 }
