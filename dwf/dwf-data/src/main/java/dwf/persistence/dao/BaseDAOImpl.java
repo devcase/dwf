@@ -744,20 +744,20 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	@Override
 	@Transactional(rollbackFor = ValidationException.class)
 	public D updateUpload(Serializable id, InputStream inputStream, final String contentType, String originalFilename, String propertyName) throws IOException {
-		D entityCopy = retrieveCopy(id);
+		D connectedEntity = findById(id);
 		// get the UpdateGroup for the property
 		PropertyDescriptor pd = entityProperties.get(propertyName);
 		if (pd != null) {
 			Image imageAnnotation = pd.getReadMethod().getAnnotation(Image.class);
 			try {
-				String oldValue = (String) BeanUtils.getProperty(entityCopy, propertyName);
+				String oldValue = (String) BeanUtils.getProperty(connectedEntity, propertyName);
 
 				if (imageAnnotation == null) {
 					String uploadKey = uploadManager.saveFile(inputStream, contentType, originalFilename, entityName + "/" + id);
 					if (oldValue != null && !oldValue.equals(uploadKey)) {
 						uploadManager.deleteFile(oldValue);
 					}
-					BeanUtils.setProperty(entityCopy, propertyName, uploadKey);
+					BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
 				} else {
 					// é imagem! fazer resize e crop da imagem
 					BufferedImage tmpImg = ImageIO.read(inputStream);
@@ -818,13 +818,13 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 						if (oldValue != null && !oldValue.equals(uploadKey)) {
 							uploadManager.deleteFile(oldValue);
 						}
-						BeanUtils.setProperty(entityCopy, propertyName, uploadKey);
+						BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
 
 						for (String thumbProperty : imageAnnotation.thumbnail()) {
 							// thumbnail
 							PropertyDescriptor thumbPd = entityProperties.get(thumbProperty);
 							if (thumbPd != null) {
-								String oldThumbValue = (String) BeanUtils.getProperty(entityCopy, thumbProperty);
+								String oldThumbValue = (String) BeanUtils.getProperty(connectedEntity, thumbProperty);
 
 								Image thumbAnnotation = thumbPd.getReadMethod().getAnnotation(Image.class);
 								int thumbWidth = thumbAnnotation != null ? thumbAnnotation.targetWidth() : 100;
@@ -846,7 +846,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 										uploadManager.deleteFile(oldThumbValue);
 									}
 
-									BeanUtils.setProperty(entityCopy, thumbProperty, thumbUpKey);
+									BeanUtils.setProperty(connectedEntity, thumbProperty, thumbUpKey);
 								} finally {
 									if (thumbImg != null)
 										resizedImg.flush();
@@ -856,8 +856,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 							}
 						}
 						
-						getSession().update(entityCopy);
-						activityLogService.logEntityPropertyUpdate(entityCopy, new UpdatedProperty(propertyName, oldValue, uploadKey, true));
+//						getSession().update(connectedEntity);
+						activityLogService.logEntityPropertyUpdate(connectedEntity, new UpdatedProperty(propertyName, oldValue, uploadKey, true));
 					} finally {
 						// limpa (?) dados da memória - TODO estudar mais
 						if (srcImg != null)
@@ -873,7 +873,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 				throw new RuntimeException(e);
 			}
 		}
-		return entityCopy;
+		return connectedEntity;
 	}
 
 	/**
