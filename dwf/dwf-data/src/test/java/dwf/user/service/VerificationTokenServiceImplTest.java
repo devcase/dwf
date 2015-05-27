@@ -38,9 +38,6 @@ public class VerificationTokenServiceImplTest {
 	@Mock
 	private VerificationTokenDAO verificationTokenDAOMock;
 	
-	@Mock
-	private MailSender mailSenderMock;
-	
 	private VerificationTokenService service;
 	
 	@Before
@@ -54,7 +51,7 @@ public class VerificationTokenServiceImplTest {
 		
 		service.generateToken("user@devcase.com.br", TokenType.EMAIL_CONFIRMATION);
 		
-		InOrder inOrder = inOrder(verificationTokenDAOMock, mailSenderMock); 
+		InOrder inOrder = inOrder(verificationTokenDAOMock); 
 		inOrder.verify(verificationTokenDAOMock).saveNew(any(VerificationToken.class));
 	}
 	
@@ -64,9 +61,8 @@ public class VerificationTokenServiceImplTest {
 		
 		service.generateToken("user@devcase.com.br", TokenType.RESET_PASSWORD);
 		
-		InOrder inOrder = inOrder(verificationTokenDAOMock, mailSenderMock); 
+		InOrder inOrder = inOrder(verificationTokenDAOMock); 
 		inOrder.verify(verificationTokenDAOMock).saveNew(any(VerificationToken.class));
-		inOrder.verify(mailSenderMock).send(any(SimpleMailMessage.class));
 	}
 	
 	@Test(expected = ValidationException.class)

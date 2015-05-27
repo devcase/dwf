@@ -21,19 +21,14 @@ import dwf.user.utils.LoggedUser;
 @Transactional
 public class BaseUserServiceImpl implements BaseUserService {
 
-	private final BaseUserDAO dao;
-	private final PasswordEncoder passwordEncoder;
-	private final LoggedUser loggedUser;
-	private final VerificationTokenService verificationTokenService;
-	
 	@Autowired
-	public BaseUserServiceImpl(BaseUserDAO dao, VerificationTokenService verificationTokenService, 
-			PasswordEncoder passwordEncoder, LoggedUser loggedUser) {
-		this.dao = dao;
-		this.verificationTokenService = verificationTokenService;
-		this.passwordEncoder = passwordEncoder;
-		this.loggedUser = loggedUser;
-	}
+	private BaseUserDAO dao;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	@Autowired
+	private LoggedUser loggedUser;
+	@Autowired
+	private VerificationTokenService verificationTokenService;
 
 	@Override
 	public void changePassword(ChangePasswordBean changePasswordBean) {

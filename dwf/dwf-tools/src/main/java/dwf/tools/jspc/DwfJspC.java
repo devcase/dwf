@@ -26,6 +26,7 @@ public class DwfJspC extends org.apache.jasper.JspC {
 			jspc.setOutputDir(args[0]);
 			jspc.targetPackage = args[1];
 			jspc.setSmapSuppressed(true);
+			jspc.setClassDebugInfo(false);
 			jspc.execute();
 			jspc.generate();
 		} catch (IOException e) {

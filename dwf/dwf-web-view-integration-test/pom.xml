@@ -6,9 +6,16 @@
 		<artifactId>dwf-parent</artifactId>
 		<version>2.1.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>dwf-web-rest-integration-test</artifactId>
+	<artifactId>dwf-web-view-integration-test</artifactId>
 	<build>
 		<plugins>
+			<plugin><!-- check for more configuration on parent's pom.xml -->
+				<groupId>br.com.devcase.dwf</groupId>
+				<artifactId>dwf-maven-plugin</artifactId>
+				<configuration>
+					<targetPackage>test.dwf.web</targetPackage>
+				</configuration>
+			</plugin>			
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<executions>
@@ -24,28 +31,13 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>br.com.devcase.dwf</groupId>
-			<artifactId>dwf-web-rest</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<version>2.3.2</version>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<version>${spring-boot.version}</version>
 			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-			<version>2.10.4</version>
-		</dependency>
 	</dependencies>
-
 </project>

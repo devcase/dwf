@@ -1,12 +1,13 @@
 package dwf.web.mail;
 
 
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
@@ -59,8 +60,8 @@ public class JspBasedMailBuilder {
 			mimeMessageHelper.setTo(to);
 			mimeMessageHelper.setFrom(from);
 			mimeMessageHelper.setSubject(subject);
-			
-			String messageText= mailBodyOs.toString("UTF-8");
+			String charCode = resp.getCharacterEncoding() != null ? resp.getCharacterEncoding() :  resp.getContentType() != null && resp.getContentType().contains("ISO-8859-1") ? "ISO-8859-1" : "UTF-8";//TODO - tosco
+			String messageText= mailBodyOs.toString(charCode);
 			mimeMessage.setText(messageText, "UTF-8", "html");
 			
 			return mimeMessage;
@@ -100,7 +101,7 @@ public class JspBasedMailBuilder {
 			if(servletOutputStream == null) {
 				servletOutputStream = new MyOutputStream();
 				servletOutputStream.outputStream = outputStream;
-				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(servletOutputStream), bufferSize);
+				Writer bw = new OutputStreamWriter(servletOutputStream, Charset.forName("UTF-8"));
 				out = new PrintWriter(bw);
 			}
 		}
@@ -124,7 +125,6 @@ public class JspBasedMailBuilder {
 		@Override
 		public PrintWriter getWriter() throws IOException {
 			initStreams();
-			System.out.println("getWriter");
 			return out;
 		}
 

@@ -16,6 +16,7 @@ import javax.validation.ValidationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,13 +43,9 @@ public class BaseUserServiceImplTest {
 	@Mock
 	private LoggedUser loggedUserMock;
 	
-	private BaseUserService service;
+	@InjectMocks
+	private BaseUserServiceImpl service;
 	
-	@Before
-	public void before() {
-		this.service = new BaseUserServiceImpl(daoMock, verificationTokenServiceDAOMock, 
-				passwordEncoderMock, loggedUserMock);
-	}
 	
 	@Test(expected = ValidationException.class)
 	public void throwsValidationExceptionWhenChangePasswordBeanIsInvalid() {
@@ -127,6 +124,7 @@ public class BaseUserServiceImplTest {
 	@Test
 	public void testValidResetPasswordRequest() {
 		when(daoMock.findByEmail("user@devcase.com.br")).thenReturn(newBaseUser("user@devcase.com.br"));
+		when(verificationTokenServiceDAOMock.generateToken("user@devcase.com.br", TokenType.RESET_PASSWORD)).thenReturn(new VerificationToken("123456", newBaseUser("user@devcase.com.br"), TokenType.RESET_PASSWORD));
 		
 		service.generateResetPasswordToken("user@devcase.com.br");
 		

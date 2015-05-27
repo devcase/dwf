@@ -14,13 +14,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.boot.test.WebIntegrationTest;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import test.dwf.web.DwfWebRestTestApplication;
 import dwf.web.mail.JspBasedMailBuilder;
@@ -33,27 +34,26 @@ public class JspBasedMailBuilderITCase {
 	private int serverPort;
 	
 	@Test
-	public void testSendMail() {
+	public void testBuildMail() {
 		TestRestTemplate restTemplate = new TestRestTemplate();
 		ResponseEntity<String> responseEn = restTemplate.getForEntity("http://localhost:" + serverPort + "/jspBasedMailBuilder?locale=en_US", String.class);
-		System.out.println(responseEn);
 		Assert.assertTrue(responseEn.getBody().contains("English"));
+		Assert.assertTrue(responseEn.getBody().contains("SUPER STRING"));
 		ResponseEntity<String> responsePt = restTemplate.getForEntity("http://localhost:" + serverPort + "/jspBasedMailBuilder?locale=pt_BR", String.class);
-		System.out.println(responsePt);
 		Assert.assertTrue(responsePt.getBody().contains("Português"));
-		Assert.assertTrue(responsePt.getBody().contains("SUPER STRING"));
 	}
 	
 	
 	@Controller
-	@Scope(WebApplicationContext.SCOPE_REQUEST)
 	public static class IntegrationTestController {
 		@Autowired 
 		private JspBasedMailBuilder jspBasedMailBuilder;
 		
+		
 		@RequestMapping("/jspBasedMailBuilder")
 		@ResponseBody
 		public String executedOnServer(HttpServletRequest request) throws Exception {
+			
 			Map<String, Object> model = new HashMap<String, Object>();
 			model.put("testmodelattribute", "SUPER STRING");
 			MimeMessage mimeMessage = jspBasedMailBuilder.buildMimeMessage("arbitraryfrom@devcase.com.br", new String[] {"arbitraryto@devcase.com.br" } , "Arbitrary Subject", "/WEB-INF/jsp/mailbody.jsp", model);
