@@ -13,6 +13,11 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -24,6 +29,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import dwf.upload.UploadManager;
 
+@RequestMapping // responds to requests via /dl/**
 public class S3UploadManager implements UploadManager {
 
 	private final AmazonS3Client awsS3Client;
@@ -124,6 +130,18 @@ public class S3UploadManager implements UploadManager {
 		awsS3Client.deleteObject(getBucketName(), uploadKey);
 	}
 	
-	
+	@RequestMapping("/dl/**")
+	public void redirectToFile(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		if(request.getServletPath().startsWith("/dl/")) {
+			String key = request.getServletPath().substring("/dl/".length());
+			String remoteURL = remoteUrl(key);
+			if(remoteURL != null) {
+				response.sendRedirect(remoteURL);
+				return;
+			}
+		}
+		response.sendError(404);
+	}
+
 	
 }
