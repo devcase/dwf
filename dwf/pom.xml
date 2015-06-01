@@ -425,5 +425,14 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	<issueManagement>
+		<url>https://github.com/devcase/dwf/issues</url>
+		<system>GitHub Issues</system>
+	</issueManagement>
 
+	<scm>
+		<url>https://github.com/devcase/dwf</url>
+		<connection>scm:git:git://github.com/devcase/dwf.git</connection>
+		<developerConnection>scm:git:git@github.com:devcase/dwf.git</developerConnection>
+	</scm>
 </project>
