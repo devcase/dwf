@@ -3,19 +3,28 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>br.com.devcase.dwf</groupId>
-		<artifactId>dwf-parent</artifactId>
+		<artifactId>dwf</artifactId>
 		<version>2.1.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>dwf-web-view-integration-test</artifactId>
 	<build>
 		<plugins>
-			<plugin><!-- check for more configuration on parent's pom.xml -->
+			<plugin>
 				<groupId>br.com.devcase.dwf</groupId>
 				<artifactId>dwf-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>compile-jsp</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<targetPackage>test.dwf.web</targetPackage>
 				</configuration>
-			</plugin>			
+			</plugin>
+		
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<executions>
@@ -30,6 +39,20 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>br.com.devcase.dwf</groupId>
+			<artifactId>dwf-web-view</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
