@@ -27,12 +27,9 @@
 			<groupId>br.com.devcase.dwf</groupId>
 			<artifactId>dwf-crud</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jasper</artifactId>
 		</dependency>
-
-
 	</dependencies>
 </project>

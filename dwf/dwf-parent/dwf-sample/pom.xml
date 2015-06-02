@@ -20,6 +20,13 @@
 					<appName>dwfsample</appName>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+			      <configuration>
+			        <skip>true</skip>
+			      </configuration>
+			</plugin>
 			<plugin><!-- check for more configuration on parent's pom.xml -->
 				<groupId>br.com.devcase.dwf</groupId>
 				<artifactId>dwf-maven-plugin</artifactId>
