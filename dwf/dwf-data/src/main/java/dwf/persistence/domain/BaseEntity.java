@@ -1,6 +1,7 @@
 package dwf.persistence.domain;
 
 import java.io.Serializable;
+import java.text.Normalizer;
 import java.util.Date;
 
 import javax.persistence.Access;
@@ -131,13 +132,20 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 		return displayText();
 	}
 	
+	public String removeAccents(String string){
+		return Normalizer.normalize(string, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+	}
+	
 	@Column(length=1000, name="autocompletetext")
 	@NotEditableProperty()
 	public String getAutocompleteText() {
 		String text = getDisplayText();
 		if(text != null && text.length() > 1000)
 			return text.substring(0, 1000);
-		return text;
+		if(text == null)
+			return "";
+		else
+			return removeAccents(text);
 	}
 	
 	public void setAutocompleteText(String autocompleteText) {
