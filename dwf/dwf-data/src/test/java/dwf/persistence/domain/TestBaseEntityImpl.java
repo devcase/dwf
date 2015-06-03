@@ -13,6 +13,6 @@ public class TestBaseEntityImpl {
 	@Test
 	public void testRemoveAccents() {
 		BaseEntity entity = Mockito.mock(BaseEntity.class, Mockito.CALLS_REAL_METHODS);
-		Assert.assertTrue(entity.removeAccents("áàãâéèêñíìîóòõôúùû").equals("aaaaeeeniiioooouuu"));
+		Assert.assertTrue(entity.autocompleteForm("áàãâéèêñíìîóòõôúùû").equals("aaaaeeeniiioooouuu"));
 	}
 }
