@@ -42,13 +42,13 @@ public class AjaxController extends BaseController {
 				} else {
 					filter = new SimpleParsedMap(entityFilter.getFilter().split(";|="));
 				}
-				filter.put("searchstring", q);
+				filter.put("searchstring", BaseEntity.autocompleteForm(q));
 				List<BaseEntity<Serializable>> list = dao.findByFilter(filter);
 				List<HashMap<String, String>> returnList = new ArrayList<HashMap<String,String>>();
 				for (BaseEntity obj : list) {
 					HashMap<String, String> newobj = new HashMap<String, String>();
 					newobj.put("id", String.valueOf(obj.getId()));
-					newobj.put("name", obj.getAutocompleteText());
+					newobj.put("name", obj.getDisplayText());
 					returnList.add(newobj);
 				}
 				Gson gson = new Gson();

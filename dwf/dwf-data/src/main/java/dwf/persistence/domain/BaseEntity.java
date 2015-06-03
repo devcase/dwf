@@ -132,7 +132,11 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 		return displayText();
 	}
 	
-	public String removeAccents(String string){
+	/**
+	 * Convert a string to the stored format
+	 * @return
+	 */
+	public static String autocompleteForm(String string){
 		return Normalizer.normalize(string, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
 	}
 	
@@ -145,7 +149,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 		if(text == null)
 			return "";
 		else
-			return removeAccents(text);
+			return autocompleteForm(text);
 	}
 	
 	public void setAutocompleteText(String autocompleteText) {
