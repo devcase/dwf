@@ -90,7 +90,7 @@ public class ResetPasswordController extends BaseController {
 			BindingResult result) {
 
 		if (result.hasErrors()) {
-			addUserMessage("message.password.change.error", UserMessageType.DANGER);
+			model.addAttribute(BindingResult.MODEL_KEY_PREFIX + "form", result);
 			return "reset_password_change";
 		}
 		
@@ -98,6 +98,7 @@ public class ResetPasswordController extends BaseController {
 			userService.resetPasswordChange(token, resetPasswordBean);
 		} catch (ValidationException e) {
 			addUserMessage("message.password.change.error", UserMessageType.DANGER);
+			System.out.println("!!!!!!!!!");
 			return "reset_password_change";
 		}
 		

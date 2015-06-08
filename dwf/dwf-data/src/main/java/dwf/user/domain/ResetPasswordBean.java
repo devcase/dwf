@@ -9,7 +9,7 @@ import dwf.persistence.annotations.constraints.Password;
 public class ResetPasswordBean {
 
 	@NotEmpty
-	@Password
+	@Password()
 	@Size(min=8, max=100)
 	private String newPassword;
 	
