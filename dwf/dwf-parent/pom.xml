@@ -20,6 +20,7 @@
 	</properties>
 
 	<build>
+		
 		<pluginManagement>
 
 			<plugins>
@@ -98,6 +99,19 @@
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<configuration>
+							<failOnError>false</failOnError>
+							<skip>true</skip>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>			
 		</plugins>
 		<extensions>
 			<extension>
