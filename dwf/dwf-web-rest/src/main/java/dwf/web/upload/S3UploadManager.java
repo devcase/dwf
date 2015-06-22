@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -94,9 +95,6 @@ public class S3UploadManager implements UploadManager {
 	@Override
 	public String saveImage(RenderedImage image, String contentType, String fileName, String folderName) throws IOException {
 		String key = generateKey(fileName, folderName);
-		// sets ACL
-		AccessControlList acl = new AccessControlList();
-		acl.grantPermission(GroupGrantee.AllUsers, Permission.Read);
 		File tmpFile = File.createTempFile("tup-tmp", fileName);
 		tmpFile.deleteOnExit();
 		try {
@@ -115,6 +113,10 @@ public class S3UploadManager implements UploadManager {
 			writer.setOutput(ios);
 			writer.write(null, new IIOImage(image, null, null), iwp);
 			writer.dispose();
+			
+			// sets ACL
+			AccessControlList acl = new AccessControlList();
+			acl.grantPermission(GroupGrantee.AllUsers, Permission.Read);
 			awsS3Client.putObject(new PutObjectRequest(getBucketName(), key, tmpFile).withAccessControlList(acl));
 			return key;
 		} finally {
@@ -143,5 +145,31 @@ public class S3UploadManager implements UploadManager {
 		response.sendError(404);
 	}
 
-	
+	@Override
+	public String saveImage(InputStream is, int targetWidth, int targetHeight, int maxWidth, int maxHeight, boolean noTransparency,
+			String transparencyReplaceColor, String propertyName, String folderName) throws IOException {
+		File tmpFile = AbstractUploadManager.resizeImageAndSaveAsTempFile(is, targetWidth, targetHeight, maxWidth, maxHeight, noTransparency, transparencyReplaceColor);
+		
+		String contentType = null;
+		if(FilenameUtils.getExtension(tmpFile.getName()).equals("jpg")) {
+			contentType = "image/jpeg"; 
+		} else {
+			contentType = "image/png";
+		}
+		
+		String randomString = new BigInteger(16, random).toString(32);
+		String fileName = propertyName + randomString + "." + FilenameUtils.getExtension(tmpFile.getName());
+		
+		ObjectMetadata metadata = new ObjectMetadata();
+		metadata.setContentType(contentType);
+		String key = generateKey(fileName, folderName);
+		
+		// sets ACL
+		AccessControlList acl = new AccessControlList();
+		acl.grantPermission(GroupGrantee.AllUsers, Permission.Read);
+
+		awsS3Client.putObject(new PutObjectRequest(getBucketName(), key, tmpFile).withAccessControlList(acl));
+		
+		return key;
+	}
 }

@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -96,9 +97,22 @@ public class FileSystemUploadManager  implements UploadManager, InitializingBean
 		writer.dispose();
 		ios.close();
 		return (folderName.startsWith("/") ? "" : "/")   + folderName + (folderName.endsWith("/") ? "" : "/") + fileName;
-		
 	}
 	
+
+	@Override
+	public String saveImage(InputStream is, int targetWidth, int targetHeight, int maxWidth, int maxHeight, boolean noTransparency,
+			String transparencyReplaceColor, String propertyName, String folderName) throws IOException {
+		
+		File tmpFile = AbstractUploadManager.resizeImageAndSaveAsTempFile(is, targetWidth, targetHeight, maxWidth, maxHeight, noTransparency, transparencyReplaceColor);
+		
+		String randomString = new BigInteger(16, random).toString(32);
+		String fileName = propertyName + randomString + "." + FilenameUtils.getExtension(tmpFile.getName());
+		
+		File savedFile = getFileDestination(fileName, folderName);		
+		FileUtils.copyFile(tmpFile, savedFile);
+		return (folderName.startsWith("/") ? "" : "/")   + folderName + (folderName.endsWith("/") ? "" : "/") + fileName;
+	}
 
 	@Override
 	public String saveFile(InputStream is, String contentType, String fileName, String folderName) throws IOException {
