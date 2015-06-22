@@ -759,114 +759,40 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 					}
 					BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
 				} else {
-					// é imagem! fazer resize e crop da imagem
-					BufferedImage tmpImg = ImageIO.read(inputStream);
-					BufferedImage srcImg = null;
-					// se tiver transparencia com anotação de noTransparency, pinta o fundo
-					if (imageAnnotation.noTransparency() && 
-							(tmpImg.getType() == BufferedImage.TYPE_INT_ARGB || tmpImg.getType() == BufferedImage.TYPE_4BYTE_ABGR)) {
-						srcImg = new BufferedImage(tmpImg.getWidth(), tmpImg.getHeight(), BufferedImage.TYPE_INT_RGB);
-						String transpColor = imageAnnotation.transparencyColor();
-						Color bgColor = Color.decode(transpColor);
-						srcImg.createGraphics().drawImage(tmpImg, 0, 0, bgColor, null);
-						tmpImg.flush();
-					} else if (tmpImg.getTransparency() == Transparency.OPAQUE && tmpImg.getType() != BufferedImage.TYPE_INT_RGB) {
-						srcImg = new BufferedImage(tmpImg.getWidth(), tmpImg.getHeight(), BufferedImage.TYPE_INT_RGB);
-						srcImg.createGraphics().drawImage(tmpImg, 0, 0, null);
-						tmpImg.flush();
-					} else if (tmpImg.getTransparency() != Transparency.OPAQUE && tmpImg.getType() != BufferedImage.TYPE_INT_ARGB) {
-						srcImg = new BufferedImage(tmpImg.getWidth(), tmpImg.getHeight(), BufferedImage.TYPE_INT_ARGB);
-						srcImg.createGraphics().drawImage(tmpImg, 0, 0, null);
-						tmpImg.flush();
-					} else {
-						srcImg = tmpImg;
+					
+					String uploadKey = uploadManager.saveImage(inputStream, imageAnnotation.targetWidth(), imageAnnotation.targetHeight(), imageAnnotation.maxWidth(), 
+							imageAnnotation.maxHeight(), imageAnnotation.noTransparency(), 
+							imageAnnotation.transparencyColor(), propertyName, entityName + "/" + id);
+					
+					if (oldValue != null && !oldValue.equals(uploadKey)) {
+						uploadManager.deleteFile(oldValue);
 					}
-					BufferedImage resizedImg = null;
-					BufferedImage croppedImg = null;
-					try {
-						String fileSuffix;
-						String outputContentType;
-						if(srcImg.getType() == BufferedImage.TYPE_INT_RGB) {
-							outputContentType ="image/jpeg"; fileSuffix = ".jpg";
-						} else if (srcImg.getType() == BufferedImage.TYPE_INT_ARGB) {
-							outputContentType ="image/png"; fileSuffix = ".png";
-						} else {
-							throw new RuntimeException("Invalid image type " + srcImg.getType());
-						}
-						
-						Mode resizeMode = (((double) srcImg.getHeight() / (double) srcImg.getWidth()) < ((double) imageAnnotation.targetHeight() / (double) imageAnnotation
-								.targetWidth())) ? Mode.FIT_TO_HEIGHT : Mode.FIT_TO_WIDTH;
-						
-						if (imageAnnotation.maxHeight() != 0 || imageAnnotation.maxWidth() != 0) {
-							int maxWidth = imageAnnotation.maxWidth();
-							int maxHeight = imageAnnotation.maxHeight();
-							if (srcImg.getWidth() < (maxWidth == 0? Integer.MAX_VALUE : maxWidth) && srcImg.getHeight() < (maxHeight == 0? Integer.MAX_VALUE : maxHeight)) {
-								resizedImg = croppedImg = srcImg;
-							} else {
-								resizedImg = croppedImg = Scalr.resize(srcImg, Scalr.Method.ULTRA_QUALITY, Mode.AUTOMATIC, (maxWidth == 0? Integer.MAX_VALUE : maxWidth), (maxHeight == 0? Integer.MAX_VALUE : maxHeight));
-							}
-						} else {											
-							resizedImg = Scalr.resize(srcImg, org.imgscalr.Scalr.Method.ULTRA_QUALITY, resizeMode, imageAnnotation.targetWidth(),
-									imageAnnotation.targetHeight());
-	
-							int cropStartX = Math.max((resizedImg.getWidth() - imageAnnotation.targetWidth()) / 2, 0);
-							int cropStartY = Math.max((resizedImg.getHeight() - imageAnnotation.targetHeight()) / 2, 0);
-	
-							croppedImg = Scalr.crop(resizedImg, cropStartX, cropStartY, imageAnnotation.targetWidth(), imageAnnotation.targetHeight());
-						}
-						String uploadKey = uploadManager.saveImage(croppedImg, outputContentType, propertyName + fileSuffix, entityName + "/" + id);
-						if (oldValue != null && !oldValue.equals(uploadKey)) {
-							uploadManager.deleteFile(oldValue);
-						}
-						BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
+					BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
 
-						for (String thumbProperty : imageAnnotation.thumbnail()) {
-							// thumbnail
-							PropertyDescriptor thumbPd = entityProperties.get(thumbProperty);
-							if (thumbPd != null) {
-								String oldThumbValue = (String) BeanUtils.getProperty(connectedEntity, thumbProperty);
-
-								Image thumbAnnotation = thumbPd.getReadMethod().getAnnotation(Image.class);
-								int thumbWidth = thumbAnnotation != null ? thumbAnnotation.targetWidth() : 100;
-								int thumbHeight = thumbAnnotation != null ? thumbAnnotation.targetHeight() : 100;
-
-								resizeMode = ((double) croppedImg.getHeight() / (double) croppedImg.getWidth()) < ((double) thumbHeight / (double) thumbWidth) ? Mode.FIT_TO_HEIGHT
-										: Mode.FIT_TO_WIDTH;
-
-								BufferedImage thumbImg = null;
-								BufferedImage croppedThumbImg = null;
-								try {
-									thumbImg = Scalr.resize(croppedImg, org.imgscalr.Scalr.Method.ULTRA_QUALITY, resizeMode, thumbWidth, thumbHeight);
-									int thumbCropStartX = (thumbImg.getWidth() - thumbWidth) / 2;
-									int thumbCropStartY = (thumbImg.getHeight() - thumbHeight) / 2;
-
-									croppedThumbImg = Scalr.crop(thumbImg, thumbCropStartX, thumbCropStartY, thumbWidth, thumbHeight);
-									String thumbUpKey = uploadManager.saveImage(croppedThumbImg, "img/jpeg", thumbProperty + ".jpg", entityName + "/" + id);
-									if (oldThumbValue != null && !oldThumbValue.equals(thumbUpKey)) {
-										uploadManager.deleteFile(oldThumbValue);
-									}
-
-									BeanUtils.setProperty(connectedEntity, thumbProperty, thumbUpKey);
-								} finally {
-									if (thumbImg != null)
-										resizedImg.flush();
-									if (croppedThumbImg != null)
-										croppedThumbImg.flush();
+					for (String thumbProperty : imageAnnotation.thumbnail()) {
+						// thumbnail
+						PropertyDescriptor thumbPd = entityProperties.get(thumbProperty);
+						if (thumbPd != null) {
+							String oldThumbValue = (String) BeanUtils.getProperty(connectedEntity, thumbProperty);
+							Image thumbAnnotation = thumbPd.getReadMethod().getAnnotation(Image.class);
+							
+							if(thumbAnnotation != null) {
+								String thumbUpKey = uploadManager.saveImage(inputStream, 
+										thumbAnnotation.targetWidth(), thumbAnnotation.targetHeight(), thumbAnnotation.maxWidth(), 
+										thumbAnnotation.maxHeight(), thumbAnnotation.noTransparency(), 
+										thumbAnnotation.transparencyColor(), thumbProperty, entityName + "/" + id);
+								
+								if (oldThumbValue != null && !oldThumbValue.equals(thumbUpKey)) {
+									uploadManager.deleteFile(oldThumbValue);
 								}
+								BeanUtils.setProperty(connectedEntity, thumbProperty, thumbUpKey);
 							}
+
 						}
-						
-//						getSession().update(connectedEntity);
-						activityLogService.logEntityPropertyUpdate(connectedEntity, new UpdatedProperty(propertyName, oldValue, uploadKey, true));
-					} finally {
-						// limpa (?) dados da memória - TODO estudar mais
-						if (srcImg != null)
-							srcImg.flush();
-						if (resizedImg != null)
-							resizedImg.flush();
-						if (croppedImg != null)
-							croppedImg.flush();
 					}
+						
+//					getSession().update(connectedEntity);
+					activityLogService.logEntityPropertyUpdate(connectedEntity, new UpdatedProperty(propertyName, oldValue, uploadKey, true));
 				}
 			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 				// Error copying the property

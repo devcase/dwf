@@ -16,7 +16,9 @@ public interface UploadManager {
 	 * @throws IOException
 	 */
 	String saveFile(InputStream is, String contentType, String fileName, String folderName) throws IOException;
+	@Deprecated
 	String saveImage(RenderedImage image, String contentType, String fileName, String folderName) throws IOException;
+	String saveImage(InputStream is, int targetWidth, int targetHeight, int maxWidth, int maxHeight, boolean noTransparency, String transparencyReplaceColor, String propertyName, String folderName) throws IOException;
 	String remoteUrl(String uploadKey);
 	void deleteFile(String uploadKey);
 }
