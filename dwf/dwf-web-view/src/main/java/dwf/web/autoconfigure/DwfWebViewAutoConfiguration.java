@@ -22,6 +22,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.ErrorMvcAutoConfiguration;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
@@ -60,6 +61,7 @@ import dwf.web.spring.DwfReCaptchaInterceptor;
 
 @Configuration
 @ComponentScan(basePackages = {"dwf.web"})
+@ConditionalOnWebApplication
 @EnableWebMvc
 public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	

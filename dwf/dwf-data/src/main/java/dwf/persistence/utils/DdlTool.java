@@ -28,7 +28,6 @@ public class DdlTool {
 
 	@Autowired
 	private DataSource dataSource;
-	
 	@Autowired
 	private LocalSessionFactoryBean sessionFactoryBean;
 	@Autowired
