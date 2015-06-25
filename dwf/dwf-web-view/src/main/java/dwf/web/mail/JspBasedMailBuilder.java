@@ -10,8 +10,10 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.mail.internet.MimeMessage;
 import javax.servlet.RequestDispatcher;
@@ -25,8 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.context.support.ContextExposingHttpServletRequest;
 
 /**
  * Builds a mail message dispatching to a JSP page. Enables the use of taglibs and i18n.
@@ -37,10 +41,18 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class JspBasedMailBuilder {
 	@Autowired
 	private JavaMailSender javaMailSender;
+	@Autowired
+	private WebApplicationContext webApplicationContext;
 
 	
 	public MimeMessage buildMimeMessage(String from, String[] to, String subject, String templatePath, Map<String, ?> model) {
-		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		HttpServletRequest originalRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		
+		Set<String> exposedBeanNames = new HashSet<String>();
+		exposedBeanNames.add("environment");
+		HttpServletRequest request = new ContextExposingHttpServletRequest(
+				originalRequest, webApplicationContext, exposedBeanNames);
+
 		
 		ByteArrayOutputStream mailBodyOs = new ByteArrayOutputStream();
 		RequestDispatcher rd = request.getRequestDispatcher(templatePath);
