@@ -35,7 +35,6 @@ import javax.validation.groups.Default;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +52,7 @@ import org.hibernate.type.MapType;
 import org.hibernate.type.Type;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Mode;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -95,6 +95,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	protected Validator beanValidator;
 	@Autowired(required = false)
 	private UploadManager uploadManager;
+	@Autowired
+	private RabbitTemplate rabbitTemplate;
 
 	protected Session getSession() {
 		return sessionFactory.getCurrentSession();
@@ -744,6 +746,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	@Override
 	@Transactional(rollbackFor = ValidationException.class)
 	public D updateUpload(Serializable id, InputStream inputStream, final String contentType, String originalFilename, String propertyName) throws IOException {
+		rabbitTemplate.convertAndSend("testQueue", "Hello World");
 		D connectedEntity = findById(id);
 		// get the UpdateGroup for the property
 		PropertyDescriptor pd = entityProperties.get(propertyName);

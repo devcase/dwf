@@ -97,5 +97,10 @@
 			<artifactId>mongo-java-driver</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+		  <groupId>org.springframework.amqp</groupId>
+		  <artifactId>spring-rabbit</artifactId>
+		  <version>1.4.5.RELEASE</version>
+		</dependency>
 	</dependencies>
 </project>
