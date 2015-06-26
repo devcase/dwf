@@ -30,7 +30,7 @@ public @interface Password {
 	String message() default "{dwf.persistence.annotations.constraints.Password.message}";
 	Class<?>[] groups() default {};
 	Class<? extends Payload>[] payload() default {};
-	int minLowerCase() default 1;
-	int minUpperCase() default 1;
-	int minDigits() default 1;
+	int minLowerCase() default 0;
+	int minUpperCase() default 0;
+	int minDigits() default 0;
 }
