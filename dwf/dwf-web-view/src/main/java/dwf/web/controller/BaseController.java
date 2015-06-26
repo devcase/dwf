@@ -170,22 +170,6 @@ public abstract class BaseController implements ApplicationContextAware {
 		}
 	}
 	
-	/**
-	 * 
-	 * @param ex
-	 * @return
-	 */
-	@ExceptionHandler(ValidationException.class)
-	public ModelAndView validationExceptionDefaultHandler(ValidationException ex) {
-		addValidationExceptionMessage(ex);
-		if(request.getParameter("callbackPath") != null) {
-			ModelAndView mav = new ModelAndView();
-			mav.getModelMap().addAllAttributes(model.asMap());
-			mav.setView(new RedirectView("/", true, true, true));
-			return mav;
-		}
-		return null;
-	}
 	
 	protected BaseUser getCurrentBaseUser() {
 		Object currentUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
