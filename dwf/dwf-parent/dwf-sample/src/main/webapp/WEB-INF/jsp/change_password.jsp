@@ -12,8 +12,8 @@
 <body>
 	<dwf:editForm formaction="${appPath}/changePassword" labelKey="label.password.change">
 		<dwf:inputPassword name="currentPassword" required="true" />
-		<dwf:inputPassword name="newPassword" required="true" minlength="8"/>
-		<dwf:inputPassword name="newPasswordConfirmation" required="true" minlength="8"/>
+		<dwf:inputPassword name="newPassword" required="true" minlength="6"/>
+		<dwf:inputPassword name="newPasswordConfirmation" required="true" minlength="6"/>
 	</dwf:editForm>
 </body>
 </html>
