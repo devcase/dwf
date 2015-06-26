@@ -83,7 +83,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		viewResolver.setViewClass(SitemeshView.class);
 		viewResolver.setPrefix("/WEB-INF/jsp/");
 		viewResolver.setSuffix(".jsp");
-		viewResolver.setExposeContextBeansAsAttributes(true);
+		viewResolver.setExposeContextBeansAsAttributes(true); //enables access to applicationContext managed beans from view (eg: ${springbeanname})
 		return viewResolver;
 	}
 	
@@ -95,10 +95,10 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	}
 	
 	
-	@Value("${dwf.web.recaptcha.privatekey:testdb}")
-	private String recaptchaPrivateKey = "testdb";
-	@Value("${dwf.web.recaptcha.publickey:testdb}")
-	private String recaptchaPublicKey = "testdb";
+	@Value("${dwf.web.recaptcha.privatekey:x}")
+	private String recaptchaPrivateKey = "x";
+	@Value("${dwf.web.recaptcha.publickey:x}")
+	private String recaptchaPublicKey = "x";
 
 	
 	public String getRecaptchaPublicKey() {
