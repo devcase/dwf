@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
-import dwf.asynchronous.Listener;
+import dwf.asynchronous.ThumbnailUploaderAsyncListener;
 
 @Configuration
 public class RabbitAutoConfiguration {
@@ -46,8 +46,13 @@ public class RabbitAutoConfiguration {
 	}
 	
 	@Bean
+	public Queue failQueue(){
+		return new Queue("thumbnailFailQueue");
+	}
+	
+	@Bean
 	MessageListener listener(){
-		return new Listener();
+		return new ThumbnailUploaderAsyncListener();
 	}
 	
 	@Bean

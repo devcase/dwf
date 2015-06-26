@@ -16,6 +16,7 @@ import dwf.upload.UploadManager;
 import dwf.web.rest.spring.ParsedMapArgumentResolver;
 import dwf.web.upload.FileSystemUploadManager;
 import dwf.web.upload.S3UploadManager;
+import dwf.web.upload.S3UploadManagerAsync;
 
 @Configuration
 @ComponentScan(basePackages = {"dwf.web.rest"})
@@ -59,6 +60,26 @@ public class DwfWebRestAutoConfiguration {
 		@Bean
 		public UploadManager uploadManager() {
 			S3UploadManager s = new S3UploadManager(accessKeyId, secretKey);
+			s.setBucketName(bucketName);
+			return s;
+			
+		}
+	}
+	
+	@Configuration
+	@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "s3-async")
+	static class S3UploadManagerAsyncConfiguration {
+
+		@Value("${dwf.web.uploadmanager.bucketname:testdb}")
+		private String bucketName = "testdb";
+		@Value("${aws.accessKeyId:testdb}")
+		private String accessKeyId = "testdb";
+		@Value("${aws.secretKey:testdb}")
+		private String secretKey = "testdb";
+
+		@Bean
+		public UploadManager uploadManager() {
+			S3UploadManagerAsync s = new S3UploadManagerAsync(accessKeyId, secretKey);
 			s.setBucketName(bucketName);
 			return s;
 			

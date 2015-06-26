@@ -69,6 +69,7 @@ import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.utils.NotSyncPropertyDescriptor;
 import dwf.persistence.validation.ValidationGroups;
 import dwf.upload.UploadManager;
+import dwf.upload.UploadManagerThumbnail;
 import dwf.user.DwfUserUtils;
 import dwf.utils.ParsedMap;
 import dwf.utils.SimpleParsedMap;
@@ -746,7 +747,6 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	@Transactional(rollbackFor = ValidationException.class)
 	public D updateUpload(Serializable id, InputStream inputStream, final String contentType, String originalFilename, String propertyName) throws IOException {
 		D connectedEntity = findById(id);
-		System.out.println("HHHHHHHHHHHHHHHHHHHHHH basedaoimpl" + Thread.currentThread().getId());
 		// get the UpdateGroup for the property
 		PropertyDescriptor pd = entityProperties.get(propertyName);
 		if (pd != null) {
@@ -771,34 +771,13 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 					}
 
 					BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
-
-					for (String thumbProperty : imageAnnotation.thumbnail()) {
-						// thumbnail
-						PropertyDescriptor thumbPd = entityProperties.get(thumbProperty);
-						if (thumbPd != null) {
-							String oldThumbValue = (String) BeanUtils.getProperty(connectedEntity, thumbProperty);
-							Image thumbAnnotation = thumbPd.getReadMethod().getAnnotation(Image.class);
-							
-							if(thumbAnnotation != null) {
-								String thumbUpKey = uploadManager.saveImage(inputStream, 
-										thumbAnnotation.targetWidth(), thumbAnnotation.targetHeight(), thumbAnnotation.maxWidth(), 
-										thumbAnnotation.maxHeight(), thumbAnnotation.noTransparency(), 
-										thumbAnnotation.transparencyColor(), thumbProperty, entityName + "/" + id);
-								
-								if (oldThumbValue != null && !oldThumbValue.equals(thumbUpKey)) {
-									uploadManager.deleteFile(oldThumbValue);
-								}
-								BeanUtils.setProperty(connectedEntity, thumbProperty, thumbUpKey);
-							}
-
-						}
-					}
-						
-//					getSession().update(connectedEntity);
-					activityLogService.logEntityPropertyUpdate(connectedEntity, new UpdatedProperty(propertyName, oldValue, uploadKey, true));
+					
+					sessionFactory.getCurrentSession().update(connectedEntity);
+					sessionFactory.getCurrentSession().flush();
+					uploadManager.saveThumbnail(id, propertyName, this.getClass(), connectedEntity.getClass(), entityName);
 
 				}
-			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			} catch ( Exception e) {
 				// Error copying the property
 				throw new RuntimeException(e);
 			}

@@ -1,104 +1,67 @@
-package dwf.asynchronous;
+package dwf.upload;
 
 import java.awt.Color;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyDescriptor;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
 
 import javax.imageio.ImageIO;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.StatelessSession;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.sql.ordering.antlr.Factory;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Mode;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.orm.hibernate3.SpringSessionContext;
 
-import dwf.activitylog.domain.UpdatedProperty;
-import dwf.activitylog.service.ActivityLogService;
 import dwf.persistence.annotations.Image;
-import dwf.upload.UploadManager;
 import dwf.persistence.dao.DAO;
-import dwf.persistence.domain.BaseEntity;
 
-public class Listener implements MessageListener{
-
+public abstract class UploadManagerThumbnail implements UploadManager{
+	
+//	@Autowired
+//	private RabbitTemplate rabbitTemplate;
 	@Autowired
-	protected ActivityLogService activityLogService;
-	@Autowired
-	private UploadManager uploadManager;
+	private SessionFactory sessionFactory;
 	@Autowired
 	private ApplicationContext applicationContext;
-	@Autowired
-	private RabbitTemplate rabbitTemplate;
-	@Value("${dwf.web.uploadmanager.directory}")
-	private String uploadDirectory;
 	
-	@Override
-	public void onMessage(Message msg) {
-		Map<String, ?> convertedMessage = (Map<String, ?>) rabbitTemplate.getMessageConverter().fromMessage(msg);
-		System.out.println(convertedMessage);
-		Serializable id = (Serializable) convertedMessage.get("id");
-		String propertyToFilePath = (String) convertedMessage.get("propertyToFilePath");
-		Class<?> daoClass = (Class<?>)convertedMessage.get("daoClass");
-		Class<?> entityClass = (Class<?>)convertedMessage.get("entityClass");
-		String entityName = (String)convertedMessage.get("entityName");
-		Session session = (Session)convertedMessage.get("session");
+//	public void savedThumbnail(Serializable id, String propertyToFilePath, Class<?> daoClass, Class<?> entityClass, String entityName) throws IOException{
+//		Map<String, Serializable> imageProcParams = new HashMap<String, Serializable>();
+//		sessionFactory.getCurrentSession().flush();
+//		imageProcParams.put("id", id);
+//		imageProcParams.put("propertyToFilePath", propertyToFilePath);
+//		imageProcParams.put("daoClass", daoClass);
+//		imageProcParams.put("entityClass", entityClass);
+//		imageProcParams.put("entityName", entityName);
+//		
+//		rabbitTemplate.convertAndSend("testQueue", imageProcParams);
+//		
+//	}
+	
+	
+	
+	public void saveThumbnail(Serializable id, String propertyToFilePath, Class<?> daoClass, Class<?> entityClass, String entityName) throws Exception{
+
+		Session session = sessionFactory.openSession();
+		Object dao = applicationContext.getBean(daoClass.getInterfaces()[0]);
+		dao = daoClass.getInterfaces()[0].cast(dao);
+		Object connectedEntity = ((DAO<?>)dao).findById(id);
+		connectedEntity = entityClass.cast(connectedEntity);
+		String srcImagePath = BeanUtils.getProperty(connectedEntity, propertyToFilePath);
+		PropertyDescriptor pd = org.springframework.beans.BeanUtils.getPropertyDescriptor(entityClass, propertyToFilePath);
+		
+		InputStream srcImageInputStream = null;
+		BufferedImage tmpImg = null;
+		BufferedImage srcImg = null;
 		
 		try {
-			uploadFormattedImages(id, propertyToFilePath, daoClass, entityClass, entityName, session);
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/*
-	 * Params:
-	 * 	id: id da entidade a receber o upload de foto
-	 * 	propertyToFilePath: propriedade da entidade que contém o file path da foto
-	 */
-	private void uploadFormattedImages(Serializable id, String propertyToFilePath, Class<?> daoClass, Class<?> entityClass, String entityName, Session session) throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException{
-		try{
-			
-			Object dao = applicationContext.getBean(daoClass.getInterfaces()[0]);
-			dao = daoClass.getInterfaces()[0].cast(dao);
-			Object connectedEntity = ((DAO<?>)dao).findById(id);
-			connectedEntity = entityClass.cast(connectedEntity);
-//			Field f = entityClass.getDeclaredField(propertyToFilePath);
-//			f.setAccessible(true);
-//			String srcImagePath = (String)f.get(connectedEntity);
-			String srcImagePath = BeanUtils.getProperty(connectedEntity, propertyToFilePath);
-	//		PropertyDescriptor pd = connectedEntity.get(propertyToFilePath);
-	//		Map<String, PropertyDescriptor> entityProperties = org.springframework.beans.BeanUtils.getPropertyDescriptors(entityClass);
-			PropertyDescriptor pd = org.springframework.beans.BeanUtils.getPropertyDescriptor(entityClass, propertyToFilePath);
-			
-			InputStream srcImageInputStream = new FileInputStream(new File(uploadDirectory + srcImagePath));
-			
-			BufferedImage tmpImg = ImageIO.read(srcImageInputStream);
-			BufferedImage srcImg = null;
+			srcImageInputStream = getOriginalImageInputStream(srcImagePath);
+			tmpImg = ImageIO.read(srcImageInputStream);
+			srcImg = null;
 			if(pd != null){
 				Image imageAnnotation = pd.getReadMethod().getAnnotation(Image.class);
 				String oldValue = (String) BeanUtils.getProperty(connectedEntity, propertyToFilePath);
@@ -156,9 +119,9 @@ public class Listener implements MessageListener{
 	
 						croppedImg = Scalr.crop(resizedImg, cropStartX, cropStartY, imageAnnotation.targetWidth(), imageAnnotation.targetHeight());
 					}
-					String uploadKey = uploadManager.saveImage(croppedImg, outputContentType, propertyToFilePath + fileSuffix, entityName + "/" + id);
+					String uploadKey = saveImage(croppedImg, outputContentType, propertyToFilePath + fileSuffix, entityName + "/" + id);
 					if (oldValue != null && !oldValue.equals(uploadKey)) {
-						uploadManager.deleteFile(oldValue);
+						deleteFile(oldValue);
 					}
 					BeanUtils.setProperty(connectedEntity, propertyToFilePath, uploadKey);
 	
@@ -183,9 +146,9 @@ public class Listener implements MessageListener{
 								int thumbCropStartY = (thumbImg.getHeight() - thumbHeight) / 2;
 	
 								croppedThumbImg = Scalr.crop(thumbImg, thumbCropStartX, thumbCropStartY, thumbWidth, thumbHeight);
-								String thumbUpKey = uploadManager.saveImage(croppedThumbImg, "img/jpeg", thumbProperty + ".jpg", entityName + "/" + id);
+								String thumbUpKey = saveImage(croppedThumbImg, "img/jpeg", thumbProperty + ".jpg", entityName + "/" + id);
 								if (oldThumbValue != null && !oldThumbValue.equals(thumbUpKey)) {
-									uploadManager.deleteFile(oldThumbValue);
+									deleteFile(oldThumbValue);
 								}
 	
 								BeanUtils.setProperty(connectedEntity, thumbProperty, thumbUpKey);
@@ -199,21 +162,40 @@ public class Listener implements MessageListener{
 					}
 					session.update(connectedEntity);
 					session.flush();
-//					activityLogService.logEntityPropertyUpdate((BaseEntity<?>) connectedEntity, new UpdatedProperty(propertyToFilePath, oldValue, uploadKey, true));
+	//					activityLogService.logEntityPropertyUpdate((BaseEntity<?>) connectedEntity, new UpdatedProperty(propertyToFilePath, oldValue, uploadKey, true));
 				} finally {
 					// limpa (?) dados da memória - TODO estudar mais
-					if (srcImg != null)
-						srcImg.flush();
-					if (resizedImg != null)
-						resizedImg.flush();
-					if (croppedImg != null)
-						croppedImg.flush();
+					if (resizedImg != null) {
+						try {
+							resizedImg.flush();
+						} catch(Throwable ignore) {}
+					}
+					if (croppedImg != null) {
+						try {
+							croppedImg.flush();
+						} catch(Throwable ignore) {}
+					}
 				}
 			}
-		}catch(Exception e){
-			e.printStackTrace();
+		} finally {
+			if(srcImageInputStream != null) {
+				try {
+					srcImageInputStream.close();
+				} catch(Throwable ignore) {}
+			}
+			if(tmpImg != null) { 
+				try {
+					tmpImg.flush();
+				} catch(Throwable ignore) {}
+			}
+			if(srcImg != null) {
+				try {
+					srcImg.flush();
+				} catch(Throwable ignore) {}
+			}
 		}
 		
+		
 	}
-
+	
 }

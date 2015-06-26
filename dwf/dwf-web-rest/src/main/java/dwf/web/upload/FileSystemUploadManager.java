@@ -2,6 +2,8 @@ package dwf.web.upload;
 
 import java.awt.image.RenderedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -29,11 +31,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
-import dwf.upload.UploadManager;
+import dwf.upload.UploadManagerThumbnail;
 
 
 @RequestMapping // responds to requests via /dl/**
-public class FileSystemUploadManager  implements UploadManager, InitializingBean {
+public class FileSystemUploadManager extends UploadManagerThumbnail implements InitializingBean {
 	
 	@Autowired
 	private ApplicationContext applicationContext;
@@ -179,4 +181,14 @@ public class FileSystemUploadManager  implements UploadManager, InitializingBean
 			resourceHttpRequestHandler.handleRequest(request, response);
 		}
 	}
+
+	@Override
+	public InputStream getOriginalImageInputStream(String uploadKey) {
+		try {
+			return new FileInputStream(new File(directory + uploadKey));
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 }

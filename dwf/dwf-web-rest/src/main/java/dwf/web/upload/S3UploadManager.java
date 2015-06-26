@@ -4,9 +4,11 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -23,15 +25,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AccessControlList;
+import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.GroupGrantee;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
-import dwf.upload.UploadManager;
+import dwf.upload.UploadManagerThumbnail;
 
 @RequestMapping // responds to requests via /dl/**
-public class S3UploadManager implements UploadManager {
+public class S3UploadManager extends UploadManagerThumbnail {
 
 	private final AmazonS3Client awsS3Client;
 	private SecureRandom random = new SecureRandom();
@@ -172,4 +175,14 @@ public class S3UploadManager implements UploadManager {
 		
 		return key;
 	}
+
+	public InputStream getOriginalImageInputStream(String uploadKey) {
+		return awsS3Client.getObject(getBucketName(), uploadKey).getObjectContent();
+	}
+	
+	public void respondToMessage(Serializable id, String propertyToFilePath, Class<?> daoClass, Class<?> entityClass, String entityName) throws Exception{
+		super.saveThumbnail(id, propertyToFilePath, daoClass, entityClass, entityName);
+	}
+	
 }
+
