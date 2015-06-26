@@ -8,9 +8,11 @@ import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.google.gson.Gson;
 
@@ -22,6 +24,7 @@ import dwf.web.AjaxHashKeyManager;
 
 @RestController
 @RequestMapping("/ajax")
+@Scope(WebApplicationContext.SCOPE_REQUEST)
 public class AjaxController extends BaseController {
 	@Autowired
 	private AjaxHashKeyManager ajaxHashKeyManager;

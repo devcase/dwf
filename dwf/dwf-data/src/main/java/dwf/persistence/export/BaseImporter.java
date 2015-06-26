@@ -16,7 +16,7 @@ import org.springframework.context.ApplicationContextAware;
 import dwf.persistence.dao.DAO;
 import dwf.persistence.domain.BaseEntity;
 
-public abstract class BaseImporter<D extends BaseEntity<Long>> implements Importer<D>, ApplicationContextAware {
+public abstract class BaseImporter<D extends BaseEntity<?>> implements Importer<D>, ApplicationContextAware {
 	private ApplicationContext applicationContext;
 	protected final Class<D> clazz;
 	protected final String entityFullName;

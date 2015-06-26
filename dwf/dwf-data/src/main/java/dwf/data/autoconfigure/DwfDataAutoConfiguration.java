@@ -20,6 +20,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Scope;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -33,6 +34,7 @@ import dwf.config.DwfDataConfig;
 import dwf.persistence.utils.DwfNamingStrategy;
 import dwf.persistence.utils.MongoIdModule;
 
+@SuppressWarnings("deprecation")
 @Configuration
 @ComponentScan(basePackages = {"dwf.activitylog.service", "dwf.persistence", "dwf.multilang", "dwf.user"})
 @ConfigurationProperties(prefix = "dwf.data")
@@ -79,6 +81,7 @@ public class DwfDataAutoConfiguration  {
 	
 	@Bean
 	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+	@DependsOn("flyway") //sessionFactory é criado após o bean flyway
 	public LocalSessionFactoryBean sessionFactory() {
 		if(entityPackage == null) {
 			entityPackage = dwfDataConfig.getClass().getPackage().getName();
@@ -93,8 +96,22 @@ public class DwfDataAutoConfiguration  {
 			sessionFactory.setHibernateProperties(p);
 		}
 		
-		
 		return sessionFactory;
+	}
+	
+	/**
+	 * Se Flyway não é configurado automaticamente (exemplo: DdlScriptGenerator), garante a existência de bean com nome flyway,
+	 * para a anotação @DependsOn("flyway") de sessionFactory() funcionar.
+	 * @author cesar_000
+	 *
+	 */
+	@Configuration
+	@ConditionalOnMissingBean(name="flyway")
+	static class MockFlywayConfiguration {
+		@Bean(name="flyway")
+		public Object flyway() {
+			return new Object();
+		}
 	}
 	
 	

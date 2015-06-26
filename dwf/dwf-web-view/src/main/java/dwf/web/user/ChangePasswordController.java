@@ -4,11 +4,13 @@ import javax.validation.Valid;
 import javax.validation.ValidationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import dwf.user.domain.ChangePasswordBean;
@@ -17,6 +19,7 @@ import dwf.web.controller.BaseController;
 import dwf.web.message.UserMessageType;
 
 @Controller
+@Scope(WebApplicationContext.SCOPE_REQUEST)
 public class ChangePasswordController extends BaseController {
 
 	private final BaseUserService userService;
