@@ -34,7 +34,7 @@ getJspContext().setAttribute("hasIcon", HasIcon.class.isAssignableFrom(targetEnt
 		<c:forEach items="${targetEntityList}" var="targetEntity" varStatus="loopStatus">
 			<label class= "btn btn-borderless">
 				<input type="checkbox" name="${name}[].id" value="${targetEntity.id }" ${value.contains(targetEntity) ? 'checked="checked"' : '' }>
-					<c:if test="${hasIcon and !empty targetEntity.xsIconImage}"><img src="<dwf:remoteUrl uploadKey="${targetEntity.xsIconImage}" />" style="width: 1em; height: 1em;"/></c:if>
+					<c:if test="${hasIcon and !empty targetEntity.xsIconImage and !attrMap.noIcons}"><img src="<dwf:remoteUrl uploadKey="${targetEntity.xsIconImage}" />" style="width: 1em; height: 1em;"/></c:if>
 					<dwf:autoFormat value="${targetEntity}"/></input>
 			</label>
 		</c:forEach>
