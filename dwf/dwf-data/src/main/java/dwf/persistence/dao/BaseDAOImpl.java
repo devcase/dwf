@@ -50,8 +50,6 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.ListType;
 import org.hibernate.type.MapType;
 import org.hibernate.type.Type;
-import org.imgscalr.Scalr;
-import org.imgscalr.Scalr.Mode;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -97,6 +95,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	private UploadManager uploadManager;
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
+	
 
 	protected Session getSession() {
 		return sessionFactory.getCurrentSession();
@@ -746,8 +745,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	@Override
 	@Transactional(rollbackFor = ValidationException.class)
 	public D updateUpload(Serializable id, InputStream inputStream, final String contentType, String originalFilename, String propertyName) throws IOException {
-		rabbitTemplate.convertAndSend("testQueue", "Hello World");
 		D connectedEntity = findById(id);
+		System.out.println("HHHHHHHHHHHHHHHHHHHHHH basedaoimpl" + Thread.currentThread().getId());
 		// get the UpdateGroup for the property
 		PropertyDescriptor pd = entityProperties.get(propertyName);
 		if (pd != null) {
@@ -770,6 +769,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 					if (oldValue != null && !oldValue.equals(uploadKey)) {
 						uploadManager.deleteFile(oldValue);
 					}
+
 					BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
 
 					for (String thumbProperty : imageAnnotation.thumbnail()) {
@@ -796,6 +796,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 						
 //					getSession().update(connectedEntity);
 					activityLogService.logEntityPropertyUpdate(connectedEntity, new UpdatedProperty(propertyName, oldValue, uploadKey, true));
+
 				}
 			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 				// Error copying the property
@@ -804,6 +805,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		}
 		return connectedEntity;
 	}
+	
+	
 
 	/**
 	 * The default implementation delegates the query creation to a
