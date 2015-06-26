@@ -45,6 +45,7 @@
 					<version>${dwf.version}</version>
 					<executions>
 						<execution>
+							<id>dwf-compile-jsp</id>
 							<phase>generate-sources</phase>
 							<goals>
 								<goal>compile-jsp</goal>
