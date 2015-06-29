@@ -5,6 +5,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Locale;
 
+import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -28,7 +30,6 @@ import org.springframework.boot.autoconfigure.web.ErrorMvcAutoConfiguration;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.boot.context.embedded.ServletContextInitializer;
-import org.springframework.boot.context.embedded.tomcat.TomcatConnectorCustomizer;
 import org.springframework.boot.context.embedded.tomcat.TomcatContextCustomizer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.MessageSource;
@@ -38,12 +39,12 @@ import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.PropertySource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -227,23 +228,58 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		
 	}
 
+
 	/**
-	 * Antecipa o binding à porta http, por causa do heroku
-	 * @return
+	 * Customizations that will improve the startup time
+	 * @author Hirata
+	 *
 	 */
-	@Bean
-	public TomcatConnectorCustomizer tomcatcustomizer() {
-		return new TomcatConnectorCustomizer() {
-			@Override
-			public void customize(Connector connector) {
-				connector.setProperty("bindOnInit", "true");
-				try {
-					connector.init();
-				} catch (LifecycleException e) {
-					throw new RuntimeException (e);
+	@Configuration
+	@AutoConfigureBefore(EmbeddedServletContainerAutoConfiguration.class)
+	@ConditionalOnProperty(prefix = "dwf.generated.jsp.configuration", name = "enabled", matchIfMissing = false)
+	static class DwfTomcatEmbeddedServletContainerFactoryConfiguration {
+		@Bean
+		public TomcatEmbeddedServletContainerFactory tomcatEmbeddedServletContainerFactory() {
+			TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory() {
+
+				@Override
+				protected void configureContext(Context context, ServletContextInitializer[] initializers) {
+					super.configureContext(context, initializers);
+					
+					//disables jar scanning - tld are already compiled
+					context.getJarScanner();
+					StandardJarScanner standardJarScanner = (StandardJarScanner) context.getJarScanner();
+					standardJarScanner.setScanAllDirectories(false);
+					standardJarScanner.setScanClassPath(false);
+
+					try {
+						//needed for compiled jsp (still don't know exactly why)
+						ServletContainerInitializer initializer = (ServletContainerInitializer) ClassUtils
+								.forName("org.apache.jasper.servlet.JasperInitializer", null)
+								.newInstance();
+						context.addServletContainerInitializer(initializer, null);
+					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | LinkageError e) {
+					}
 				}
-			}
-		};
+
+				@Override
+				protected void customizeConnector(Connector connector) {
+					//binds the port on initialization, tricking heroku
+					super.customizeConnector(connector);
+					connector.setProperty("bindOnInit", "true");
+					try {
+						connector.init();
+					} catch (LifecycleException e) {
+						throw new RuntimeException (e);
+					}
+				}
+			};
+			
+			//don't register JspServlet - uses compiled jsp
+			factory.setRegisterJspServlet(false);
+			return factory;
+		}
+
 	}
 	
 	/**
@@ -263,12 +299,11 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	 * @return
 	 */
 	@Configuration
-	@ConditionalOnClass(org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory.class)
+	@ConditionalOnBean(org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory.class)
 	@Conditional(AdicionaDwfTagLibCondition.class)
 	@AutoConfigureAfter(EmbeddedServletContainerAutoConfiguration.class)
+	@Profile("dev")
 	static class AdicionaDwfTaglibConfiguration extends WebMvcConfigurerAdapter {
-		@Autowired
-		TomcatConnectorCustomizer tomcatConnectorCustomizer;
 		@Bean
 		public EmbeddedServletContainerCustomizer tomcatContextCustomizer() {
 			return new EmbeddedServletContainerCustomizer() {
@@ -316,7 +351,6 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 							}
 						});
 						
-						factory.addConnectorCustomizers(tomcatConnectorCustomizer);
 					}
 				}
 			};
