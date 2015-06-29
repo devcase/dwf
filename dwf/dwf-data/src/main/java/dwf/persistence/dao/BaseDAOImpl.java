@@ -768,6 +768,9 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 					}
 
 					BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
+					for(String thumbnailProperty : imageAnnotation.thumbnail()){
+						BeanUtils.setProperty(connectedEntity, thumbnailProperty, uploadKey);
+					}
 					
 					sessionFactory.getCurrentSession().update(connectedEntity);
 					sessionFactory.getCurrentSession().flush();
