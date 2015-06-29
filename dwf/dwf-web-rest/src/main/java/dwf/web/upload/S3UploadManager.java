@@ -36,7 +36,7 @@ import dwf.upload.UploadManagerThumbnail;
 @RequestMapping // responds to requests via /dl/**
 public class S3UploadManager extends UploadManagerThumbnail {
 
-	private final AmazonS3Client awsS3Client;
+	protected final AmazonS3Client awsS3Client;
 	private SecureRandom random = new SecureRandom();
 	private String bucketName;
 	

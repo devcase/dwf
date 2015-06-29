@@ -762,10 +762,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 					BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
 				} else {
 					
-					String uploadKey = uploadManager.saveImage(inputStream, imageAnnotation.targetWidth(), imageAnnotation.targetHeight(), imageAnnotation.maxWidth(), 
-							imageAnnotation.maxHeight(), imageAnnotation.noTransparency(), 
-							imageAnnotation.transparencyColor(), propertyName, entityName + "/" + id);
-					
+					String uploadKey = uploadManager.saveFile(inputStream, contentType, originalFilename, entityName + "/" + id);
 					if (oldValue != null && !oldValue.equals(uploadKey)) {
 						uploadManager.deleteFile(oldValue);
 					}
