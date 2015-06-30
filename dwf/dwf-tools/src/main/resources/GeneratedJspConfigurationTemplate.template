@@ -6,9 +6,11 @@ import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 
 @Configuration
 @ConditionalOnProperty(prefix = "dwf.generated.jsp.configuration", name = "enabled", matchIfMissing = true)
+@ConditionalOnWebApplication
 public class GeneratedJspConfiguration {
 	@Autowired
 	private ServerProperties server;
