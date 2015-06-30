@@ -144,4 +144,13 @@ public abstract class BaseImporter<D extends BaseEntity<?>> implements Importer<
 		
 		return val;
 	}
+
+
+
+	@Override
+	public String getEntityName() {
+		return entityName;
+	}
+	
+	
 }

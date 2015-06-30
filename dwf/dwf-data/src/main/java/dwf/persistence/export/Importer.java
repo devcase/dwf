@@ -7,4 +7,5 @@ import dwf.persistence.domain.BaseEntity;
 
 public interface Importer<D extends BaseEntity<?>> {
 	void importFromExcel(InputStream inputStream) throws IOException;
+	String getEntityName();
 }

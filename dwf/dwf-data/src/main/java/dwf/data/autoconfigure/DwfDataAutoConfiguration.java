@@ -10,7 +10,14 @@ import javax.sql.DataSource;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import org.hibernate.validator.resourceloading.AggregateResourceBundleLocator;
 import org.jongo.Jongo;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -30,7 +37,9 @@ import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 
+import dwf.asynchronous.AsyncImporterListener;
 import dwf.config.DwfDataConfig;
+import dwf.persistence.export.Importer;
 import dwf.persistence.utils.DwfNamingStrategy;
 import dwf.persistence.utils.MongoIdModule;
 
@@ -176,5 +185,83 @@ public class DwfDataAutoConfiguration  {
 				}
 			};
 		}
+	}
+	
+	/**
+	 * Substitui os beans que implementam dwf.persistence.export.Importer por 
+	 * um Wrapper que enfileira as importações no RabbitMQ
+	 * @author cesar_000
+	 *
+	 */
+	@Configuration
+	@ConditionalOnProperty(prefix="dwf.data.asyncimporter", name="enabled")
+	static class AsyncImporterConfiguration {
+		
+		/**
+		 * Substitui os beans que implementam dwf.persistence.export.Importer por 
+		 * um Wrapper que enfileira as importações no RabbitMQ
+		 * @author cesar_000
+		 *
+		 */
+		@Bean
+		public BeanPostProcessor asyncImporterPostProcessor() {
+			return new BeanPostProcessor() {
+				@Autowired
+				private RabbitTemplate rabbitTemplate;
+				@Value("${dwf.data.asyncimporter.queuename:nonono}")
+				private String queueName;
+				
+				
+				@Override
+				public Object postProcessBeforeInitialization(Object bean, String beanName)
+						throws BeansException {
+					return bean;
+				}
+				
+				@Override
+				public Object postProcessAfterInitialization(Object bean, String beanName)
+						throws BeansException {
+					if(bean instanceof Importer) {
+						final Importer<?> importer = (Importer<?>) bean;
+						return new AsyncImporterListener.ImporterWrapper(rabbitTemplate, importer, queueName);
+					} else {
+						return bean;
+					}
+				}
+			};
+		}
+
+		/**
+		 * Habilita o listener do rabbitMQ que processa as importações
+		 * @author cesar_000
+		 *
+		 */
+		@Configuration
+		@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled")
+		static class ListenerConfiguration {
+			@Value("${dwf.data.asyncimporter.queuename:nonono}")
+			private String queueName = "";
+			
+			@Bean
+			AsyncImporterListener asyncImporterListener() {
+				return new AsyncImporterListener();
+			}
+			
+			@Bean
+			MessageListenerAdapter asyncImporterListenerAdapter(AsyncImporterListener asyncImporterListener) {
+				MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(asyncImporterListener, "onMessage");
+				return messageListenerAdapter;
+			}
+			
+			@Bean
+			SimpleMessageListenerContainer asyncImporterListenerContainer(ConnectionFactory connectionFactory, MessageListenerAdapter asyncImporterListenerAdapter) {
+				SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+				container.setConnectionFactory(connectionFactory);
+				container.setQueueNames(this.queueName);
+				container.setMessageListener(asyncImporterListenerAdapter);
+				return container;
+			}
+		}
+
 	}
 }
