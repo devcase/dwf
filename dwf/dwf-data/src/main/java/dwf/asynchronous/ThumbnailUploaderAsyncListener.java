@@ -11,6 +11,8 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.imgscalr.Scalr;
@@ -27,6 +29,7 @@ import dwf.persistence.dao.DAO;
 import dwf.upload.UploadManager;
 
 public class ThumbnailUploaderAsyncListener  implements MessageListener {
+	private Log log = LogFactory.getLog(getClass());
 
 	@Autowired
 	private SessionFactory sessionFactory;
@@ -41,6 +44,8 @@ public class ThumbnailUploaderAsyncListener  implements MessageListener {
 	
 	@Override
 	public void onMessage(Message msg) {
+		log.info("Message arrived - starting image processing");
+		
 		Map<String, ?> convertedMessage = (Map<String, ?>) rabbitTemplate.getMessageConverter().fromMessage(msg);
 		Serializable id = (Serializable) convertedMessage.get("id");
 		String propertyToFilePath = (String) convertedMessage.get("propertyToFilePath");
@@ -51,9 +56,9 @@ public class ThumbnailUploaderAsyncListener  implements MessageListener {
 		
 		try {
 			uploadFormattedImages(id, propertyToFilePath, daoClass, entityClass, entityName);
+			log.info("Image processing done");
 		} catch (Throwable e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error processing image: " , e);
 		}
 	}
 	

@@ -1,8 +1,5 @@
 package dwf.persistence.dao;
 
-import java.awt.Color;
-import java.awt.Transparency;
-import java.awt.image.BufferedImage;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
@@ -25,7 +22,6 @@ import java.util.Set;
 
 import javassist.bytecode.SignatureAttribute.ArrayType;
 
-import javax.imageio.ImageIO;
 import javax.persistence.Transient;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -50,7 +46,6 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.ListType;
 import org.hibernate.type.MapType;
 import org.hibernate.type.Type;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -69,7 +64,6 @@ import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.utils.NotSyncPropertyDescriptor;
 import dwf.persistence.validation.ValidationGroups;
 import dwf.upload.UploadManager;
-import dwf.upload.UploadManagerThumbnail;
 import dwf.user.DwfUserUtils;
 import dwf.utils.ParsedMap;
 import dwf.utils.SimpleParsedMap;
@@ -94,8 +88,6 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	protected Validator beanValidator;
 	@Autowired(required = false)
 	private UploadManager uploadManager;
-	@Autowired
-	private RabbitTemplate rabbitTemplate;
 	
 
 	protected Session getSession() {
