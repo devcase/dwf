@@ -1,3 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 dwf.data.autoconfigure.DwfDataAutoConfiguration,\
-dwf.data.autoconfigure.ImageAsyncProcessingAutoConfiguration
+dwf.data.autoconfigure.RabbitAutoConfiguration

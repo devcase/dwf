@@ -1,6 +1,11 @@
 package dwf.web.rest.autoconfigure;
 
 import org.hibernate.SessionFactory;
+import org.springframework.amqp.core.MessageListener;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -12,6 +17,7 @@ import org.springframework.orm.hibernate4.support.OpenSessionInViewInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import dwf.asynchronous.ThumbnailUploaderAsyncListener;
 import dwf.upload.UploadManager;
 import dwf.web.rest.spring.ParsedMapArgumentResolver;
 import dwf.web.upload.FileSystemUploadManager;
@@ -76,14 +82,45 @@ public class DwfWebRestAutoConfiguration {
 		private String accessKeyId = "testdb";
 		@Value("${aws.secretKey:testdb}")
 		private String secretKey = "testdb";
+		@Value("${dwf.web.uploadmanager.s3-async.rabbitmq.queuename:nonono}")
+		private String queueName = "";
 
 		@Bean
 		public UploadManager uploadManager() {
-			S3UploadManagerAsync s = new S3UploadManagerAsync(accessKeyId, secretKey);
+			S3UploadManagerAsync s = new S3UploadManagerAsync(accessKeyId, secretKey, this.queueName);
 			s.setBucketName(bucketName);
 			return s;
-			
 		}
+		
+		
+		@Configuration
+		@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled")
+		static class ListenerConfiguration {
+			@Value("${dwf.web.uploadmanager.s3-async.rabbitmq.queuename:nonono}")
+			private String queueName = "";
+			
+			@Bean
+			MessageListener thumbnailUploaderAsyncListener() {
+				return new ThumbnailUploaderAsyncListener();
+			}
+			
+			@Bean
+			MessageListenerAdapter listenerAdapter(MessageListener thumbnailUploaderAsyncListener) {
+				MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(thumbnailUploaderAsyncListener, "onMessage");
+				return messageListenerAdapter;
+			}
+			
+			@Bean(initMethod="start", destroyMethod="shutdown")
+			SimpleMessageListenerContainer container(ConnectionFactory connectionFactory, MessageListenerAdapter listenerAdapter) {
+				SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+				container.setConnectionFactory(connectionFactory);
+				container.setQueueNames(this.queueName);
+				container.setMessageListener(listenerAdapter);
+				return container;
+			}
+		}
+
+		
 	}
 	
 

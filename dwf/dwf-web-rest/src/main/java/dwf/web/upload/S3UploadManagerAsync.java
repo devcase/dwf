@@ -38,8 +38,11 @@ public class S3UploadManagerAsync extends S3UploadManager {
 	
 	private SecureRandom random = new SecureRandom();
 	
-	public S3UploadManagerAsync(String accessKey, String secretKey) {
+	private String queueName;
+	
+	public S3UploadManagerAsync(String accessKey, String secretKey, String queueName) {
 		super(accessKey, secretKey);
+		this.queueName = queueName;
 	}
 
 	@Override
@@ -52,7 +55,7 @@ public class S3UploadManagerAsync extends S3UploadManager {
 		imageProcParams.put("entityClass", entityClass);
 		imageProcParams.put("entityName", entityName);
 		
-		rabbitTemplate.convertAndSend("testQueue", imageProcParams);
+		rabbitTemplate.convertAndSend(this.queueName, imageProcParams);
 
 	}
 	
