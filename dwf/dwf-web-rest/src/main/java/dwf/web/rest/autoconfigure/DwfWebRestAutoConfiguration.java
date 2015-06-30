@@ -2,12 +2,12 @@ package dwf.web.rest.autoconfigure;
 
 import org.hibernate.SessionFactory;
 import org.springframework.amqp.core.MessageListener;
-import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -95,6 +95,7 @@ public class DwfWebRestAutoConfiguration {
 		
 		@Configuration
 		@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled")
+		@ConditionalOnBean(S3UploadManagerAsyncConfiguration.class)
 		static class ListenerConfiguration {
 			@Value("${dwf.web.uploadmanager.s3-async.rabbitmq.queuename:nonono}")
 			private String queueName = "";
@@ -110,7 +111,7 @@ public class DwfWebRestAutoConfiguration {
 				return messageListenerAdapter;
 			}
 			
-			@Bean(initMethod="start", destroyMethod="shutdown")
+			@Bean
 			SimpleMessageListenerContainer container(ConnectionFactory connectionFactory, MessageListenerAdapter listenerAdapter) {
 				SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 				container.setConnectionFactory(connectionFactory);

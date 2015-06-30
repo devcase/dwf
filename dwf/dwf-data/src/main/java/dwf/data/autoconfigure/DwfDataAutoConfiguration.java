@@ -196,7 +196,8 @@ public class DwfDataAutoConfiguration  {
 	@Configuration
 	@ConditionalOnProperty(prefix="dwf.data.asyncimporter", name="enabled")
 	static class AsyncImporterConfiguration {
-		
+		@Value("${dwf.data.asyncimporter.queuename:nonono}")
+		private String queueName="";
 		/**
 		 * Substitui os beans que implementam dwf.persistence.export.Importer por 
 		 * um Wrapper que enfileira as importações no RabbitMQ
@@ -208,8 +209,7 @@ public class DwfDataAutoConfiguration  {
 			return new BeanPostProcessor() {
 				@Autowired
 				private RabbitTemplate rabbitTemplate;
-				@Value("${dwf.data.asyncimporter.queuename:nonono}")
-				private String queueName;
+
 				
 				
 				@Override
