@@ -33,7 +33,7 @@ if(filter == null) {
 		<option value=""><spring:message code="label.select.empty${attrMap.required ? '.required' : ''}"/></option>
 		<c:forEach items="${targetEntityList}" var="targetEntity">
 			<option value="${targetEntity.id}"
-				<c:if test="${targetEntity eq value}">selected</c:if>
+				<c:if test="${targetEntity.id eq value.id}">selected</c:if>
 				>${targetEntity.displayText}</option>
 		</c:forEach>
 	</select>
