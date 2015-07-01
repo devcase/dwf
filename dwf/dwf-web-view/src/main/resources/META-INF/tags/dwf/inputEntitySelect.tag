@@ -30,7 +30,7 @@ if(filter == null) {
 <dwf:formGroup parentAttrMap="${attrMap}">
 	<select name="${name}.id"
 		<c:if test="${attrMap.required}">required="required"</c:if> class="form-control">
-		<option value="${attrMap.value eq '' ? '' : attrMap.value}"><spring:message code="label.select.empty${attrMap.required ? '.required' : ''}"/></option>
+		<option value=""><spring:message code="label.select.empty${attrMap.required ? '.required' : ''}"/></option>
 		<c:forEach items="${targetEntityList}" var="targetEntity">
 			<option value="${targetEntity.id}"
 				<c:if test="${targetEntity eq value}">selected</c:if>
