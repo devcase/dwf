@@ -160,6 +160,11 @@ public abstract class BaseController implements ApplicationContextAware {
 		DecimalFormat df = new DecimalFormat("0.0", new DecimalFormatSymbols(locale));
 		binder.registerCustomEditor(Double.class, new CustomNumberEditor(Double.class, df, true));
 		binder.registerCustomEditor(BigDecimal.class, new CustomNumberEditor(BigDecimal.class, df, true));
+		binder.registerCustomEditor(Float.class, new CustomNumberEditor(Float.class, df, true));
+		binder.registerCustomEditor(float.class, new CustomNumberEditor(Float.class, df, true));
+		binder.registerCustomEditor(double.class, new CustomNumberEditor(Double.class, df, true));
+		binder.registerCustomEditor(Integer.class, new CustomNumberEditor(Integer.class, df, true));
+		binder.registerCustomEditor(int.class, new CustomNumberEditor(Integer.class, df, true));
 		
 		Map<String, CustomPropertyEditorFactory> editorFactories = applicationContext.getBeansOfType(CustomPropertyEditorFactory.class);
 		for (CustomPropertyEditorFactory customEditorFactory : editorFactories.values()) {

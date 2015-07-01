@@ -100,6 +100,8 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	private String recaptchaPrivateKey = "x";
 	@Value("${dwf.web.recaptcha.publickey:x}")
 	private String recaptchaPublicKey = "x";
+	@Value("${dwf.web.defaultLocale:pt_BR}")
+	private Locale defaultLocale;
 
 	
 	public String getRecaptchaPublicKey() {
@@ -119,7 +121,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public LocaleResolver localeResolver() {
 		SessionLocaleResolver localeResolver = new SessionLocaleResolver();
-		localeResolver.setDefaultLocale(Locale.getDefault());
+		localeResolver.setDefaultLocale(defaultLocale);
 		return localeResolver;
 	}
 	
