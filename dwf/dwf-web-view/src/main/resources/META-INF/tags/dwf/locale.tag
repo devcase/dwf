@@ -7,9 +7,7 @@ if(getJspContext().getAttribute("var") != null) {
 	getJspContext().setAttribute((String) getJspContext().getAttribute("var"), locale, PageContext.REQUEST_SCOPE);
 } else {
 	if(locale != null) {
-		if(getJspContext().getAttribute("format") == null) { 
-			out.print(locale.toLanguageTag());
-		} else if("dash".equals(getJspContext().getAttribute("format"))) { 
+		if("dash".equals(getJspContext().getAttribute("format"))) { 
 			out.print(locale.getLanguage());
 			out.print("-");
 			out.print(locale.getCountry());
@@ -21,6 +19,8 @@ if(getJspContext().getAttribute("var") != null) {
 			out.print(locale.getLanguage());
 		} else if("country".equals(getJspContext().getAttribute("format"))) {
 			out.print(locale.getCountry());
+		} else {
+			out.print(locale.toLanguageTag());
 		}
 	}
 }

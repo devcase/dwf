@@ -1,3 +1,5 @@
+<%@tag import="java.util.Locale"%>
+<%@tag import="org.springframework.context.i18n.LocaleContextHolder"%>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator"%>
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%-- 
@@ -5,8 +7,24 @@
  	Also include the scripts from a decorated page using sitemesh (FastAndDumbHTMLParser)
  	Should be placed at the end of the document so the pages load faster
 --%>  
-<script type="text/javascript" >
+<%
+//define o formato da data para uso do moment.js e do jquery-datepicker
+Locale locale = LocaleContextHolder.getLocale();
+String datePatternMoment;
+if (locale == null) {
+datePatternMoment  = "DD-MM-YYYY";
+} if(locale.equals(Locale.US)) {
+datePatternMoment  = "MM-DD-YYYY";
+} else if(locale.equals(Locale.JAPAN) || locale.equals(Locale.CHINA) || locale.equals(Locale.KOREAN)){
+datePatternMoment="YYYY-MM-DD";
+} else {
+datePatternMoment  = "DD-MM-YYYY";
+}
+getJspContext().setAttribute("datePatternMoment", datePatternMoment);
+%>
+<script type="text/javascript" ><%-- Prepara variáveis usadas por scripts dwf --%>
 	var $appPath = '${appPath}';
+	var $datePatternMoment = '${datePatternMoment}'; 
 </script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery-1.10.2.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery-ui-1.10.4.custom.min.js"></script>
@@ -16,7 +34,9 @@
 <script type="text/javascript" src="${appPath}/resources/js/jquery.validate/jquery.validate.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery.validate/additional-methods.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery.validate/localization/messages_<dwf:locale format="underscore"/>.js"></script>
+<script type="text/javascript" src="${appPath}/resources/js/jquery.validate/localization/methods_<dwf:locale format="language"/>.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/serializeObject.js"></script>
+<script type="text/javascript" src="${appPath}/resources/js/moment-with-locales.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-core.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-token-input.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-remoteload.js"></script>

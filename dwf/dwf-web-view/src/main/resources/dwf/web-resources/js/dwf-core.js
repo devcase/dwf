@@ -14,6 +14,16 @@ $(document).on('click', 'form [type="submit"]', function(evt) {
 });
 
 /**
+ * Creates a locale-aware validation rule for jquery-validator (ver moment.js e dwfScripts.tag)  
+ */
+$.extend($.validator.methods, {
+	date: function(value, element) {
+		return moment(value, $datePatternMoment).isValid();
+	}
+});
+
+
+/**
  * Enables jquery-validate and adapts to bootstrap
  */
 $(document).on('dwf-postupdate', function(evt) {
@@ -29,6 +39,8 @@ $(document).on('dwf-postupdate', function(evt) {
 			label.remove();
 		}
 	});
+	
+	$.validator.addClassRules("date-picker", { date: true });
 });
 
 
