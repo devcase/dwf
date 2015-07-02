@@ -10,6 +10,7 @@ import java.io.Serializable;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.imgscalr.Scalr;
@@ -45,8 +46,13 @@ public abstract class UploadManagerThumbnail implements UploadManager{
 	
 	
 	public void saveThumbnail(Serializable id, String propertyToFilePath, Class<?> daoClass, Class<?> entityClass, String entityName) throws Exception{
-
-		Session session = sessionFactory.openSession();
+		Session session;
+		try {
+			 session = sessionFactory.getCurrentSession();
+		} catch (HibernateException ex) {
+			//não há sessão aberta
+			session = sessionFactory.openSession();
+		}
 		Object dao = applicationContext.getBean(daoClass.getInterfaces()[0]);
 		dao = daoClass.getInterfaces()[0].cast(dao);
 		Object connectedEntity = ((DAO<?>)dao).findById(id);
