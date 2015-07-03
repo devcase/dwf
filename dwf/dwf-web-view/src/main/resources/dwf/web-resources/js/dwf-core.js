@@ -244,7 +244,7 @@ $(document).on("click", ".inputEntityImageCheckbox", function () {
  * price format mask (inputPrice.tag)
  */
 $(document).on("dwf-postupdate", function (evt) {
-	$(evt.target).find(".price-format").each(function () {
+	$(evt.target).find(".price-format,.number-mask").each(function () {
 		var inpt = $(this);
 		inpt.priceFormat({
 			prefix: '',

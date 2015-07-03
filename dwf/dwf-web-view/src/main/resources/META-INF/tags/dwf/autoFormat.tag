@@ -1,6 +1,6 @@
-<%-- ATENÇÃO - NÃO quebre linhas! --%><%@tag import="java.util.TimeZone"%><%@tag import="org.apache.commons.lang3.time.DateUtils"%><%@tag import="org.springframework.web.context.support.WebApplicationContextUtils"%><%@tag import="dwf.multilang.TranslationManager"%><%@tag import="java.util.Locale"%><%@tag import="org.springframework.context.i18n.LocaleContextHolder"%><%@tag import="dwf.multilang.domain.BaseMultilangEntity"%><%@tag import="java.util.Calendar"%><%@tag import="java.util.Date"%><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%><%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%><%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%><%@taglib uri="http://www.springframework.org/tags" prefix="spring"%><%@ attribute name="value" required="true" type="java.lang.Object"%><%
+<%-- ATENÇÃO - NÃO quebre linhas! --%><%@tag import="dwf.persistence.embeddable.Price"%>
+<%@tag import="java.util.TimeZone"%><%@tag import="org.apache.commons.lang3.time.DateUtils"%><%@tag import="org.springframework.web.context.support.WebApplicationContextUtils"%><%@tag import="dwf.multilang.TranslationManager"%><%@tag import="java.util.Locale"%><%@tag import="org.springframework.context.i18n.LocaleContextHolder"%><%@tag import="dwf.multilang.domain.BaseMultilangEntity"%><%@tag import="java.util.Calendar"%><%@tag import="java.util.Date"%><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%><%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%><%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%><%@taglib uri="http://www.springframework.org/tags" prefix="spring"%><%@ attribute name="value" required="true" type="java.lang.Object"%><%
 	Object value = getJspContext().getAttribute("value");
-
 	if(value == null) {
 		return;
 	} else if (value instanceof CharSequence) {
@@ -47,6 +47,8 @@
 	} else if(value != null && value.getClass().isEnum()) {
 		getJspContext().setAttribute("format", "enum");
 		getJspContext().setAttribute("enumClassName", value.getClass().getName());
+	} else if(value instanceof Price) {
+		getJspContext().setAttribute("format", "price");
 	} else if(value instanceof BaseMultilangEntity) {
 		//multilang!
 		Locale locale = LocaleContextHolder.getLocale();
@@ -66,5 +68,6 @@
 	test="${format eq 'timezone'}">${value.ID}</c:when><c:when 
 	test="${format eq 'number'}"><fmt:formatNumber value="${value}" maxFractionDigits="6"/></c:when><c:when 
 	test="${format eq 'collection'}"><c:forEach items="${value}" var="item" varStatus="loopStatus">${loopStatus.count > 1 ? ', ' : ''}<dwf:autoFormat value="${item}"/></c:forEach></c:when><c:when 
+	test="${format eq 'price'}"><spring:message code="currency.symbol.${value.currencyCode}"/> <fmt:formatNumber value="${value.value}" maxFractionDigits="2" minFractionDigits="2"/> </c:when><c:when 
 	test="${format eq 'enum'}"><spring:message code="${enumClassName}.${value}" text="${enumClassName}.${value}"/></c:when><c:otherwise
 	>${value}</c:otherwise></c:choose>

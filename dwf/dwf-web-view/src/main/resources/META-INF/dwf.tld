@@ -226,5 +226,9 @@
 		<name>localeSelector</name>
 		<path>/META-INF/tags/dwf/localeSelector.tag</path>
 	</tag-file>
+	<tag-file>
+		<name>inputDuration</name>
+		<path>/META-INF/tags/dwf/inputDuration.tag</path>
+	</tag-file>
 	
 </taglib>

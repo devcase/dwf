@@ -8,7 +8,7 @@
 		<c:if test="${attrMap.required}">required="required"</c:if>
 		<c:if test="${!empty attrMap.minproperty}">minproperty="${attrMap.minproperty}"</c:if> 
 		class="form-control">
-		<c:forEach begin="${!empty attrMap.min ? attrMap.min : 0}" end="${attrMap.max}" varStatus="loopStatus">
+		<c:forEach begin="${!empty attrMap.min ? attrMap.min : 0}" end="${!empty attrMap.max ? attrMap.max : 100}" varStatus="loopStatus">
 			<option value="${loopStatus.index}"
 				<c:if test="${loopStatus.index eq value}">selected</c:if>
 				>${loopStatus.index}</option>
