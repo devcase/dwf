@@ -29,10 +29,14 @@ $.extend($.validator.methods, {
 $(document).on('dwf-postupdate', function(evt) {
 	$(evt.target).find("form.validate").validate({
 		errorElement: 'span',
-		errorClass: 'help-block',
+		//errorClass: 'help-block',
 		errorPlacement: function(label, element) {
-			$(element).closest('.form-group').addClass('has-error');
-			label.insertAfter(element);
+			
+			if(!$(element).closest('.form-group').hasClass('has-error')) {
+				$(element).closest('.form-group').addClass('has-error');
+				$(element).closest('.form-group-content').append(label);
+				label.addClass('help-block error-label');
+			}
 		},
 		success: function(label, element) {
 			$(element).closest('.form-group').removeClass('has-error');

@@ -45,7 +45,7 @@ Atributos:
 <div class="form-group ${(!empty violation || !empty bindingErrors) ?  'has-error' : ''}">
 	<c:choose>
 		<c:when test="${attrMap.withoutLabel || label eq 'none'}"><%-- WITHOU LABEL--%>
-			<div class="${formLayout eq 'horizontal' ? 'col-sm-8 col-sm-offset-4' : 'col-xs-12'}">
+			<div class="${formLayout eq 'horizontal' ? 'col-sm-8 col-sm-offset-4' : 'col-xs-12'} form-group-content">
 				<jsp:doBody/>
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
 					<span class="help-block">${violation.message}</span>
@@ -58,7 +58,7 @@ Atributos:
 		</c:when>
 		<c:when test="${formLayout eq 'horizontal'}"><%-- LAYOUT HORIZONTAL --%>
 			<label class="col-sm-4 control-label ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${label}<c:if test="${attrMap.required}">*</c:if></strong> </label>
-			<div class="col-sm-8">
+			<div class="col-sm-8 form-group-content">
 				<jsp:doBody/>
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
 					<span class="help-block">${violation.message}</span>
@@ -71,7 +71,7 @@ Atributos:
 		</c:when>
 		<c:otherwise><%-- LAYOUT PADRÃO --%>
 			<label class="control-label text-left ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${label}<c:if test="${attrMap.required}">*</c:if></strong> </label>
-			<div >
+			<div class=" form-group-content">
 				<jsp:doBody/>
 				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
 					<span class="help-block">${violation.message}</span>
