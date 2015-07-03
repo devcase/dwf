@@ -18,7 +18,7 @@ $(document).on('click', 'form [type="submit"]', function(evt) {
  */
 $.extend($.validator.methods, {
 	date: function(value, element) {
-		return moment(value, $datePatternMoment).isValid();
+		return this.optional(element) ||  moment(value, $datePatternMoment).isValid();
 	},
 	number: function(value, element) {
 		if($decimalSeparator == ".") {
