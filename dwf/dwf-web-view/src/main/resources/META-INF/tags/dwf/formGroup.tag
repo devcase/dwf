@@ -42,6 +42,7 @@ Atributos:
 <dwf:findViolation path="${name}" var="violation"/>
 <%-- Search for BindingResults, when using @Valid annotations --%>
 <c:set var="bindingErrors" value="${requestScope['org.springframework.validation.BindingResult.form'].getFieldErrors(name)}"/>
+<c:if test="${!empty value or empty attrMap.hideIfEmpty or !attrMap.hideIfEmpty}">
 <div class="form-group ${(!empty violation || !empty bindingErrors) ?  'has-error' : ''}">
 	<c:choose>
 		<c:when test="${attrMap.withoutLabel || label eq 'none'}"><%-- WITHOU LABEL--%>
@@ -88,3 +89,4 @@ Atributos:
 	</c:if>
 	</div>
 </div>
+</c:if>
