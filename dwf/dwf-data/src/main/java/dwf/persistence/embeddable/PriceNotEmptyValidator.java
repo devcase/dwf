@@ -13,6 +13,6 @@ public class PriceNotEmptyValidator implements ConstraintValidator<PriceNotEmpty
 
 	@Override
 	public boolean isValid(Price value, ConstraintValidatorContext context) {
-		return value.getValue() != null && StringUtils.isNotBlank(value.getCurrencyCode());
+		return value != null && value.getValue() != null && StringUtils.isNotBlank(value.getCurrencyCode());
 	}
 }
