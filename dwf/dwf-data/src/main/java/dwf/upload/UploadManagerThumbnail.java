@@ -74,15 +74,11 @@ public abstract class UploadManagerThumbnail implements UploadManager{
 				
 				// se tiver transparencia com anotação de noTransparency, pinta o fundo
 				if (imageAnnotation.noTransparency() && 
-						(tmpImg.getType() == BufferedImage.TYPE_INT_ARGB || tmpImg.getType() == BufferedImage.TYPE_4BYTE_ABGR)) {
+						tmpImg.getTransparency() != Transparency.OPAQUE) {
 					srcImg = new BufferedImage(tmpImg.getWidth(), tmpImg.getHeight(), BufferedImage.TYPE_INT_RGB);
 					String transpColor = imageAnnotation.transparencyColor();
 					Color bgColor = Color.decode(transpColor);
 					srcImg.createGraphics().drawImage(tmpImg, 0, 0, bgColor, null);
-					tmpImg.flush();
-				} else if (tmpImg.getTransparency() == Transparency.OPAQUE && tmpImg.getType() != BufferedImage.TYPE_INT_RGB) {
-					srcImg = new BufferedImage(tmpImg.getWidth(), tmpImg.getHeight(), BufferedImage.TYPE_INT_RGB);
-					srcImg.createGraphics().drawImage(tmpImg, 0, 0, null);
 					tmpImg.flush();
 				} else if (tmpImg.getTransparency() != Transparency.OPAQUE && tmpImg.getType() != BufferedImage.TYPE_INT_ARGB) {
 					srcImg = new BufferedImage(tmpImg.getWidth(), tmpImg.getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -97,7 +93,7 @@ public abstract class UploadManagerThumbnail implements UploadManager{
 				try {
 					String fileSuffix;
 					String outputContentType;
-					if(srcImg.getType() == BufferedImage.TYPE_INT_RGB) {
+					if(srcImg.getTransparency() == Transparency.OPAQUE) {
 						outputContentType ="image/jpeg"; fileSuffix = ".jpg";
 					} else if (srcImg.getType() == BufferedImage.TYPE_INT_ARGB) {
 						outputContentType ="image/png"; fileSuffix = ".png";
