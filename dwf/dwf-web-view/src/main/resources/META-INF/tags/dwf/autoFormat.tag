@@ -68,6 +68,6 @@
 	test="${format eq 'timezone'}">${value.ID}</c:when><c:when 
 	test="${format eq 'number'}"><fmt:formatNumber value="${value}" maxFractionDigits="6"/></c:when><c:when 
 	test="${format eq 'collection'}"><c:forEach items="${value}" var="item" varStatus="loopStatus">${loopStatus.count > 1 ? ', ' : ''}<dwf:autoFormat value="${item}"/></c:forEach></c:when><c:when 
-	test="${format eq 'price'}"><spring:message code="currency.symbol.${value.currencyCode}"/> <fmt:formatNumber value="${value.value}" maxFractionDigits="2" minFractionDigits="2"/> </c:when><c:when 
+	test="${format eq 'price'}"><spring:message code="currency.symbol.${value.currencyCode}" text=""/> <fmt:formatNumber value="${value.value}" maxFractionDigits="2" minFractionDigits="2"/> </c:when><c:when 
 	test="${format eq 'enum'}"><spring:message code="${enumClassName}.${value}" text="${enumClassName}.${value}"/></c:when><c:otherwise
 	>${value}</c:otherwise></c:choose>
