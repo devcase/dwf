@@ -19,8 +19,16 @@ $(document).on('click', 'form [type="submit"]', function(evt) {
 $.extend($.validator.methods, {
 	date: function(value, element) {
 		return moment(value, $datePatternMoment).isValid();
+	},
+	number: function(value, element) {
+		if($decimalSeparator == ".") {
+			return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\,\d{3})+)(?:.\d+)?$/.test(value);
+		} else {
+			return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d+)?$/.test(value);
+		}
 	}
 });
+
 
 
 /**
@@ -44,7 +52,10 @@ $(document).on('dwf-postupdate', function(evt) {
 		}
 	});
 	
-	$.validator.addClassRules("date-picker", { date: true });
+	$.validator.addClassRules("validate-date", { date: true });
+	$.validator.addClassRules("validate-number", { number: true });
+	$.validator.addClassRules("validate-digits", { digits: true });
+	$.validator.addClassRules("required", { required: true });
 });
 
 
@@ -244,7 +255,7 @@ $(document).on("click", ".inputEntityImageCheckbox", function () {
  * price format mask (inputPrice.tag)
  */
 $(document).on("dwf-postupdate", function (evt) {
-	$(evt.target).find(".price-format,.number-mask").each(function () {
+	$(evt.target).find(".price-format").each(function () {
 		var inpt = $(this);
 		inpt.priceFormat({
 			prefix: '',

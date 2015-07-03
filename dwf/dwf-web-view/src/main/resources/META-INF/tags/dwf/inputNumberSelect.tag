@@ -7,7 +7,8 @@
 	<select name="${name}"
 		<c:if test="${attrMap.required}">required="required"</c:if>
 		<c:if test="${!empty attrMap.minproperty}">minproperty="${attrMap.minproperty}"</c:if> 
-		class="form-control">
+		class="form-control" style="width: auto">
+		<option value=""><spring:message code="label.select.empty${attrMap.required ? '.required' : ''}"/></option>
 		<c:forEach begin="${!empty attrMap.min ? attrMap.min : 0}" end="${!empty attrMap.max ? attrMap.max : 100}" varStatus="loopStatus">
 			<option value="${loopStatus.index}"
 				<c:if test="${loopStatus.index eq value}">selected</c:if>

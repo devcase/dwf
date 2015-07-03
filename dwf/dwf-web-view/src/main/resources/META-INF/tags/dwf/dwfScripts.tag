@@ -1,3 +1,4 @@
+<%@tag import="java.text.DecimalFormatSymbols"%>
 <%@tag import="java.util.Locale"%>
 <%@tag import="org.springframework.context.i18n.LocaleContextHolder"%>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator"%>
@@ -21,10 +22,20 @@ datePatternMoment="YYYY-MM-DD";
 datePatternMoment  = "DD-MM-YYYY";
 }
 getJspContext().setAttribute("datePatternMoment", datePatternMoment);
+
+DecimalFormatSymbols symbols = new DecimalFormatSymbols(LocaleContextHolder.getLocale());
+char decimal = symbols.getDecimalSeparator();
+char grouping = symbols.getGroupingSeparator();
+
+getJspContext().setAttribute("decimal", decimal);
+getJspContext().setAttribute("grouping", grouping);
+
 %>
 <script type="text/javascript" ><%-- Prepara variáveis usadas por scripts dwf --%>
 	var $appPath = '${appPath}';
-	var $datePatternMoment = '${datePatternMoment}'; 
+	var $datePatternMoment = '${datePatternMoment}';
+	var $decimalSeparator = '${decimalSeparator}';
+	var $groupingSeparator = '${groupingSeparator}';
 </script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery-1.10.2.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery-ui-1.10.4.custom.min.js"></script>

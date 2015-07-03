@@ -23,5 +23,5 @@ getJspContext().setAttribute("datePatternDatePicker", datePatternDatePicker);
 <dwf:formGroup parentAttrMap="${attrMap}">
 	<input type="text" value="<dwf:autoFormat value='${value}'/>" name="${name}"
 		<c:if test="${attrMap.required}">required="required"</c:if>
-		class='form-control <c:if test="${attrMap.required}">required</c:if> date-picker' data-date-format="${datePatternDatePicker}"/>
+		class='form-control <c:if test="${attrMap.required}">required</c:if> date-picker validate-date' data-date-format="${datePatternDatePicker}"/>
 </dwf:formGroup>
