@@ -39,6 +39,9 @@ Atributos:
 <%-- DETERMINAR LABEL DO BOTÃO --%>
 <c:set var="buttonLabelKey" value="${!empty attrMap.buttonLabelKey ? attrMap.buttonLabelKey : 'action.save'}"/>
 
+<%-- DETERMINAR A POSIÇÃO DO BOTÃO --%>
+<c:set var="buttonAlign" value="${!empty attrMap.buttonAlign ? attrMap.buttonAlign : 'right'}"/>
+
 <c:set var="formLayout" value="${!empty formLayout ? formLayout : attrMap.formLayout}" scope="request"/>
 <c:set var="formLayout" value="${!empty formLayout ? formLayout : 'horizontal'}" scope="request"/>
 
@@ -65,7 +68,7 @@ Atributos:
 			<jsp:doBody />
 			
 			<c:if test="${attrMap.ommitbuttons ne true }">
-				<div class="text-right">
+				<div class="text-${buttonAlign}">
 					<c:if test="${attrMap.closemodalbutton eq true}"><%-- Close button, when in a modal (see modal.tag) --%>
 				 		<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="action.cancel"/></button>
 				 	</c:if>
