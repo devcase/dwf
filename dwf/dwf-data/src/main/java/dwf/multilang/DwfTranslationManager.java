@@ -22,7 +22,7 @@ import dwf.activitylog.service.ActivityLogService;
 import dwf.multilang.domain.BaseMultilangEntity;
 import dwf.multilang.domain.Translation;
 
-@Component
+@Component(value="translationManager")
 @Scope(value=ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class DwfTranslationManager implements TranslationManager {
 	@Autowired

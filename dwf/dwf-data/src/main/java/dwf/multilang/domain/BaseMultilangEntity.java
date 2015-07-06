@@ -24,6 +24,7 @@ public abstract class BaseMultilangEntity<T extends Translation<?>> extends Base
 	private static final long serialVersionUID = -7754202986115531680L;
 	protected Map<String, T> translations;
 	protected String name;
+	protected String defaultLanguage;
 	
 	@OneToMany(mappedBy="parentEntity")
 	@MapKey(name="language")
@@ -60,6 +61,21 @@ public abstract class BaseMultilangEntity<T extends Translation<?>> extends Base
 	protected String displayText() {
 		return name;
 	}
+
+	/**
+	 * Idioma usado para o cadastro padrão 
+	 * @return
+	 */
+	@Column(length=100)
+	public String getDefaultLanguage() {
+		return defaultLanguage;
+	}
+
+	public void setDefaultLanguage(String defaultLanguage) {
+		this.defaultLanguage = defaultLanguage;
+	}
+
+
 	
 	
 

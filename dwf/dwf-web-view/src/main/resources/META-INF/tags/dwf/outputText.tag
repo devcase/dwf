@@ -5,6 +5,7 @@
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
+<dwf:mergeMaps map1="${attrMap}" map2="${attrMap.parentAttrMap}" var="attrMap"/>
 <dwf:formGroup parentAttrMap="${attrMap}">
 	<div class="form-control-static">
 		<span class="${empty attrMap.styleClass ? '' :  attrMap.styleClass}">

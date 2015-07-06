@@ -42,6 +42,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.ListType;
 import org.hibernate.type.MapType;
@@ -88,7 +89,6 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	protected Validator beanValidator;
 	@Autowired(required = false)
 	private UploadManager uploadManager;
-	
 
 	protected Session getSession() {
 		return sessionFactory.getCurrentSession();
@@ -115,7 +115,6 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	private List<NotSyncPropertyDescriptor> propertyList;
 	private Set<String> propertyNames;
 	private final Set<String> readAndWritePropertyNames;
-	
 
 	public BaseDAOImpl(Class<D> clazz) {
 		super();
@@ -172,8 +171,18 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			Method readMethod = p.getReadMethod();
 
 			// ignorar propriedades transientes
-			if (readMethod.isAnnotationPresent(Transient.class) 
-					&& !readMethod.isAnnotationPresent(UpdatableProperty.class)) { //usado para dar override (ex: override do UpdatableProperty do getName de BaseMultilangEntity)
+			if (readMethod.isAnnotationPresent(Transient.class) && !readMethod.isAnnotationPresent(UpdatableProperty.class)) { // usado
+																																// para
+																																// dar
+																																// override
+																																// (ex:
+																																// override
+																																// do
+																																// UpdatableProperty
+																																// do
+																																// getName
+																																// de
+																																// BaseMultilangEntity)
 				continue;
 			}
 
@@ -199,11 +208,10 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		}
 	}
 
-	
 	@Override
 	public D find(D copyWithId) {
-		if(copyWithId == null || copyWithId.getId() == null) {
-			//TODO - naturalids?
+		if (copyWithId == null || copyWithId.getId() == null) {
+			// TODO - naturalids?
 			return findByNaturalId(copyWithId);
 		} else {
 			return findById(copyWithId.getId());
@@ -449,7 +457,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		prepareEntity(entity);
 		validate(entity, ValidationGroups.MergePersist.class);
 		validate(entity); // valida campos sem grupos definidos
-		if(findByNaturalId(entity) != null) {
+		if (findByNaturalId(entity) != null) {
 			throw new ValidationException("NaturalId repetido");
 		}
 		entity.setUpdateTime(new Date());
@@ -486,6 +494,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 
 	/**
 	 * TODO - comentar!!!!!
+	 * 
 	 * @param entity
 	 * @return
 	 */
@@ -556,6 +565,20 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 					Object value = PropertyUtils.getSimpleProperty(entity, property.getName());
 					Object oldValue = PropertyUtils.getSimpleProperty(retrievedEntity, property.getName());
 
+					
+//					if(value != null && t.isEntityType()  && !getSession().contains(value)) {
+//						//it's an entity - retrieving connected value
+//						ClassMetadata propertyCM = sessionFactory.getClassMetadata(t.getReturnedClass());
+//						if(propertyCM != null) {
+//							Serializable id = propertyCM.getIdentifier(value, (org.hibernate.engine.spi.SessionImplementor) getSession());
+//							String entityName = propertyCM.getEntityName();
+//							value = getSession().get(entityName, id);
+//						}
+//					} else if(t.isCollectionType() && t.isAssociationType()){
+//						//é coleção de entidades - recuperar cada entidade
+//						
+//					}
+					
 					boolean isCollection = t.isCollectionType();
 					if(isCollection) {
 						boolean isList = t instanceof ListType;
@@ -596,12 +619,15 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 							}
 						}
 					}
-					
-					
+
 
 					UpdatedProperty up = new UpdatedProperty();
 					if (property.getReadMethod().getAnnotation(HideActivityLogValues.class) != null) {
 						up.setHiddenValues(true);
+					} else if(t.isAssociationType()) {
+						up.setNewValue(value != null ? t.toLoggableString(value, (SessionFactoryImplementor) sessionFactory) : "-");
+						up.setOldValue(oldValue != null ? t.toLoggableString(oldValue, (SessionFactoryImplementor) sessionFactory) : "-");
+						up.setHiddenValues(false);
 					} else {
 						up.setNewValue(value != null ? value.toString() : "-");
 						up.setOldValue(oldValue != null ? oldValue.toString() : "-");
@@ -753,31 +779,29 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 					}
 					BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
 				} else {
-					
+
 					String uploadKey = uploadManager.saveFile(inputStream, contentType, originalFilename, entityName + "/" + id);
 					if (oldValue != null && !oldValue.equals(uploadKey)) {
 						uploadManager.deleteFile(oldValue);
 					}
 
 					BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
-					for(String thumbnailProperty : imageAnnotation.thumbnail()){
+					for (String thumbnailProperty : imageAnnotation.thumbnail()) {
 						BeanUtils.setProperty(connectedEntity, thumbnailProperty, uploadKey);
 					}
-					
+
 					sessionFactory.getCurrentSession().update(connectedEntity);
 					sessionFactory.getCurrentSession().flush();
 					uploadManager.saveThumbnail(id, propertyName, this.getClass(), connectedEntity.getClass(), entityName);
 
 				}
-			} catch ( Exception e) {
+			} catch (Exception e) {
 				// Error copying the property
 				throw new RuntimeException(e);
 			}
 		}
 		return connectedEntity;
 	}
-	
-	
 
 	/**
 	 * The default implementation delegates the query creation to a
@@ -823,7 +847,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	public Class<D> getEntityClass() {
 		return clazz;
 	}
-	
+
 	/**
 	 * Searches based on naturalIds defined in the provided instance.
 	 */
@@ -831,14 +855,16 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	public D findByNaturalId(D instance) {
 		ClassMetadata classMetadata = sessionFactory.getClassMetadata(getEntityClass());
 		int[] natIds = classMetadata.getNaturalIdentifierProperties();
-		if(natIds == null || natIds.length == 0) return null; 
+		if (natIds == null || natIds.length == 0)
+			return null;
 		Object[] propertyValues = classMetadata.getPropertyValues(instance);
 		String[] propertyNames = classMetadata.getPropertyNames();
-		NaturalIdLoadAccess natIdLoadAcc =  null;
-		
+		NaturalIdLoadAccess natIdLoadAcc = null;
+
 		for (int naturalIdIdx : natIds) {
-			if(propertyValues[naturalIdIdx] != null) {
-				if(natIdLoadAcc == null) natIdLoadAcc = getSession().byNaturalId(getEntityClass());
+			if (propertyValues[naturalIdIdx] != null) {
+				if (natIdLoadAcc == null)
+					natIdLoadAcc = getSession().byNaturalId(getEntityClass());
 				natIdLoadAcc = natIdLoadAcc.using(propertyNames[naturalIdIdx], propertyValues[naturalIdIdx]);
 			}
 		}
@@ -847,10 +873,10 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 
 	@Override
 	public D findOrSaveNew(D instance) {
-		if(instance == null) return null;
+		if (instance == null)
+			return null;
 		D existent = instance.getId() != null ? findById(instance.getId()) : findByNaturalId(instance);
 		return existent != null ? existent : saveNew(instance);
 	}
-	
-	
+
 }

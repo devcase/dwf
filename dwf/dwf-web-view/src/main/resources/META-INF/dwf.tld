@@ -230,5 +230,13 @@
 		<name>inputDuration</name>
 		<path>/META-INF/tags/dwf/inputDuration.tag</path>
 	</tag-file>
+	<tag-file>
+		<name>outputMultilangText</name>
+		<path>/META-INF/tags/dwf/outputMultilangText.tag</path>
+	</tag-file>
+	<tag-file>
+		<name>inputLanguageSelect</name>
+		<path>/META-INF/tags/dwf/inputLanguageSelect.tag</path>
+	</tag-file>
 	
 </taglib>

@@ -25,10 +25,11 @@
 
 <spring:message code="label.translateForm.title" arguments="${label}" var="panelTitle"/>
 <dwf:editForm formaction="${appPath}/${entityName}/translate/${entity.id}/${name}" title="${panelTitle}" parentAttrMap="${attrMap}">
-	<dwf:inputText name="text" label="Português" value="${entity.translations['pt-BR'].text[name]}"/>
-	<input type="hidden" name="language" value="pt-BR"/>
-	<dwf:inputText name="text" label="Inglês"  value="${entity.translations['en-US'].text[name]}"/>
-	<input type="hidden" name="language" value="en-US"/>
-	<dwf:inputText name="text" label="Espanhol"  value="${entity.translations['es'].text[name]}"/>
-	<input type="hidden" name="language" value="es"/>
+	<c:forTokens items="pt-BR,en-US,es" delims="," var="localeCode">
+		<c:if test="${entity.defaultLanguage ne localeCode}">
+			<spring:message code="locale.${localeCode}" var="label"/>
+			<dwf:inputText name="text" label="${label}" value="${entity.translations[localeCode].text[name]}"/>
+			<input type="hidden" name="language" value="${localeCode}"/>
+		</c:if>
+	</c:forTokens>
 </dwf:editForm>

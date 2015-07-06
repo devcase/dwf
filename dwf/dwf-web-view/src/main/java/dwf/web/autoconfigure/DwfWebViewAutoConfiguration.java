@@ -8,6 +8,8 @@ import java.util.Locale;
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
@@ -42,9 +44,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -53,6 +57,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import de.javakaffee.web.msm.MemcachedBackupSessionManager;
@@ -139,7 +144,26 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	static class LocaleChangeInterceptorConfiguration extends WebMvcConfigurerAdapter {
 		@Override
 		public void addInterceptors(InterceptorRegistry registry) {
-			registry.addInterceptor(new LocaleChangeInterceptor());
+			registry.addInterceptor(new LocaleChangeInterceptor() 
+			{
+				@Override
+				public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+						throws ServletException {
+
+					String newLocale = request.getParameter(this.getParamName());
+					if (newLocale != null) {
+						String[] newLocaleSplit = newLocale.split("\\_|\\-");
+						LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
+						if (localeResolver == null) {
+							throw new IllegalStateException("No LocaleResolver found: not in a DispatcherServlet request?");
+						}
+						localeResolver.setLocale(request, response, newLocaleSplit.length == 1 ? new Locale(newLocaleSplit[0]) : new Locale(newLocaleSplit[0], newLocaleSplit[1]));
+					}
+					// Proceed in any case.
+					return true;
+				}
+
+			});
 		}
 	}
 	
