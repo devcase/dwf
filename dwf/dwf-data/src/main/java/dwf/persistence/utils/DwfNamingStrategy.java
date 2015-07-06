@@ -41,7 +41,10 @@ public class DwfNamingStrategy implements NamingStrategy {
 	 */
 	public String columnName(String columnName) {
 		if("user".equalsIgnoreCase(columnName)) { //user é palavra reservada no postgres
-			columnName="user_";
+			return "user_";
+		}
+		if("order".equalsIgnoreCase(columnName)) { //order é palavra reservada no postgres
+			return "order_";
 		}
 		return addUnderscores(columnName);
 	}
