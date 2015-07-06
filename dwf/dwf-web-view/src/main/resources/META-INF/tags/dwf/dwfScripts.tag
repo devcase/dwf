@@ -23,12 +23,12 @@ datePatternMoment  = "DD-MM-YYYY";
 }
 getJspContext().setAttribute("datePatternMoment", datePatternMoment);
 
-DecimalFormatSymbols symbols = new DecimalFormatSymbols(LocaleContextHolder.getLocale());
+DecimalFormatSymbols symbols = new DecimalFormatSymbols(locale);
 char decimal = symbols.getDecimalSeparator();
 char grouping = symbols.getGroupingSeparator();
 
-getJspContext().setAttribute("decimal", decimal);
-getJspContext().setAttribute("grouping", grouping);
+getJspContext().setAttribute("decimalSeparator", decimal);
+getJspContext().setAttribute("groupingSeparator", grouping);
 
 %>
 <script type="text/javascript" ><%-- Prepara variáveis usadas por scripts dwf --%>
@@ -46,7 +46,10 @@ getJspContext().setAttribute("grouping", grouping);
 <script type="text/javascript" src="${appPath}/resources/js/jquery.validate/additional-methods.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery.validate/localization/messages_<dwf:locale format="underscore"/>.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery.validate/localization/methods_<dwf:locale format="language"/>.js"></script>
+<script type="text/javascript" src="${appPath}/resources/js/ckeditor/ckeditor.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/serializeObject.js"></script>
+<script type="text/javascript" src="${appPath}/resources/js/jquery.tokeninput.js"></script>
+<script type="text/javascript" src="${appPath}/resources/js/jquery.price_format.2.0.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/moment-with-locales.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-core.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-token-input.js"></script>
@@ -54,7 +57,4 @@ getJspContext().setAttribute("grouping", grouping);
 <script type="text/javascript" src="${appPath}/resources/js/dwf-remotecontents.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-paginator.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-horizontal-scroller.js"></script>
-<script type="text/javascript" src="${appPath}/resources/js/ckeditor/ckeditor.js"></script>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-<script type="text/javascript" src="${appPath}/resources/js/jquery.tokeninput.js"></script>
-<script type="text/javascript" src="${appPath}/resources/js/jquery.price_format.2.0.min.js"></script>
