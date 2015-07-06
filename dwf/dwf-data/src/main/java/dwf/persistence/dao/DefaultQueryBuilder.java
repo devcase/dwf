@@ -5,14 +5,17 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 
+import dwf.persistence.annotations.DefaultOrderBy;
 import dwf.utils.ParsedMap;
 
 public class DefaultQueryBuilder implements QueryBuilder {
 	protected BaseDAOImpl<?> dao;
+	protected Class<?> clazz;
 	
 	public DefaultQueryBuilder(BaseDAOImpl<?> dao) {
 		super();
 		this.dao = dao;
+		this.clazz = dao.getEntityClass();
 	}
 
 	/* (non-Javadoc)
@@ -67,7 +70,22 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	}
 	
 	protected void appendDefaultOrderBy(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params, StringBuilder query, String domainAlias) {
-		query.append(" order by ").append(domainAlias).append(".autocompleteText");
+		String defaultOrderBy = getDefaultOrderByExpression(clazz);
+		if(defaultOrderBy == null) {
+			query.append(" order by ").append(domainAlias).append(".autocompleteText");
+		} else {
+			query.append(" order by ").append(domainAlias).append(".").append(defaultOrderBy);
+		}
+	}
+	
+	private String getDefaultOrderByExpression(Class<?> entityClass) {
+		if(entityClass.isAnnotationPresent(DefaultOrderBy.class)) {
+			return entityClass.getAnnotation(DefaultOrderBy.class).value();
+		} else if(entityClass.getSuperclass() != null) {
+			return getDefaultOrderByExpression(entityClass.getSuperclass());
+		} else {
+			return null;
+		}
 	}
 	
 	/**
