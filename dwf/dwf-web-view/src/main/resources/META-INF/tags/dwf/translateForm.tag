@@ -28,7 +28,14 @@
 	<c:forTokens items="pt-BR,en-US,es" delims="," var="localeCode">
 		<c:if test="${entity.defaultLanguage ne localeCode}">
 			<spring:message code="locale.${localeCode}" var="label"/>
-			<dwf:inputText name="text" label="${label}" value="${entity.translations[localeCode].text[name]}"/>
+			<c:choose>
+				<c:when test="${attrMap.inputType eq 'textarea'}">
+					<dwf:inputTextarea name="text" label="${label}" value="${entity.translations[localeCode].text[name]}" maxlength="1000"/>
+				</c:when>
+				<c:otherwise>
+					<dwf:inputText name="text" label="${label}" value="${entity.translations[localeCode].text[name]}" maxlength="1000"/>
+				</c:otherwise>
+			</c:choose>
 			<input type="hidden" name="language" value="${localeCode}"/>
 		</c:if>
 	</c:forTokens>
