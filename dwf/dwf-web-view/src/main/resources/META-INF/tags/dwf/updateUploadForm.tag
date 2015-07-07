@@ -14,7 +14,7 @@
 </c:if>
 <dwf:simpleLabel textOnly="true" property="${attrMap.property}" labelKey="${attrMap.labelKey }" var="title"/>
 <dwf:form formaction="${formaction}" enctype="multipart/form-data" parentAttrMap="${attrMap}" title="${title }">
-	<c:if test="${!empty uploadKey}">
+	<c:if test="${!empty uploadKey and (attrMap.showImage ne false)}">
 		<dwf:formGroup label="none">
 			<dwf:remoteUrl uploadKey="${uploadKey}" var="url" />
 			<img src="${url}?ts=${timestamp}" class="img-responsive"/>

@@ -114,12 +114,20 @@ public class DwfTranslationManager implements TranslationManager {
 
 	@Override
 	public <D extends BaseMultilangEntity<?>> String getTranslation(D domain, String property, String language) {
+		return getTranslation(domain, property, language, false);
+	}
+	
+	@Override
+	public <D extends BaseMultilangEntity<?>> String getTranslation(D domain, String property, String language, boolean fallbackToDefault) {
 		Assert.notNull(domain);
 		Assert.notNull(language);
 		
 		Translation<D> t = getTranslation(domain, language);
-		String text = t != null ? t.getText().get(property) : null; 
+		
+		String text = t != null ? t.getText().get(property) : null;
+		
 		if(StringUtils.isBlank(text)) {
+			if(!fallbackToDefault) return text;
 			try {
 				return (String) PropertyUtils.getProperty(domain, property);
 			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -149,6 +157,11 @@ public class DwfTranslationManager implements TranslationManager {
 		}
 	}
 	
+	
+	
+
+
+
 	public synchronized void clearCache() {
 		translationClassCache = new HashMap<Class<?>, Class<? extends Translation<?>>>();
 		HashMap<Long, Translation<?>> a = new HashMap<Long, Translation<?>>();

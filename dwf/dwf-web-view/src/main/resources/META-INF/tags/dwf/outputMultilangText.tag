@@ -11,7 +11,7 @@
 <dwf:outputText parentAttrMap="${ attrMap}" >
 	<c:forTokens items="pt-BR,en-US,es" delims="," var="localeCode">
 		<c:if test="${localeCode ne entity.defaultLanguage }">
-			<c:set var="translation" value="${translationManager.getTranslation(entity, attrMap.property, localeCode)}"/>
+			<c:set var="translation" value="${translationManager.getTranslation(entity, attrMap.property, localeCode, false)}"/>
 			<c:if test="${!empty translation}">
 				<br/><strong><spring:message code="locale.${localeCode}"/>:</strong> <dwf:autoFormat value="${translation}"/>
 			</c:if>

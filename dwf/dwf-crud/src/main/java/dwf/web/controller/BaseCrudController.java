@@ -485,7 +485,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 			this.entity = entity;
 		}
 
-		public void insertBefore(String operation, NavCrudItem newItem) {
+		public NavCrud insertBefore(String operation, NavCrudItem newItem) {
 			int idx = -1;
 			for (NavCrudItem item : items) {
 				idx++;
@@ -493,6 +493,12 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 					break;
 			}
 			items.add(idx, newItem);
+			return this;
+		}
+		
+		public NavCrud changeActiveOperation(String activeOperation) {
+			setActiveOperation(activeOperation);
+			return this;
 		}
 	}
 

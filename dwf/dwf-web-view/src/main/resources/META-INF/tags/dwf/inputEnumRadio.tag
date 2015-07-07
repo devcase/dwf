@@ -1,3 +1,5 @@
+<%@tag import="javassist.tools.reflect.Reflection"%>
+<%@tag import="org.apache.commons.beanutils.BeanUtils"%>
 <%@tag import="java.text.SimpleDateFormat"%>
 <%@tag import="java.text.DateFormat"%>
 <%@tag import="org.apache.commons.lang3.time.DateUtils"%>
@@ -19,14 +21,27 @@ Enum[] values = clazz.getEnumConstants();
 getJspContext().setAttribute("enumValues", values);
 %>
 <dwf:formGroup parentAttrMap="${attrMap}">
-	<div class="row" ><c:forEach items="${enumValues}" var="enumValue">
-		<div class="col-12">
-			<label class= "float-left btn btn-borderless ">
-				<input type="radio" name="${name}" value="${enumValue}"
-					${value == enumValue ? 'checked="checked"' : '' } ${attrMap.required? ' required="true"' : '' }>
-					<spring:message code="${attrMap.enumtype}.${enumValue}" text="?${attrMap.enumtype}.${enumValue}?" />
-			</label>
-		</div>
-	</c:forEach>
-	</div>	
+	<c:choose>
+		<c:when test="${attrMap.style eq 'inline'}">
+			<c:forEach items="${enumValues}" var="enumValue">
+				<label class= "btn btn-borderless ">
+					<input type="radio" name="${name}" value="${enumValue}"
+						${value == enumValue ? 'checked="checked"' : '' } ${attrMap.required? ' required="true"' : '' }>
+						<spring:message code="${attrMap.enumtype}.${enumValue}" text="?${attrMap.enumtype}.${enumValue}?" />
+				</label>
+			</c:forEach>
+		</c:when>
+		<c:otherwise>
+			<div class="row" ><c:forEach items="${enumValues}" var="enumValue">
+				<div class="col-12">
+					<label class= "float-left btn btn-borderless ">
+						<input type="radio" name="${name}" value="${enumValue}"
+							${value == enumValue ? 'checked="checked"' : '' } ${attrMap.required? ' required="true"' : '' }>
+							<spring:message code="${attrMap.enumtype}.${enumValue}" text="?${attrMap.enumtype}.${enumValue}?" />
+					</label>
+				</div>
+			</c:forEach>
+			</div>	
+		</c:otherwise>
+	</c:choose>
 </dwf:formGroup>
