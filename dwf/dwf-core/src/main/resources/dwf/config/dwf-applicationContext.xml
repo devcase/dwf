@@ -30,6 +30,10 @@
 			</list>
 		</property>
 	</bean>
+	
+	<!-- configura campos no formato ${...} para cada bean definido no application context a partir de propriedades do environment. 
+	Ver dwf.config.DwfInitializer.createWebApplicationContext().new XmlWebApplicationContext() {...}.createEnvironment().new StandardServletEnvironment() {...}.customizePropertySources(MutablePropertySources)  -->
+	<bean id="propertySourcesPlaceholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"/>
 
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
 	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">

@@ -23,10 +23,15 @@ import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate4.support.OpenSessionInViewFilter;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.StandardServletEnvironment;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
@@ -116,6 +121,9 @@ public class DwfInitializer implements ServletContainerInitializer  {
 		}
 			
 	}
+	
+	
+	
 
 	/**
 	 * 
@@ -129,13 +137,44 @@ public class DwfInitializer implements ServletContainerInitializer  {
 
 		// configure the webapplicationcontext
 		XmlWebApplicationContext wac = new XmlWebApplicationContext() {
-
+			
 			@Override
 			protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
 				super.loadBeanDefinitions(beanFactory);
 				DwfInitializer.registerDwfBeans(beanFactory, getEnvironment(), dwfInitializer, dwfConfig);
 
 			}
+			
+			@Override
+			protected ConfigurableEnvironment createEnvironment() {
+				return new StandardServletEnvironment() {
+
+					@Override
+					protected void customizePropertySources(MutablePropertySources propertySources) {
+						super.customizePropertySources(propertySources);
+						try {
+							propertySources.addLast(new ResourcePropertySource("application.properties-file", new ClassPathResource("application.properties")));
+						} catch (IOException ex) {
+							log.warn("error reading application.properties file", ex);
+						}
+						
+						//profile aware configuration files
+						String[] activeProfiles = this.getActiveProfiles(); //defined by previous property sources
+						for (String activeProfile : activeProfiles) {
+							log.warn("reading properties for profile: " + activeProfile);
+							try {
+								propertySources.addLast(new ResourcePropertySource("application.properties-file", new ClassPathResource("application-" + activeProfile + ".properties")));
+							} catch (IOException ex) {
+								log.info("error reading application-" + activeProfile + ".properties file", ex);
+								
+							}
+						}
+					}
+
+
+				};
+			}
+			
 		};
 		//basic configuration from xml
 		wac.setConfigLocations(new String[] { "classpath:dwf/config/dwf-applicationContext.xml" });
