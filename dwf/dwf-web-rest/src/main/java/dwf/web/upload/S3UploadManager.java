@@ -80,7 +80,7 @@ public class S3UploadManager extends UploadManagerThumbnail {
 		AccessControlList acl = new AccessControlList();
 		acl.grantPermission(GroupGrantee.AllUsers, Permission.Read);
 
-		awsS3Client.putObject(new PutObjectRequest(getBucketName(), key, is, metadata).withAccessControlList(acl));
+		awsS3Client.putObject(new PutObjectRequest(getBucketName(), key, AbstractUploadManager.exifRotation(is), metadata).withAccessControlList(acl));
 
 		return key;
 

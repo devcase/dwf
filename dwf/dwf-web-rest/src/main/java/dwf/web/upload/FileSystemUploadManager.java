@@ -122,7 +122,7 @@ public class FileSystemUploadManager extends UploadManagerThumbnail implements I
 		fileName = randomString + fileName;
 		File savedFile = getFileDestination(fileName, folderName);
 		
-		FileUtils.copyInputStreamToFile(is, savedFile);
+		FileUtils.copyInputStreamToFile(AbstractUploadManager.exifRotation(is), savedFile);
 		
 		return (folderName.startsWith("/") ? "" : "/")   + folderName + (folderName.endsWith("/") ? "" : "/") + fileName;
 	}

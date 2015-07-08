@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,10 +13,16 @@ import java.util.Iterator;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
+import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.util.exif.ExifUtils;
+import net.coobird.thumbnailator.util.exif.Orientation;
+
+import org.apache.poi.util.IOUtils;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Mode;
 
@@ -68,6 +76,8 @@ public abstract class AbstractUploadManager {
 			srcImg = tmpImg;
 		}
 		
+		Thumbnails.of(srcImg).size(targetWidth, targetHeight).toFile("C:/asd");
+		
 		String fileSuffix;
 		String outputContentType;
 		if(srcImg.getType() == BufferedImage.TYPE_INT_RGB) {
@@ -111,5 +121,26 @@ public abstract class AbstractUploadManager {
 			if (croppedImg != null)
 				croppedImg.flush();
 		}		
+	}
+
+	public static InputStream exifRotation(InputStream is) throws IOException{
+		//Preciso ler uma vez pra pegar width e height e outra vez pra rotacionar a imagem
+		ByteArrayInputStream rereadableInputStream = new ByteArrayInputStream(IOUtils.toByteArray(is));
+		//pegar width e height
+		BufferedImage tempImage = ImageIO.read(rereadableInputStream);
+		int width = tempImage.getWidth();
+		int height = tempImage.getHeight();
+		rereadableInputStream.reset();
+		
+		//rotaciona a imagem
+		BufferedImage b = Thumbnails.of(rereadableInputStream).size(width, height).useExifOrientation(true).asBufferedImage();
+		
+		//Converte em inputstream para retornar
+		ByteArrayOutputStream b2 = new ByteArrayOutputStream();
+		ImageIO.write(b, "jpg", b2);
+		ByteArrayInputStream input = new ByteArrayInputStream(b2.toByteArray());
+		
+		return input;
+		
 	}
 }
