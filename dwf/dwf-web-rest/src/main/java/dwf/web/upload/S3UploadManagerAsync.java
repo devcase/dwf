@@ -1,10 +1,8 @@
 package dwf.web.upload;
 
 import java.awt.Color;
-import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
