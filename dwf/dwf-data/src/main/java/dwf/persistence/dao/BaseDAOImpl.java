@@ -65,6 +65,7 @@ import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.utils.NotSyncPropertyDescriptor;
 import dwf.persistence.validation.ValidationGroups;
 import dwf.upload.UploadManager;
+import dwf.upload.image.ImageResizer;
 import dwf.user.DwfUserUtils;
 import dwf.utils.ParsedMap;
 import dwf.utils.SimpleParsedMap;
@@ -89,6 +90,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	protected Validator beanValidator;
 	@Autowired(required = false)
 	private UploadManager uploadManager;
+	@Autowired
+	private ImageResizer imageResizer;
 
 	protected Session getSession() {
 		return sessionFactory.getCurrentSession();
@@ -768,33 +771,35 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		// get the UpdateGroup for the property
 		PropertyDescriptor pd = entityProperties.get(propertyName);
 		if (pd != null) {
-			Image imageAnnotation = pd.getReadMethod().getAnnotation(Image.class);
 			try {
 				String oldValue = (String) BeanUtils.getProperty(connectedEntity, propertyName);
 
-				if (imageAnnotation == null) {
-					String uploadKey = uploadManager.saveFile(inputStream, contentType, originalFilename, entityName + "/" + id);
-					if (oldValue != null && !oldValue.equals(uploadKey)) {
-						uploadManager.deleteFile(oldValue);
-					}
-					BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
-				} else {
+				String uploadKey = uploadManager.saveFile(inputStream, contentType, originalFilename, entityName + "/" + id);
+				if (oldValue != null && !oldValue.equals(uploadKey)) {
+					uploadManager.deleteFile(oldValue);
+				}
+				BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
+				
+				Image imageAnnotation = pd.getReadMethod().getAnnotation(Image.class);
+				if (imageAnnotation != null) {
 
-					String uploadKey = uploadManager.saveFile(inputStream, contentType, originalFilename, entityName + "/" + id);
-					if (oldValue != null && !oldValue.equals(uploadKey)) {
-						uploadManager.deleteFile(oldValue);
-					}
-
-					BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
 					for (String thumbnailProperty : imageAnnotation.thumbnail()) {
+						//Apaga o thumbnail original
+						String oldThumbValue = (String) BeanUtils.getProperty(connectedEntity, thumbnailProperty);
+						if(!StringUtils.isBlank(oldThumbValue)) {
+							uploadManager.deleteFile(oldThumbValue);
+						}
+						
+						//define thumbnails temporariamente para a imagem original
 						BeanUtils.setProperty(connectedEntity, thumbnailProperty, uploadKey);
 					}
 
 					sessionFactory.getCurrentSession().update(connectedEntity);
 					sessionFactory.getCurrentSession().flush();
-					uploadManager.saveThumbnail(id, propertyName, this.getClass(), connectedEntity.getClass(), entityName);
-
+					imageResizer.resizeImage(id, entityName, propertyName);
 				}
+			} catch (IOException e) {
+				throw e;
 			} catch (Exception e) {
 				// Error copying the property
 				throw new RuntimeException(e);

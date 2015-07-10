@@ -1,12 +1,13 @@
 package dwf.web.rest.autoconfigure;
 
 import org.hibernate.SessionFactory;
-import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
+import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -17,12 +18,13 @@ import org.springframework.orm.hibernate4.support.OpenSessionInViewInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import dwf.asynchronous.ThumbnailUploaderAsyncListener;
 import dwf.upload.UploadManager;
+import dwf.upload.image.ImageResizer;
+import dwf.upload.image.RabbitAsyncImageResizer;
+import dwf.upload.image.SyncImageResizer;
 import dwf.web.rest.spring.ParsedMapArgumentResolver;
 import dwf.web.upload.FileSystemUploadManager;
 import dwf.web.upload.S3UploadManager;
-import dwf.web.upload.S3UploadManagerAsync;
 
 @Configuration
 @ComponentScan(basePackages = {"dwf.web.rest"})
@@ -68,7 +70,11 @@ public class DwfWebRestAutoConfiguration {
 			S3UploadManager s = new S3UploadManager(accessKeyId, secretKey);
 			s.setBucketName(bucketName);
 			return s;
-			
+		}
+		
+		@Bean
+		public ImageResizer imageResizer() {
+			return new SyncImageResizer();
 		}
 	}
 	
@@ -82,32 +88,31 @@ public class DwfWebRestAutoConfiguration {
 		private String accessKeyId = "testdb";
 		@Value("${aws.secretKey:testdb}")
 		private String secretKey = "testdb";
-		@Value("${dwf.web.uploadmanager.s3-async.rabbitmq.queuename:nonono}")
-		private String queueName = "";
 
 		@Bean
 		public UploadManager uploadManager() {
-			S3UploadManagerAsync s = new S3UploadManagerAsync(accessKeyId, secretKey, this.queueName);
+			S3UploadManager s = new S3UploadManager(accessKeyId, secretKey);
 			s.setBucketName(bucketName);
 			return s;
 		}
 		
 		
+		
 		@Configuration
 		@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled")
-		@ConditionalOnBean(S3UploadManagerAsyncConfiguration.class)
-		static class ListenerConfiguration {
+		static class WithListenerConfiguration {
 			@Value("${dwf.web.uploadmanager.s3-async.rabbitmq.queuename:nonono}")
 			private String queueName = "";
-			
+
 			@Bean
-			MessageListener thumbnailUploaderAsyncListener() {
-				return new ThumbnailUploaderAsyncListener();
+			public ImageResizer imageResizer() {
+				return new RabbitAsyncImageResizer(queueName);
 			}
 			
+			
 			@Bean
-			MessageListenerAdapter listenerAdapter(MessageListener thumbnailUploaderAsyncListener) {
-				MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(thumbnailUploaderAsyncListener, "onMessage");
+			MessageListenerAdapter listenerAdapter(ImageResizer imageResizer) {
+				MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(imageResizer, "onMessage");
 				return messageListenerAdapter;
 			}
 			
@@ -120,7 +125,17 @@ public class DwfWebRestAutoConfiguration {
 				return container;
 			}
 		}
+		@Configuration
+		@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled", havingValue="false", matchIfMissing=true)
+		static class WithoutListenerConfiguration {
+			@Value("${dwf.web.uploadmanager.s3-async.rabbitmq.queuename:nonono}")
+			private String queueName = "";
 
+			@Bean
+			public ImageResizer imageResizer() {
+				return new RabbitAsyncImageResizer(queueName);
+			}
+		}
 		
 	}
 	
@@ -138,5 +153,11 @@ public class DwfWebRestAutoConfiguration {
 			s.setDirectory(directory);
 			return s;
 		}
+		
+		@Bean
+		public ImageResizer imageResizer() {
+			return new SyncImageResizer();
+		}
+
 	}
 }
