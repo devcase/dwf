@@ -100,6 +100,7 @@ public class DwfWebRestAutoConfiguration {
 		
 		@Configuration
 		@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled")
+		@ConditionalOnBean(S3UploadManagerAsyncConfiguration.class)
 		static class WithListenerConfiguration {
 			@Value("${dwf.web.uploadmanager.s3-async.rabbitmq.queuename:nonono}")
 			private String queueName = "";
@@ -127,6 +128,7 @@ public class DwfWebRestAutoConfiguration {
 		}
 		@Configuration
 		@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled", havingValue="false", matchIfMissing=true)
+		@ConditionalOnBean(S3UploadManagerAsyncConfiguration.class)
 		static class WithoutListenerConfiguration {
 			@Value("${dwf.web.uploadmanager.s3-async.rabbitmq.queuename:nonono}")
 			private String queueName = "";
