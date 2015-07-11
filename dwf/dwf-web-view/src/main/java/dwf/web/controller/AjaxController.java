@@ -45,7 +45,7 @@ public class AjaxController extends BaseController {
 				} else {
 					filter = new SimpleParsedMap(entityFilter.getFilter().split(";|="));
 				}
-				filter.put("searchstring", BaseEntity.autocompleteForm(q));
+				filter.put("searchstring", q);
 				List<BaseEntity<Serializable>> list = dao.findByFilter(filter);
 				List<HashMap<String, String>> returnList = new ArrayList<HashMap<String,String>>();
 				for (BaseEntity obj : list) {

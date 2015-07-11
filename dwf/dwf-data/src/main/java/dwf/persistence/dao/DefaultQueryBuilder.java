@@ -2,8 +2,11 @@ package dwf.persistence.dao;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
+import java.text.Normalizer;
 import java.util.Collection;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 import dwf.persistence.annotations.DefaultOrderBy;
 import dwf.utils.ParsedMap;
@@ -138,9 +141,10 @@ public class DefaultQueryBuilder implements QueryBuilder {
 			query.append(" and ").append(domainAlias).append(".enabled = true ");
 		}
 		
-		if(filter.containsKey("searchstring")) {
+		if(filter.containsKey("searchstring") && StringUtils.isNotBlank(filter.getString("searchstring")) ) {
 			query.append(" and lower(").append(domainAlias).append(".autocompleteText) like :searchstring ");
-			params.put("searchstring", "%" + filter.getString("searchstring").trim() + "%");
+			String searchString = Normalizer.normalize(filter.getString("searchstring").trim(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "").toLowerCase();
+			params.put("searchstring", "%" + searchString + "%");
 		}
 	}
 

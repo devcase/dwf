@@ -238,5 +238,9 @@
 		<name>inputLanguageSelect</name>
 		<path>/META-INF/tags/dwf/inputLanguageSelect.tag</path>
 	</tag-file>
+	<tag-file>
+		<name>dataGrid</name>
+		<path>/META-INF/tags/dwf/dataGrid.tag</path>
+	</tag-file>
 	
 </taglib>

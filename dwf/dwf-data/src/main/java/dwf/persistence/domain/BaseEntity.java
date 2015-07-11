@@ -136,8 +136,8 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	 * Convert a string to the stored format
 	 * @return
 	 */
-	public static String autocompleteForm(String string){
-		return Normalizer.normalize(string, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+	public String autocompleteForm(String string){
+		return Normalizer.normalize(string, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "").toLowerCase();
 	}
 	
 	@Column(length=1000, name="autocompletetext")
@@ -145,7 +145,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	public String getAutocompleteText() {
 		String text = getDisplayText();
 		if(text != null && text.length() > 1000)
-			return text.substring(0, 1000);
+			return autocompleteForm(text.substring(0, 1000));
 		if(text == null)
 			return "";
 		else
