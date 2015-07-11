@@ -4,7 +4,24 @@
 %><%
 Locale locale = org.springframework.context.i18n.LocaleContextHolder.getLocale(); 
 if(getJspContext().getAttribute("var") != null) {
-	getJspContext().setAttribute((String) getJspContext().getAttribute("var"), locale, PageContext.REQUEST_SCOPE);
+	Object value;
+	if(locale == null) {
+		value = null;
+	}
+	else if("dash".equals(getJspContext().getAttribute("format"))) { 
+		value = locale.getLanguage() + "-" + locale.getCountry();
+	} else if("underscore".equals(getJspContext().getAttribute("format"))) { 
+		value = locale.getLanguage() + "_" + locale.getCountry();
+	} else if("language".equals(getJspContext().getAttribute("format"))) { 
+		value = locale.getLanguage();
+	} else if("country".equals(getJspContext().getAttribute("format"))) {
+		value = locale.getCountry();
+	} else {
+		value = locale;
+	}
+
+	
+	getJspContext().setAttribute((String) getJspContext().getAttribute("var"), value, PageContext.REQUEST_SCOPE);
 } else {
 	if(locale != null) {
 		if("dash".equals(getJspContext().getAttribute("format"))) { 

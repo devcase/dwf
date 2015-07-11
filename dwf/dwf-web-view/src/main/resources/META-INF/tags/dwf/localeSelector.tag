@@ -3,7 +3,7 @@
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
-<dwf:locale var="userlocalename" format="underscore"/>
+<dwf:locale var="userlocalename" format="dash"/>
 <c:set var="localeList" value="${!empty attrMap.localeList ? attrMap.localeList : 'pt-BR,en-US'}"/>
 <form class="dwf-language-selector-form">
 <select class="language-selector form-control" name="locale">
