@@ -28,14 +28,19 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	public String createQuery(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params) {
 
 		StringBuilder query = new StringBuilder();
-		
 		if(returnType.isCount()) {
-			query.append("select count(s.id) from ").append(dao.getEntityFullName()).append(" s ");
+			query.append("select count(s2.id) ");
+			query.append(" from ").append(dao.getEntityFullName()).append(" s2 where s2.id in (");
+			appendSelectIdsCommand(filter, returnType, params, query, "s");
 		} else {
+			//faz um wrap no select customizável
 			query.append("select ");
 			returnType.appendSelectList(query, "s2");
-			query.append(" from ").append(dao.getEntityFullName()).append(" s2 where s2.id in (select s from ").append(dao.getEntityFullName()).append(" s ");
+			query.append(" from ").append(dao.getEntityFullName()).append(" s2 where s2.id in (");
+			appendSelectIdsCommand(filter, returnType, params, query, "s");
 		}
+
+		
 
 		appendJoins(filter, returnType, params, query, "s");
 
@@ -44,13 +49,19 @@ public class DefaultQueryBuilder implements QueryBuilder {
 		appendConditions(filter, returnType, params, query, "s");
 
 		
+		query.append(") ");
 		if(!returnType.isCount()) {
-			query.append(") ");
 			appendOrderBy(filter, returnType, params, query, "s2");
 		}
 		
 		return query.toString();		
 	}
+	
+	protected void appendSelectIdsCommand(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params, StringBuilder query, String domainAlias) {
+		query.append("select ").append(domainAlias).append(".id from ").append(dao.getEntityFullName()).append(" ").append(domainAlias).append(" ");
+	}
+	
+	
 	
 	/**
 	 * Avoid appending contents directly from filter - it may cause an HQL injection security problem.
