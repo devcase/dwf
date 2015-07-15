@@ -69,7 +69,7 @@
 						<c:otherwise><%-- LINK TO OTHER OPERATION --%>
 							<li>
 								
-			  					<a href="${appPath}/${entityName}/${navCrudItem.operation}/${navCrudItem.entity.id}" >
+			  					<a class="${navCrudItem.operation eq 'create' ? 'btn btn-success navbar-btn' : ''} " href="${appPath}/${entityName}/${navCrudItem.operation}/${navCrudItem.entity.id}" >
 			  					<c:if test="${!empty navCrudItem.icon }">
 			  						<span class=" glyphicon glyphicon-${navCrudItem.icon }"></span>
 			  					</c:if>

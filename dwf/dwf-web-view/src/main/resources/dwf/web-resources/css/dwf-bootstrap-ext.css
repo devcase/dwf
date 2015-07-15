@@ -1,0 +1,71 @@
+/**
+ * Estilos que sobrescrevem o CSS padrão do bootstrap
+ */
+
+
+.btn-borderless {
+  color: #333333;
+  background-color: #ffffff;
+  border: none;
+}
+
+.btn-borderless:hover,
+.btn-borderless:focus,
+.btn-borderless:active,
+.btn-borderless.active,
+.open .dropdown-toggle.btn-borderless {
+  color: #333333;
+  background-color: #ebebeb;
+  border: none;
+}
+
+.btn-borderless:active,
+.btn-borderless.active,
+.open .dropdown-toggle.btn-borderless {
+  background-image: none;
+}
+
+.btn-borderless.disabled,
+.btn-borderless[disabled],
+fieldset[disabled] .btn-borderless,
+.btn-borderless.disabled:hover,
+.btn-borderless[disabled]:hover,
+fieldset[disabled] .btn-borderless:hover,
+.btn-borderless.disabled:focus,
+.btn-borderless[disabled]:focus,
+fieldset[disabled] .btn-borderless:focus,
+.btn-borderless.disabled:active,
+.btn-borderless[disabled]:active,
+fieldset[disabled] .btn-borderless:active,
+.btn-borderless.disabled.active,
+.btn-borderless[disabled].active,
+fieldset[disabled] .btn-borderless.active {
+  background-color: #ffffff;
+  border: none;
+}
+
+ .navbar-nav > li > a.navbar-btn {
+   padding-top: 6px;
+   padding-bottom: 6px;
+   padding-left: 12px;
+   padding-right: 12px;
+   margin-left: 6px;
+   margin-right: 6px;
+ }
+
+.navbar-nav > li > a.navbar-btn.btn-success:hover, 
+.navbar-nav > li > a.navbar-btn.btn-success:focus, 
+.navbar-nav > li > a.navbar-btn.btn-success.focus, 
+.navbar-nav > li > a.navbar-btn.btn-success:active, 
+.navbar-nav > li > a.navbar-btn.btn-success.active, 
+.navbar-nav > li > a.navbar-btn.open>.dropdown-toggle.btn-success {
+  color: #fff;
+  background-color: #449d44;
+  border-color: #398439;
+}
+
+.navbar-nav > li > a.btn-success {
+  color: #fff;
+  background-color: #5cb85c;
+  border-color: #4cae4c;
+}

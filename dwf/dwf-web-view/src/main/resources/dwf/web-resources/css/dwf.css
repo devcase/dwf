@@ -131,49 +131,6 @@ a.horizontal-scroller-control {
 	width: 99999999px;
 }
 
-
-
-.btn-borderless {
-  color: #333333;
-  background-color: #ffffff;
-  border: none;
-}
-
-.btn-borderless:hover,
-.btn-borderless:focus,
-.btn-borderless:active,
-.btn-borderless.active,
-.open .dropdown-toggle.btn-borderless {
-  color: #333333;
-  background-color: #ebebeb;
-  border: none;
-}
-
-.btn-borderless:active,
-.btn-borderless.active,
-.open .dropdown-toggle.btn-borderless {
-  background-image: none;
-}
-
-.btn-borderless.disabled,
-.btn-borderless[disabled],
-fieldset[disabled] .btn-borderless,
-.btn-borderless.disabled:hover,
-.btn-borderless[disabled]:hover,
-fieldset[disabled] .btn-borderless:hover,
-.btn-borderless.disabled:focus,
-.btn-borderless[disabled]:focus,
-fieldset[disabled] .btn-borderless:focus,
-.btn-borderless.disabled:active,
-.btn-borderless[disabled]:active,
-fieldset[disabled] .btn-borderless:active,
-.btn-borderless.disabled.active,
-.btn-borderless[disabled].active,
-fieldset[disabled] .btn-borderless.active {
-  background-color: #ffffff;
-  border: none;
-}
-
 /* dwf-boxcheckbox */
 .dwf-boxcheckbox {
 	display: inline-block;
