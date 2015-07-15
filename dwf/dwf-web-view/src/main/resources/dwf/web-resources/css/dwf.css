@@ -66,6 +66,10 @@ a.navbar-brand.qualistart-logo {
 	border: none;
 }
 
+.no-margin {
+	margin: 0px !important;
+}
+
 
 /* Login */
 

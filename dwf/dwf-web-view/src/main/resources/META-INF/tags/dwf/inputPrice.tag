@@ -29,9 +29,9 @@ getJspContext().setAttribute("grouping", grouping);
 		</div>
  		<div class="col-xs-6 col-sm-4 col-md-3">
 	 		<input type="text" value="<fmt:formatNumber value='${value.value}' pattern='#.00' />" name="${name}.value"
-			decimalSeparator="${decimal}" groupingSeparator="${grouping}"
-			<c:if test="${attrMap.required}">required="required"</c:if>
-			class='form-control price-format validate-number <c:if test="${attrMap.required}">required</c:if>' />
+				decimalSeparator="${decimal}" groupingSeparator="${grouping}"
+				<c:if test="${attrMap.required}">required="required"</c:if>
+				class='form-control price-format validate-number <c:if test="${attrMap.required}">required</c:if>' />
 		</div>
 	</div>
 </dwf:formGroup>

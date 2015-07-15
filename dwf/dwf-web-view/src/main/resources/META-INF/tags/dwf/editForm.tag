@@ -42,9 +42,6 @@ Atributos:
 <%-- DETERMINAR A POSIÇÃO DO BOTÃO --%>
 <c:set var="buttonAlign" value="${!empty attrMap.buttonAlign ? attrMap.buttonAlign : 'right'}"/>
 
-<c:set var="formLayout" value="${!empty formLayout ? formLayout : attrMap.formLayout}" scope="request"/>
-<c:set var="formLayout" value="${!empty formLayout ? formLayout : 'horizontal'}" scope="request"/>
-
 <c:if test="${!attrMap.panelless}">
 	<c:if test="${empty attrMap.titleType or attrMap.titleType eq 'h1'}">
 		<c:if test="${!empty panelTitle and panelTitle ne 'none'}"><h1>${panelTitle}</h1></c:if>
@@ -59,13 +56,18 @@ Atributos:
 </c:if>
 
 
-		<form class="form-${formLayout} validate" method="POST" action="${formaction}" role="form" <c:if test="${!empty attrMap.formId}">id="${attrMap.formId}"</c:if>
+		<form class="form-horizontal validate dwf-progressbaronsubmit" method="POST" action="${formaction}" role="form" <c:if test="${!empty attrMap.formId}">id="${attrMap.formId}"</c:if>
 			<c:if test="${!empty attrMap.enctype}">enctype="${attrMap.enctype}"</c:if>>
+			
+
 			<sec:csrfInput />
 			<c:if test="${!empty entity }">
 				<input type="hidden" name="id" value="${entity.id}"/>
 			</c:if>
+			
+			<c:set scope="request" var="parentFormAttrMap" value="${attrMap}"/>
 			<jsp:doBody />
+			<c:set scope="request" var="parentFormAttrMap" value="${null}"/>
 			
 			<c:if test="${attrMap.ommitbuttons ne true }">
 				<div class="text-${buttonAlign}">
@@ -83,4 +85,3 @@ Atributos:
 		</div><!-- /.box-content -->
 	</div>
 </c:if>
-<c:set var="formLayout" value="" scope="request"/>

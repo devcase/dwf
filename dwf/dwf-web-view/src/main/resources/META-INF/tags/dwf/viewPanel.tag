@@ -3,7 +3,6 @@
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
-<c:set var="formLayout" value="horizontal" scope="request"/>
 <dwf:resolveEL el='${entityName}' var="entity"/>
 
 
@@ -21,4 +20,3 @@
 	</div>
 </div>
 </c:if>
-<c:set var="formLayout" value="" scope="request"/>

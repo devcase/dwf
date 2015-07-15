@@ -1,7 +1,6 @@
 <%--
 Atributos:
 
-  * formLayout: 	horizontal
   * value:			
   * property:			
   * ignoreParams:			
@@ -36,69 +35,41 @@ Atributos:
 <c:if test="${!empty attrMap.value}">
 	<c:set var="value" value="${attrMap.value}"/>
 </c:if>
-<c:if test="${!empty attrMap.formLayout}">
-	<c:set var="formLayout" value="${attrMap.formLayout}"/>
-</c:if>
 <dwf:findViolation path="${name}" var="violation"/>
 <%-- Search for BindingResults, when using @Valid annotations --%>
 <c:set var="bindingErrors" value="${requestScope['org.springframework.validation.BindingResult.form'].getFieldErrors(name)}"/>
+<%-- label-width vs control-width --%>
+<c:set var="labelWidth" value="${!empty attrMap.labelWidth ? attrMap.labelWidth : !empty parentFormAttrMap.labelWidth ? parentFormAttrMap.labelWidth : 4}"/>
+<c:set var="controlWidth" value="${12 - labelWidth}"/>
+<%-- Estilo do label --%>
+<c:set var="labelStyleClasses" value="col-sm-${labelWidth} control-label ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"/>
+<c:if test="${labelWidth eq 0}">
+	<c:set var="labelStyleClasses" value="sr-only"/>
+</c:if>
+<%-- Estilo do controle --%>
+<c:set var="controlStyleClasses" value="col-sm-${controlWidth} form-group-content "/>
+<c:if test="${attrMap.withoutLabel || label eq 'none'}">
+	<c:set var="controlStyleClasses" value="${controlStyleClasses} col-sm-offset-${labelWidth}"/>
+</c:if>
+
 <c:if test="${!empty value or empty attrMap.hideIfEmpty or !attrMap.hideIfEmpty}">
 <div class="form-group ${(!empty violation || !empty bindingErrors) ?  'has-error' : ''}">
-	<c:choose>
-		<c:when test="${formLayout eq 'hide-control-labels'}"><%-- LAYOUT DO FORMULÁRIO SEM LABELS --%>
-			<div class="col-xs-12 form-group-content">
-				<jsp:doBody/>
-				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
-					<span class="help-block">${violation.message}</span>
-				</c:if>
-				<c:if test="${!empty bindingErrors}"><%-- SPRING MVC BINDING ERROR --%>
-					<c:forEach items="${bindingErrors}" var="fieldError">
-						<span class="help-block">${fieldError.defaultMessage}</span>
-					</c:forEach>
-				</c:if>
-		</c:when>
-		<c:when test="${attrMap.withoutLabel || label eq 'none'}"><%-- WITHOU LABEL--%>
-			<div class="${formLayout eq 'horizontal' ? 'col-sm-8 col-sm-offset-4' : 'col-xs-12'} form-group-content">
-				<jsp:doBody/>
-				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
-					<span class="help-block">${violation.message}</span>
-				</c:if>
-				<c:if test="${!empty bindingErrors}"><%-- SPRING MVC BINDING ERROR --%>
-					<c:forEach items="${bindingErrors}" var="fieldError">
-						<span class="help-block">${fieldError.defaultMessage}</span>
-					</c:forEach>
-				</c:if>
-		</c:when>
-		<c:when test="${formLayout eq 'horizontal'}"><%-- LAYOUT HORIZONTAL --%>
-			<label class="col-sm-4 control-label ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${label}<c:if test="${attrMap.required}">*</c:if></strong> </label>
-			<div class="col-sm-8 form-group-content">
-				<jsp:doBody/>
-				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
-					<span class="help-block">${violation.message}</span>
-				</c:if>
-				<c:if test="${!empty bindingErrors}"><%-- SPRING MVC BINDING ERROR --%>
-					<c:forEach items="${bindingErrors}" var="fieldError">
-						<span class="help-block"><spring:message code="${fieldError.code}" text="${fieldError.defaultMessage}"/></span>
-					</c:forEach>
-				</c:if>
-		</c:when>
-		<c:otherwise><%-- LAYOUT PADRÃO --%>
-			<label class="control-label text-left ${empty attrMap.labelStyleClass ? '' :  attrMap.labelStyleClass}"><strong>${label}<c:if test="${attrMap.required}">*</c:if></strong> </label>
-			<div class=" form-group-content">
-				<jsp:doBody/>
-				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
-					<span class="help-block">${violation.message}</span>
-				</c:if>
-				<c:if test="${!empty bindingErrors}"><%-- SPRING MVC BINDING ERROR --%>
-					<c:forEach items="${bindingErrors}" var="fieldError">
-						<span class="help-block">${fieldError.code}</span>
-					</c:forEach>
-				</c:if>
-		</c:otherwise>
-	</c:choose>
-	<c:if test="${!empty attrMap.helpText}">
-		<p class="help-block"><spring:message code="${attrMap.helpText}" text="${attrMap.helpText}"/></p>
+	<c:if test="${!(attrMap.withoutLabel || label eq 'none')}">
+		<label class="${labelStyleClasses}"><strong>${label}<c:if test="${attrMap.required}">*</c:if></strong> </label>
 	</c:if>
+	<div class="${controlStyleClasses}">
+		<jsp:doBody/>
+		<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
+			<span class="help-block">${violation.message}</span>
+		</c:if>
+		<c:if test="${!empty bindingErrors}"><%-- SPRING MVC BINDING ERROR --%>
+			<c:forEach items="${bindingErrors}" var="fieldError">
+				<span class="help-block"><spring:message code="${fieldError.code}" text="${fieldError.defaultMessage}"/></span>
+			</c:forEach>
+		</c:if>
+		<c:if test="${!empty attrMap.helpText}">
+			<p class="help-block"><spring:message code="${attrMap.helpText}" text="${attrMap.helpText}"/></p>
+		</c:if>
 	</div>
 </div>
 </c:if>

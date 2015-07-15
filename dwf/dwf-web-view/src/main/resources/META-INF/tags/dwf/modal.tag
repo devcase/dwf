@@ -3,7 +3,6 @@
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
-<c:set var="formLayout" value="horizontal" scope="request"/>
 <dwf:resolveEL el='${entityName}' var="entity"/>
 <div class="modal fade" id="${attrMap.id}" tabindex="-1" role="dialog" <%-- aria-labelledby="exampleModalLabel"--%> aria-hidden="true">
   <div class="modal-dialog">

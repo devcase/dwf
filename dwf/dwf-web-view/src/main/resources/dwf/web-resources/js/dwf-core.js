@@ -45,10 +45,14 @@ $(document).on('dwf-postupdate', function(evt) {
 				$(element).closest('.form-group-content').append(label);
 				label.addClass('help-block error-label');
 			}
+			$(element).addClass('has-error');
 		},
 		success: function(label, element) {
-			$(element).closest('.form-group').removeClass('has-error');
-			label.remove();
+			$(element).removeClass('has-error');
+			if($(element).closest('.form-group').find('.has-error').size() == 0) {
+				$(element).closest('.form-group').removeClass('has-error');
+				label.remove();
+			}
 		}
 	});
 	
@@ -283,4 +287,13 @@ $(document).on("change", "form.dwf-language-selector-form select.language-select
  */
 $(document).on("dwf-postupdate", function (evt) {
 	$(evt.target).find(".dwf-loadingmodal").fadeOut();
+});
+
+/**
+ * Oculta o conteúdo do form e desenha uma barra de progresso 
+ */
+$(document).on("submit", "form.dwf-progressbaronsubmit", function(evt) {
+	$(this).children().css("visibility", "hidden");
+	$(this).css({'position': 'relative'});
+	$(this).append('<div style="position:absolute; height: 100%; width: 100%; z-index: 1000; top:0; "><div class="panel panel-default" style="left: 20%; width: 60%; top: 50%;position: relative;transform: translateY(-50%);"><div class="panel-body"><div class="progress no-margin"><div class="progress-bar progress-bar-striped active"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"></div></div></div></div></div>');
 });
