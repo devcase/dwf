@@ -23,7 +23,7 @@ getJspContext().setAttribute("grouping", grouping);
 					delims="," var="currencyCode">
 					<option value="${currencyCode}"
 						<c:if test="${currencyCode eq value.currencyCode}">selected</c:if>
-						><spring:message code="currency.${currencyCode }" /></option>
+						><spring:message code="currency.symbol.${currencyCode }" /></option>
 				</c:forTokens>
 			</select>
 		</div>
