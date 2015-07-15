@@ -15,7 +15,7 @@ getJspContext().setAttribute("grouping", grouping);
 %>
 <dwf:formGroup parentAttrMap="${attrMap}">
 	<div class="row">
-	 	<div class="col-xs-6 col-sm-3">
+	 	<div class="col-xs-6 col-sm-4">
 		  	<select name="${name}.currencyCode"
 				<c:if test="${attrMap.required}">required="required"</c:if> class="form-control">
 				<option value=""><spring:message code="label.select.empty${attrMap.required ? '.required' : ''}"/></option>

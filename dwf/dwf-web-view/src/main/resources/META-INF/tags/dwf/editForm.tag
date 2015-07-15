@@ -72,9 +72,11 @@ Atributos:
 					<c:if test="${attrMap.closemodalbutton eq true}"><%-- Close button, when in a modal (see modal.tag) --%>
 				 		<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="action.cancel"/></button>
 				 	</c:if>
-					<button type="submit" class="btn btn-primary" data-loading-text="<spring:message code="action.wait"/>" formaction="${formaction}">
-				 		<spring:message code="${buttonLabelKey}" text="${buttonLabelKey}"/>
-					</button>
+				 	<div class="col-sm-offset-4">
+						<button type="submit" class="btn btn-primary" data-loading-text="<spring:message code="action.wait"/>" formaction="${formaction}">
+					 		<spring:message code="${buttonLabelKey}" text="${buttonLabelKey}"/>
+						</button>
+					</div>
 				</div>
 			</c:if>
 		</form>
