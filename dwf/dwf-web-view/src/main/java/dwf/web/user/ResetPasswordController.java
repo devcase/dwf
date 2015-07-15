@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -88,16 +89,22 @@ public class ResetPasswordController extends BaseController {
 	@RequestMapping(value = "/resetPassword/{token}", method = RequestMethod.POST)
 	public String doResetPasswordChange(@PathVariable String token, @Valid ResetPasswordBean resetPasswordBean, 
 			BindingResult result) {
-
+		
+		if(!resetPasswordBean.isValidConfirmation()) {
+			result.addError(new FieldError("form", "newPasswordConfirmation", getMessage("message.confirmPassword.error")));
+		}
 		if (result.hasErrors()) {
 			model.addAttribute(BindingResult.MODEL_KEY_PREFIX + "form", result);
 			return "reset_password_change";
 		}
 		
+		
 		try {
 			userService.resetPasswordChange(token, resetPasswordBean);
 		} catch (ValidationException e) {
 			addUserMessage("message.password.change.error", UserMessageType.DANGER);
+			e.printStackTrace();
+
 			return "reset_password_change";
 		}
 		
