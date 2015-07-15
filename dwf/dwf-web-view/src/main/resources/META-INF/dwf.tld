@@ -242,5 +242,9 @@
 		<name>dataGrid</name>
 		<path>/META-INF/tags/dwf/dataGrid.tag</path>
 	</tag-file>
+	<tag-file>
+		<name>loadingModal</name>
+		<path>/META-INF/tags/dwf/loadingModal.tag</path>
+	</tag-file>
 	
 </taglib>

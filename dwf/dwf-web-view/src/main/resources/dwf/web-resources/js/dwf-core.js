@@ -274,3 +274,11 @@ $(document).on("dwf-postupdate", function (evt) {
 $(document).on("change", "form.dwf-language-selector-form select.language-selector", function (evt) {
 	$(this).closest('form').submit();
 });
+
+
+/** 
+ * <dwf:loadingmodal>
+ */
+$(document).on("dwf-postupdate", function (evt) {
+	$(evt.target).find(".dwf-loadingmodal").fadeOut();
+});
