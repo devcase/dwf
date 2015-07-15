@@ -97,7 +97,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		//<!-- Ao acessar urls do tipo /resources/, ele procura na pasta da aplicação e, depois, nos arquivos do dwf -->
 		//<mvc:resources mapping="/resources/**" location="/resources/, classpath:/dwf/web-resources/" />
-        registry.addResourceHandler("/resources/**").addResourceLocations("/resources/", "classpath:/dwf/web-resources/", "classpath:/resources/");
+        registry.addResourceHandler("/resources/**").addResourceLocations("/resources/", "classpath:/dwf/web-resources/", "classpath:/resources/").setCachePeriod(60*60);
 	}
 	
 	
