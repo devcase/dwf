@@ -13,31 +13,29 @@
 		        <span class="icon-bar"></span>
 		        <span class="icon-bar"></span>
 		    </button>
-
-		   
 		    
 		    
-		    <div class="navbar-brand" >
 			    <%-- Back button - shown when needed --%>
 			    <c:forEach items="${navCrud.items}" var="navCrudItem">
 			    	<c:if test="${navCrudItem.backButton}">
-			    		<a href="${appPath}/${entityName}/${navCrudItem.operation}/${navCrudItem.entity.id}" class=" btn btn-default"><span class=" glyphicon glyphicon-chevron-left"></span>
-			    		<spring:message code="${navCrudItem.labelKey }" /></a>
+			    		<a href="${appPath}/${entityName}/${navCrudItem.operation}/${navCrudItem.entity.id}" class=" btn btn-default navbar-btn dwf-navcrud-leftbutton" ><span class=" glyphicon glyphicon-chevron-left"></span>
+			    		<span class="hidden-sm hidden-xs"><spring:message code="${navCrudItem.labelKey }" /></span></a>
 			    		<c:set var="backButtonFound" value="true"/>
 			    	</c:if>
 			    </c:forEach>
 			    
 			    <%-- Home button --%>
 			    <c:if test="${!backButtonFound}">
-			    		<a href="${appPath}/" class=" btn btn-default"><span class=" glyphicon glyphicon-home"></span>
-			    		<spring:message code="action.home" /></a>
+			    	<a href="${appPath}/" class=" btn btn-default navbar-btn dwf-navcrud-leftbutton" ><span class=" glyphicon glyphicon-home"></span>
+			    	<span class="hidden-sm hidden-xs"><spring:message code="action.home" /></span></a>
 			    </c:if>
-		      	<c:choose>
-		      		<c:when test="${empty navCrud.entity.id}"><spring:message code="domain.${entityName}.plural" />
-		      		</c:when>
-		      		<c:otherwise>${navCrud.entity}</c:otherwise>
-		      	</c:choose>
-		    </div>
+		    
+		    <div class="navbar-brand dwf-crud-title" ><c:choose>
+	      		<c:when test="${empty navCrud.entity.id}"><spring:message code="domain.${entityName}.plural" />
+	      		</c:when>
+	      		<c:otherwise>${navCrud.entity}</c:otherwise>
+	      	</c:choose></div>
+		    
 		    
 		    
 		    

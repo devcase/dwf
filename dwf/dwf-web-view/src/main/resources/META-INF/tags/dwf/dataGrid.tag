@@ -73,7 +73,7 @@
 				  	</c:when>
 					<c:otherwise><tr>
 						<c:forTokens items="${columns}" delims="," var="column" varStatus="rowStatus">
-							<td>
+							<td class="dwf-ellipsis" style="max-width: 300px">
 								<c:choose>
 									<c:when test="${rowStatus.count eq 1}"><a href="${appPath}/${entityName}/${item.id}"><dwf:autoFormat value="${entity[column]}"/></a></c:when>
 									<c:when test="${column eq 'enabled'}">

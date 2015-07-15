@@ -28,6 +28,12 @@ table td .label {
 	margin-bottom: 5px;
 }
 
+.dwf-navcrud-leftbutton {
+	float: left !important;
+	margin-right: 15px;
+	margin-left: 15px;
+}
+
 /**
  * Ajax progress indicator
  */
@@ -82,15 +88,22 @@ a.navbar-brand.qualistart-logo {
 	color: black!important;
 }
 
-/* Using buttons inside a .navbar-brand (navcrud) */
-.navbar-brand .btn {
-	margin-top: -8px;	
-	margin-bottom: -8px;	
-	margin-right: 10px;
+/* navbar */
+
+.dwf-crud-title {
+	display: block; 
+	width: 250px; 
+	white-space: nowrap; 
+	overflow: hidden; 
+	text-overflow: ellipsis;
+}
+@media (max-width: 767px) {
+	.dwf-crud-title {
+		width: 100px;
+	}
 }
 
-
-
+/* ??? */
 
 a.horizontal-scroller-control {
 	display: block;
@@ -194,4 +207,11 @@ a.horizontal-scroller-control {
 
 .dwf-loadingmodal-contents .panel .panel-body{
 	margin: 50px 10px;
+}
+
+/* ellipsis em tabelas do crud */
+.dwf-ellipsis {
+	white-space: nowrap;
+	overflow: hidden; 
+	text-overflow: ellipsis;
 }

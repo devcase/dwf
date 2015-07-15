@@ -69,3 +69,11 @@ fieldset[disabled] .btn-borderless.active {
   background-color: #5cb85c;
   border-color: #4cae4c;
 }
+
+
+/* Using buttons inside a .navbar-brand (navcrud) */
+.navbar-brand .btn {
+	margin-top: -8px;	
+	margin-bottom: -8px;	
+	margin-right: 10px;
+}
