@@ -174,25 +174,27 @@ fieldset[disabled] .btn-borderless.active {
   border: none;
 }
 
-/* inputEntityImageCheckbox */
-.inputEntityImageCheckbox {
+/* dwf-boxcheckbox */
+.dwf-boxcheckbox {
 	display: inline-block;
 	position: relative;
 	text-align: center;
 	border-radius: 2px;
 	border: 3px #DDD solid;
-	padding: 5px;
+	padding: 10px;
+	cursor: pointer;
+	background-color: #fff;
 }
-.inputEntityImageCheckbox input {
+.dwf-boxcheckbox input {
 	display: none;
 }
-.inputEntityImageCheckbox.selected {
+.dwf-boxcheckbox.selected {
 	border: 3px #0A0 solid;
 }
-.inputEntityImageCheckbox span {
+.dwf-boxcheckbox span {
 	display: block;
 }
-.inputEntityImageCheckbox span.checked {
+.dwf-boxcheckbox span.checked {
 	position: absolute;
 	top: 0;
 	right: 0;

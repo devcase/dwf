@@ -232,12 +232,14 @@ function reCaptchaRemoveError() {
 
 
 
-
+/**
+ * dwf:input{*}BoxCheckbox
+ */
 $(document).on("dwf-postupdate", function (evt) {
-	$(evt.target).find(".inputEntityImageCheckbox").trigger("verifyChecked");
+	$(evt.target).find(".dwf-boxcheckbox").trigger("verifyChecked");
 });
 
-$(document).on("verifyChecked", ".inputEntityImageCheckbox", function () {
+$(document).on("verifyChecked", ".dwf-boxcheckbox", function () {
 	$(this).find(".checked").remove();
 	if ($(this).find('input').prop('checked')) {
 		$(this).addClass("selected");
@@ -247,7 +249,7 @@ $(document).on("verifyChecked", ".inputEntityImageCheckbox", function () {
 		$(this).find(".checked").remove();
 	}
 });
-$(document).on("click", ".inputEntityImageCheckbox", function () {
+$(document).on("click", ".dwf-boxcheckbox", function () {
 	$(this).trigger("verifyChecked");
 });
 

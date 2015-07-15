@@ -34,7 +34,7 @@ getJspContext().setAttribute("hasIcon", HasIcon.class.isAssignableFrom(targetEnt
 <dwf:formGroup parentAttrMap="${attrMap}">
 	<div class="btn-group" >
 		<c:forEach items="${targetEntityList}" var="targetEntity" varStatus="loopStatus">
-			<label class= "inputEntityImageCheckbox">
+			<label class= "dwf-boxcheckbox">
 				<input type="checkbox" name="${name}[].id" value="${targetEntity.id }" ${value.contains(targetEntity) ? 'checked="checked"' : '' } />
 					<c:if test="${hasIcon and !empty targetEntity.smIconImage  and !attrMap.noIcons}"><img src="<dwf:remoteUrl uploadKey="${targetEntity.smIconImage}" />"/></c:if>
 					<span><dwf:autoFormat value="${targetEntity}"/></span>

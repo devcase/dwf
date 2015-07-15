@@ -45,6 +45,18 @@ Atributos:
 <c:if test="${!empty value or empty attrMap.hideIfEmpty or !attrMap.hideIfEmpty}">
 <div class="form-group ${(!empty violation || !empty bindingErrors) ?  'has-error' : ''}">
 	<c:choose>
+		<c:when test="${formLayout eq 'hide-control-labels'}"><%-- LAYOUT DO FORMULÁRIO SEM LABELS --%>
+			<div class="col-xs-12 form-group-content">
+				<jsp:doBody/>
+				<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
+					<span class="help-block">${violation.message}</span>
+				</c:if>
+				<c:if test="${!empty bindingErrors}"><%-- SPRING MVC BINDING ERROR --%>
+					<c:forEach items="${bindingErrors}" var="fieldError">
+						<span class="help-block">${fieldError.defaultMessage}</span>
+					</c:forEach>
+				</c:if>
+		</c:when>
 		<c:when test="${attrMap.withoutLabel || label eq 'none'}"><%-- WITHOU LABEL--%>
 			<div class="${formLayout eq 'horizontal' ? 'col-sm-8 col-sm-offset-4' : 'col-xs-12'} form-group-content">
 				<jsp:doBody/>
