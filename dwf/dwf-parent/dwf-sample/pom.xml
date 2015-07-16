@@ -16,6 +16,9 @@
 				<groupId>com.heroku.sdk</groupId>
 				<artifactId>heroku-maven-plugin</artifactId>
 				<configuration>
+					<processTypes>
+						<web>java $JAVA_OPTS -Duser.country=BR -Duser.language=pt -Dserver.port=$PORT -Dspring.profiles.active=${heroku.active.profile} -jar target/${project.build.finalName}.${project.packaging} </web>
+					</processTypes>
 					<appName>dwfsample</appName>
 				</configuration>
 			</plugin>

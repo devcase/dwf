@@ -26,9 +26,6 @@
 					<artifactId>heroku-maven-plugin</artifactId>
 					<version>0.4.4</version>
 					<configuration>
-						<processTypes>
-							<web>java -Dserver.port=$PORT -Dspring.profiles.active=prod -jar target/${project.build.finalName}.${project.packaging}</web>
-						</processTypes>
 						<jdkVersion>${java.version}</jdkVersion>
 						<includeTarget>false</includeTarget>
 						<includes>
