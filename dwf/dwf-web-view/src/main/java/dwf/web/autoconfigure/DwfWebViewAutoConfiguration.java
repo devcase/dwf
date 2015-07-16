@@ -42,13 +42,12 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -69,6 +68,7 @@ import dwf.web.spring.DwfReCaptchaInterceptor;
 @ComponentScan(basePackages = {"dwf.web"})
 @ConditionalOnWebApplication
 @EnableWebMvc
+@PropertySource("classpath:/dwf-web-view-default.properties")
 public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	
 	@Bean
