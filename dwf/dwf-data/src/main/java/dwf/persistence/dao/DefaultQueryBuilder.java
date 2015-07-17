@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import dwf.persistence.annotations.DefaultOrderBy;
 import dwf.utils.ParsedMap;
+import dwf.utils.SearchstringUtils;
 
 public class DefaultQueryBuilder implements QueryBuilder {
 	protected BaseDAOImpl<?> dao;
@@ -153,9 +154,27 @@ public class DefaultQueryBuilder implements QueryBuilder {
 		}
 		
 		if(filter.containsKey("searchstring") && StringUtils.isNotBlank(filter.getString("searchstring")) ) {
+			boolean wildcardEnd = true;
+			boolean wildcardStart = true;
+			if(filter.containsKey("searchwildcards") && StringUtils.isNotBlank(filter.getString("searchwildcards")) ) {
+				if(filter.getString("searchwildcards").toUpperCase().equals("NONE")) {
+					wildcardStart = false;
+					wildcardEnd = false;
+				} else if(filter.getString("searchwildcards").toUpperCase().equals("BEFORE")) {
+					wildcardStart = true;
+					wildcardEnd = false;
+				} else if(filter.getString("searchwildcards").toUpperCase().equals("AFTER")) {
+					wildcardStart = false;
+					wildcardEnd = true;
+				} else if(filter.getString("searchwildcards").toUpperCase().equals("BOTH")) {
+					wildcardStart = true;
+					wildcardEnd = true;
+				}
+			}
+			
 			query.append(" and lower(").append(domainAlias).append(".autocompleteText) like :searchstring ");
-			String searchString = Normalizer.normalize(filter.getString("searchstring").trim(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "").toLowerCase();
-			params.put("searchstring", "%" + searchString + "%");
+			String searchString = SearchstringUtils.prepareForSearch(filter.getString("searchstring"));
+			params.put("searchstring", (wildcardStart ? "%" : "").concat(searchString).concat(wildcardEnd ? "%": ""));
 		}
 	}
 

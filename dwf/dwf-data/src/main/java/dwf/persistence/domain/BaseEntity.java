@@ -22,6 +22,7 @@ import dwf.persistence.annotations.ExcludeFromSerialization;
 import dwf.persistence.annotations.MongoId;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.serialization.View;
+import dwf.utils.SearchstringUtils;
 
 @MappedSuperclass
 @Access(AccessType.PROPERTY)
@@ -137,7 +138,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	 * @return
 	 */
 	public String autocompleteForm(String string){
-		return Normalizer.normalize(string, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "").toLowerCase();
+		return SearchstringUtils.prepareForSearch(string);
 	}
 	
 	@Column(length=1000, name="autocompletetext")
