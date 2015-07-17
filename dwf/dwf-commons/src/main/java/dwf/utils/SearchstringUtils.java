@@ -21,7 +21,7 @@ public class SearchstringUtils {
 			} else if((c >= 'a' && c <='z') || (c >= '0' && c <='1')) {
 				sb.append(c);
 				appendSpace = true;
-			} else if( c == ' ' || c == 0x00a0 /* no break space */) {
+			} else if( c == ' ' || c == 0x00a0 /* no break space */ || c == '\n' /* quebra de linha */) {
 				if(appendSpace) {
 					sb.append(' ');
 					appendSpace = false; //evita espaços duplos
