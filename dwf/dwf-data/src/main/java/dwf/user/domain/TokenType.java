@@ -3,7 +3,8 @@ package dwf.user.domain;
 public enum TokenType {
 	EMAIL_CONFIRMATION("emailConfirmation"),
 	RESET_PASSWORD("resetPassword"),
-	CHANGE_PASSWORD("savePassword");
+	CHANGE_PASSWORD("savePassword"),
+	APP_LOGIN("appLogin");
 	
 	private final String url;
 	
