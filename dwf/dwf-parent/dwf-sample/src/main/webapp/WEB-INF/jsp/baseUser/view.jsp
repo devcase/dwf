@@ -15,5 +15,11 @@
   		<dwf:outputText property="roles"/>
   		<dwf:outputText property="verified"/>
  	</dwf:viewPanel>
+ 	
+ 	<dwf:editForm formaction="${appPath}/baseUser/changePassword" labelKey="action.changepassword">
+ 		<dwf:inputPassword name="password" required="true"/>
+ 		<dwf:inputPassword name="confirmPassword" required="true"/>
+ 	</dwf:editForm>
+ 	
 </body>
 </html>
