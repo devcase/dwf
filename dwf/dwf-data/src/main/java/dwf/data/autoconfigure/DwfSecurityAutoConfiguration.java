@@ -1,4 +1,4 @@
-package dwf.web.autoconfigure;
+package dwf.data.autoconfigure;
 
 import java.io.Serializable;
 import java.util.Collections;

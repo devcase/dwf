@@ -43,18 +43,14 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 		return newVerificationToken(email, type);
 	}
 	
-//
-//	protected MimeMessage buildMessage(VerificationToken token) {
-//		javaMailSender.createMimeMessage();
-//		
-//		final SimpleMailMessage mail = new SimpleMailMessage();
-//		mail.setFrom(from);
-//		mail.setTo(token.getUser().getEmail());
-//		mail.setSubject(token.toString());
-//		mail.setText("http://localhost:8080/" + token.getType().getUrl() + "/" + token.getToken());
-//		return mail;
-//	}
-	
+	@Override
+	public VerificationToken saveToken(String email, TokenType type, String preGeneratedToken) {
+		final BaseUser user = baseUserDAO.findByEmail(email);
+		final VerificationToken verToken = new VerificationToken(preGeneratedToken, user, type);
+		verificationTokenDAO.saveNew(verToken);
+		return verToken;
+	}
+
 	private VerificationToken newVerificationToken(String email, TokenType type) {
 		final BaseUser user = baseUserDAO.findByEmail(email);
 		final VerificationToken token = new VerificationToken(UUID.randomUUID().toString(), user, type);

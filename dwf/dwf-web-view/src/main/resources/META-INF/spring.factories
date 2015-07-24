@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-dwf.web.autoconfigure.DwfWebViewAutoConfiguration,dwf.web.autoconfigure.DwfSecurityAutoConfiguration
+dwf.web.autoconfigure.DwfWebViewAutoConfiguration
