@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -132,11 +134,27 @@ public class DwfSecurityAutoConfiguration  {
 	@ConditionalOnMissingBean(WebSecurityConfigurerAdapter.class)
 	static class DwfWebSecurityConfig  {
 		
+		/**
+		 * Repositório JDBC para armazenar tokens para a função Remember-me
+		 * @param dataSource
+		 * @return
+		 */
 		@Bean
 		public PersistentTokenRepository tokenRepository(DataSource dataSource) {
-			JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
+			JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl() {
+				Log log = LogFactoryImpl.getLog(getClass());
+
+				@Override
+				protected void initDao() {
+					try {
+						getJdbcTemplate().execute(CREATE_TABLE_SQL);
+					} catch (Exception ignore) {
+						log.info("Could not create persistent_logins table - it probably already exists: " + ignore.getMessage());
+					}
+				}
+				
+			};
 			tokenRepository.setDataSource(dataSource);
-			tokenRepository.setCreateTableOnStartup(true);
 			return tokenRepository;
 		}
 		
