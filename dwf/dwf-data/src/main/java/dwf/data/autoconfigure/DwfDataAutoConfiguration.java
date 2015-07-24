@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -47,6 +48,7 @@ import dwf.persistence.utils.MongoIdModule;
 @Configuration
 @ComponentScan(basePackages = {"dwf.activitylog.service", "dwf.persistence", "dwf.multilang", "dwf.user"})
 @ConfigurationProperties(prefix = "dwf.data")
+@PropertySource("classpath:/dwf-data-default.properties")
 public class DwfDataAutoConfiguration  {
 	@Autowired
 	private DataSource dataSource;

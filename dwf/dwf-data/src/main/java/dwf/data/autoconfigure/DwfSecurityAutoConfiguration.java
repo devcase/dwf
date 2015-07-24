@@ -1,27 +1,34 @@
 package dwf.data.autoconfigure;
 
 import java.io.Serializable;
-import java.util.Collections;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import dwf.user.domain.BaseUserRole;
 import dwf.user.utils.BasePermissionEvaluator;
@@ -77,7 +84,7 @@ public class DwfSecurityAutoConfiguration  {
 	}
 	
 	/**
-	 * Associa o DefaultWebSecurityExpressionHandler ao permissionEvaluator definido aqui ou na aplicação.
+	 * Associa o DefaultWebSecurityExpressionHandler ao permissionEvaluator disponível 
 	 * @author Hirata
 	 *
 	 */
@@ -121,6 +128,71 @@ public class DwfSecurityAutoConfiguration  {
 		}
 	}
 	
+	@Configuration
+	@ConditionalOnMissingBean(WebSecurityConfigurerAdapter.class)
+	static class DwfWebSecurityConfig  {
+		
+		@Bean
+		public PersistentTokenRepository tokenRepository(DataSource dataSource) {
+			JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
+			tokenRepository.setDataSource(dataSource);
+			tokenRepository.setCreateTableOnStartup(true);
+			return tokenRepository;
+		}
+		
+		@Bean
+		@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+		public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter() {
+			return new WebSecurityConfigurerAdapter() {
 
+				@Autowired
+				private UserDetailsService userDetailsService;
+				
+				@Autowired
+				private PasswordEncoder passwordEncoder;
+				
+				@Autowired
+				private PersistentTokenRepository tokenRepository;
+				
+				@Value("${dwf.security.web.permitallpatterns:}")
+				private String[] permitAllPatterns = new String[0];
+
+				@Override
+				protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+					auth
+						.userDetailsService(userDetailsService)
+						.passwordEncoder(passwordEncoder);
+				}
+
+				@Override
+				// @formatter:off
+				protected void configure(HttpSecurity http) throws Exception {
+					http
+						.formLogin()
+							.loginPage("/signin")
+							.loginProcessingUrl("/signin/authenticate")
+							.failureUrl("/signin?error")
+							.permitAll()
+							.and()
+						.logout()
+							.logoutUrl("/logout")
+							.logoutSuccessUrl("/signin?logout").permitAll()
+							.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+							.invalidateHttpSession(true)
+							.and()
+						.authorizeRequests()
+							.antMatchers("/signin","/signin/authenticate","/resources/**","/resetPassword/**").permitAll()
+							.antMatchers(permitAllPatterns).permitAll()
+							.anyRequest().authenticated()
+							.and()
+						.rememberMe().tokenRepository(tokenRepository);
+				}
+				// @formatter:on
+			};
+		}
+
+	}
+	
+	
 }
 
