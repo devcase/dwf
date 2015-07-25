@@ -7,7 +7,6 @@ import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -18,6 +17,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
@@ -59,67 +59,70 @@ public class DwfWebViewSecurityAutoConfiguration {
 			tokenRepository.setDataSource(dataSource);
 			return tokenRepository;
 		}
+	}
+	
+
+	@Configuration(value="dwfWebViewSecurityConfig")
+	@ConditionalOnWebApplication
+	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER + 1)
+	@EnableWebSecurity
+	static class DwfWebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+		@Autowired
+		private UserDetailsService userDetailsService;
 		
-		@Configuration(value="dwfWebViewSecurityConfig")
-		@ConditionalOnWebApplication
-		@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER + 1)
-		@EnableWebSecurity
-		static class DwfWebSecurityConfig extends WebSecurityConfigurerAdapter {
-
-			@Autowired
-			private UserDetailsService userDetailsService;
-			
-			@Autowired
-			private PasswordEncoder passwordEncoder;
-			
-			@Autowired
-			private PersistentTokenRepository tokenRepository;
-			
-			@Value("${dwf.security.web.permitallpatterns:}")
-			private String[] permitAllPatterns = new String[0];
-			@Value("${dwf.security.web.ignorecsrfpatterns:}")
-			private String[] ignoreCsrfPatterns = new String[0];
-			
-			@Override
-			protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-				auth
-					.userDetailsService(userDetailsService)
-					.passwordEncoder(passwordEncoder);
-			}
-
-			@Override
-			// @formatter:off
-			protected void configure(HttpSecurity http) throws Exception {
-				http
-					.formLogin()
-						.loginPage("/signin")
-						.loginProcessingUrl("/signin/authenticate")
-						.failureUrl("/signin?error")
-						.permitAll()
-						.and()
-					.logout()
-						.logoutUrl("/logout")
-						.logoutSuccessUrl("/signin?logout").permitAll()
-						.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-						.invalidateHttpSession(true)
-						.and()
-					.authorizeRequests()
-						.antMatchers("/signin","/signin/authenticate","/resources/**","/resetPassword/**").permitAll()
-						.anyRequest().authenticated()
-						.and()
-					.rememberMe().tokenRepository(tokenRepository);
-				
-				if(permitAllPatterns != null && permitAllPatterns.length > 0) {
-					http.authorizeRequests().antMatchers(permitAllPatterns).permitAll()
-						.anyRequest().denyAll();
-				}
-				if(ignoreCsrfPatterns != null && ignoreCsrfPatterns.length > 0) {
-					http.csrf().ignoringAntMatchers(ignoreCsrfPatterns);
-				}
-				
-			}
-			// @formatter:on
+		@Autowired
+		private PasswordEncoder passwordEncoder;
+		
+		@Autowired
+		private PersistentTokenRepository tokenRepository;
+		
+		@Value("${dwf.security.web.permitallpatterns:}")
+		private String[] permitAllPatterns = new String[0];
+		@Value("${dwf.security.web.ignorecsrfpatterns:}")
+		private String[] ignoreCsrfPatterns = new String[0];
+		
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.userDetailsService(userDetailsService)
+				.passwordEncoder(passwordEncoder);
 		}
 
+		@Override
+		// @formatter:off
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.formLogin()
+					.loginPage("/signin")
+					.loginProcessingUrl("/signin/authenticate")
+					.failureUrl("/signin?error")
+					.permitAll()
+					.and()
+				.logout()
+					.logoutUrl("/logout")
+					.logoutSuccessUrl("/signin?logout").permitAll()
+					.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+					.invalidateHttpSession(true)
+					.and()
+				.rememberMe().tokenRepository(tokenRepository);
+			
+			
+			ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorize = http.authorizeRequests();
+			if(permitAllPatterns != null && permitAllPatterns.length > 0) {
+				authorize = authorize.antMatchers(permitAllPatterns).permitAll();
+			}
+			authorize = authorize
+					.antMatchers("/signin","/signin/authenticate","/resources/**","/resetPassword/**").permitAll()
+					.anyRequest().authenticated();
+			authorize.and();
+			
+			
+			if(ignoreCsrfPatterns != null && ignoreCsrfPatterns.length > 0) {
+				http.csrf().ignoringAntMatchers(ignoreCsrfPatterns);
+			}
+			
+		}
+		// @formatter:on
 	}
 }
