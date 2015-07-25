@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
@@ -76,7 +77,7 @@ public class DwfSecurityAutoConfiguration  {
 			};
 		}
 		
-		public static boolean hasRole(Authentication authentication, String role) {
+		private static boolean hasRole(Authentication authentication, String role) {
 	        for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
 	            if (role.equals(grantedAuthority.getAuthority())) {
 	                return true;
@@ -129,88 +130,6 @@ public class DwfSecurityAutoConfiguration  {
 			}
 			return expHandler;
 		}
-	}
-	
-	@Configuration
-	@ConditionalOnMissingBean(WebSecurityConfigurerAdapter.class)
-	@ConditionalOnWebApplication
-	static class DwfWebSecurityConfig  {
-		
-		/**
-		 * Repositório JDBC para armazenar tokens para a função Remember-me
-		 * @param dataSource
-		 * @return
-		 */
-		@Bean
-		public PersistentTokenRepository tokenRepository(DataSource dataSource) {
-			JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl() {
-				Log log = LogFactoryImpl.getLog(getClass());
-
-				@Override
-				protected void initDao() {
-					try {
-						getJdbcTemplate().execute(CREATE_TABLE_SQL);
-					} catch (Exception ignore) {
-						log.info("Could not create persistent_logins table - it probably already exists: " + ignore.getMessage());
-					}
-				}
-				
-			};
-			tokenRepository.setDataSource(dataSource);
-			return tokenRepository;
-		}
-		
-		@Bean
-		@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-		public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter() {
-			return new WebSecurityConfigurerAdapter() {
-
-				@Autowired
-				private UserDetailsService userDetailsService;
-				
-				@Autowired
-				private PasswordEncoder passwordEncoder;
-				
-				@Autowired
-				private PersistentTokenRepository tokenRepository;
-				
-				@Value("${dwf.security.web.permitallpatterns:}")
-				private String[] permitAllPatterns = new String[0];
-
-				@Override
-				protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-					auth
-						.userDetailsService(userDetailsService)
-						.passwordEncoder(passwordEncoder);
-				}
-
-				@Override
-				// @formatter:off
-				protected void configure(HttpSecurity http) throws Exception {
-					http
-						.formLogin()
-							.loginPage("/signin")
-							.loginProcessingUrl("/signin/authenticate")
-							.failureUrl("/signin?error")
-							.permitAll()
-							.and()
-						.logout()
-							.logoutUrl("/logout")
-							.logoutSuccessUrl("/signin?logout").permitAll()
-							.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-							.invalidateHttpSession(true)
-							.and()
-						.authorizeRequests()
-							.antMatchers("/signin","/signin/authenticate","/resources/**","/resetPassword/**").permitAll()
-							.antMatchers(permitAllPatterns).permitAll()
-							.anyRequest().authenticated()
-							.and()
-						.rememberMe().tokenRepository(tokenRepository);
-				}
-				// @formatter:on
-			};
-		}
-
 	}
 	
 	

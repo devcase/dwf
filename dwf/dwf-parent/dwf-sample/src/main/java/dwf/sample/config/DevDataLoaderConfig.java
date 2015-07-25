@@ -23,5 +23,6 @@ public class DevDataLoaderConfig {
 	@PostConstruct
 	public void loadData() {
 		BaseUser defaultUser = baseUserDAO.findOrSaveNew(new BaseUser("sample@devcase.com.br", passwordEncoder.encode("sample@devcase.com.br"), null, BaseUserRole.BACKOFFICE_ADMIN));
+		BaseUser superUser = baseUserDAO.findOrSaveNew(new BaseUser("root@devcase.com.br", passwordEncoder.encode("root@devcase.com.br"), null, BaseUserRole.BACKOFFICE_ADMIN, BaseUserRole.SUPERUSER));
 	}
 }

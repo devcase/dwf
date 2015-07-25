@@ -224,10 +224,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>br.com.devcase.dwf</groupId>
-			<artifactId>dwf-crud</artifactId>
-		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -239,6 +235,11 @@
 			<dependency>
 				<groupId>br.com.devcase.dwf</groupId>
 				<artifactId>dwf-web-view</artifactId>
+				<version>${dwf.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>br.com.devcase.dwf</groupId>
+				<artifactId>dwf-web-rest</artifactId>
 				<version>${dwf.version}</version>
 			</dependency>
 			<dependency>
@@ -255,6 +256,11 @@
 				<groupId>br.com.devcase.dwf</groupId>
 				<artifactId>dwf-user</artifactId>
 				<version>${dwf.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-codec</groupId>
+				<artifactId>commons-codec</artifactId>
+				<version>1.8</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

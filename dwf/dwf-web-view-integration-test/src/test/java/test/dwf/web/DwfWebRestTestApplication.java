@@ -17,15 +17,15 @@ public class DwfWebRestTestApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DwfWebRestTestApplication.class, args);
 	}
-	
-	@Configuration
-	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-	static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http.authorizeRequests().anyRequest().permitAll();
-		}
-		
-	}
+//	
+//	@Configuration
+//	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+//	static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+//
+//		@Override
+//		protected void configure(HttpSecurity http) throws Exception {
+//			http.authorizeRequests().anyRequest().permitAll();
+//		}
+//		
+//	}
 }

@@ -50,5 +50,9 @@
 			<artifactId>hsqldb</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>br.com.devcase.dwf</groupId>
+			<artifactId>dwf-crud</artifactId>
+		</dependency>
 	</dependencies>
 </project>

@@ -7,7 +7,6 @@
 	</parent>
 	<artifactId>dwf-crud</artifactId>
 	<dependencies>
-
 		<dependency>
 			<groupId>br.com.devcase.dwf</groupId>
 			<artifactId>dwf-data</artifactId>
@@ -16,7 +15,6 @@
 			<groupId>br.com.devcase.dwf</groupId>
 			<artifactId>dwf-web-view</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-el-api</artifactId>

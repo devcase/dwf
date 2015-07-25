@@ -4,10 +4,8 @@ import org.hibernate.SessionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
-import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,7 +25,7 @@ import dwf.web.upload.FileSystemUploadManager;
 import dwf.web.upload.S3UploadManager;
 
 @Configuration
-@ComponentScan(basePackages = {"dwf.web.rest"})
+@ComponentScan(basePackages = {"dwf.web"})
 public class DwfWebRestAutoConfiguration {
 	
 	@Autowired
