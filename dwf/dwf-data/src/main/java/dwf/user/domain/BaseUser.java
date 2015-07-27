@@ -16,11 +16,14 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import dwf.persistence.annotations.HideActivityLogValues;
 import dwf.persistence.annotations.UniqueValue;
 import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.validation.ValidationGroups;
+import dwf.serialization.View;
 
 @Entity
 @UniqueValue(field="email")
@@ -28,6 +31,7 @@ public class BaseUser extends BaseEntity<Long> {
 
 	private static final long serialVersionUID = 3161746215465593657L;
 	
+	@JsonView(View.Summary.class)
 	private String email;
 	private String hashedpass;
 	private Date expirationDate;

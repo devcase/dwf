@@ -36,7 +36,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	
 	@ExcludeFromSerialization
 	private boolean enabled = true;
-	@ExcludeFromSerialization
+	@JsonView(View.Summary.class)
 	private Date creationTime;
 	@ExcludeFromSerialization
 	private Date updateTime;
