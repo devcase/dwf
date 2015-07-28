@@ -80,16 +80,17 @@ public class DwfWebRestSecurityAutoConfiguration {
 		protected void configure(HttpSecurity http) throws Exception {
 			// secure endpoints
 			String[] paths = getEndpointPaths(this.endpointHandlerMapping);
+			
 			AuthenticationEntryPoint entryPoint = entryPoint();
 			http.exceptionHandling().authenticationEntryPoint(entryPoint);
 			paths = this.server.getPathsArray(paths);
 			http.requestMatchers().antMatchers(paths);
 			
-			String[] insecureEndpointPaths = this.server.getPathsArray(getEndpointPaths(
-					this.endpointHandlerMapping, false));
+//			String[] insecureEndpointPaths = this.server.getPathsArray(getEndpointPaths(
+//					this.endpointHandlerMapping, false));
 			
-			http.authorizeRequests().antMatchers(insecureEndpointPaths).permitAll();
-			http.authorizeRequests().anyRequest().hasRole(this.management.getSecurity().getRole());
+			http.authorizeRequests()
+				.anyRequest().hasRole(this.management.getSecurity().getRole());
 
 			http.httpBasic().authenticationEntryPoint(entryPoint);
 			

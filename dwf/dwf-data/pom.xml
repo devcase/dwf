@@ -71,10 +71,6 @@
 			<artifactId>dwf-commons</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>br.com.devcase.dwf</groupId>
-			<artifactId>dwf-user</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
 		</dependency>

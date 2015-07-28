@@ -182,11 +182,6 @@
 			</dependency>
 			<dependency>
 				<groupId>br.com.devcase.dwf</groupId>
-				<artifactId>dwf-user</artifactId>
-				<version>${dwf.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>br.com.devcase.dwf</groupId>
 				<artifactId>dwf-web-rest</artifactId>
 				<version>${project.version}</version>
 			</dependency>
