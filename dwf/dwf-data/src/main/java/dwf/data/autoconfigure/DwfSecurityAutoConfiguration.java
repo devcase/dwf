@@ -2,37 +2,24 @@ package dwf.data.autoconfigure;
 
 import java.io.Serializable;
 
-import javax.sql.DataSource;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import dwf.user.domain.BaseUserRole;
 import dwf.user.utils.BasePermissionEvaluator;
@@ -50,6 +37,29 @@ public class DwfSecurityAutoConfiguration  {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+
+	@Configuration
+	static class DwfGlobalAuthenticationConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter {
+		@Autowired
+		private UserDetailsService userDetailsService;
+		
+		@Autowired
+		private PasswordEncoder passwordEncoder;
+
+		@Override
+		public void init(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.userDetailsService(userDetailsService)
+				.passwordEncoder(passwordEncoder);
+		}
+
+		@Override
+		public void configure(AuthenticationManagerBuilder auth) throws Exception {
+
+		}
+		
+	}
+	
 	
 	/**
 	 * PermissionEvaluator padrão - permite tudo se tiver a role BaseUserRole.BACKOFFICE_ADMIN.

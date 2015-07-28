@@ -67,13 +67,6 @@ public class DwfWebViewSecurityAutoConfiguration {
 	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER + 1)
 	@EnableWebSecurity
 	static class DwfWebSecurityConfig extends WebSecurityConfigurerAdapter {
-
-		@Autowired
-		private UserDetailsService userDetailsService;
-		
-		@Autowired
-		private PasswordEncoder passwordEncoder;
-		
 		@Autowired
 		private PersistentTokenRepository tokenRepository;
 		
@@ -82,12 +75,6 @@ public class DwfWebViewSecurityAutoConfiguration {
 		@Value("${dwf.security.web.ignorecsrfpatterns:}")
 		private String[] ignoreCsrfPatterns = new String[0];
 		
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.userDetailsService(userDetailsService)
-				.passwordEncoder(passwordEncoder);
-		}
 
 		@Override
 		// @formatter:off
