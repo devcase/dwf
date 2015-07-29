@@ -1,4 +1,4 @@
-package dwf.web.upload;
+package dwf.upload;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,26 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Collections;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
-import dwf.upload.UploadManager;
-
-
-@RequestMapping // responds to requests via /dl/**
 public class FileSystemUploadManager implements InitializingBean, UploadManager {
 	
 	@Autowired
@@ -34,8 +20,6 @@ public class FileSystemUploadManager implements InitializingBean, UploadManager 
 	
 	private SecureRandom random = new SecureRandom();
 
-	private ResourceHttpRequestHandler resourceHttpRequestHandler;
-	
 	private String directory;
 	
 	public String getDirectory() {
@@ -51,8 +35,6 @@ public class FileSystemUploadManager implements InitializingBean, UploadManager 
 	 */
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		resourceHttpRequestHandler = new ResourceHttpRequestHandler();
-		resourceHttpRequestHandler.setApplicationContext(applicationContext);
 		
 		File rootDir = new File(getDirectory());
 		if(!rootDir.exists()) {
@@ -60,11 +42,6 @@ public class FileSystemUploadManager implements InitializingBean, UploadManager 
 		} else if(!rootDir.isDirectory()) {
 			throw new IOException("Caminho de diretório configurado não é válido! " + getDirectory());
 		}
-		
-		//FileSystemResource fsResource = new FileSystemResource(rootDir); <- não funciona
-		FileSystemResource fsResource = new FileSystemResource(getDirectory());
-		resourceHttpRequestHandler.setLocations(Collections.singletonList((Resource) fsResource));
-		resourceHttpRequestHandler.afterPropertiesSet();
 	}
 
 
@@ -136,15 +113,6 @@ public class FileSystemUploadManager implements InitializingBean, UploadManager 
 		File deletedFile = new File(rootDir, uploadKey);
 		if(deletedFile.exists()) {
 			deletedFile.delete();
-		}
-	}
-
-
-	@RequestMapping("/dl/**")
-	public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		if(request.getServletPath().startsWith("/dl/")) {
-			request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, request.getServletPath().substring("/dl/".length()));
-			resourceHttpRequestHandler.handleRequest(request, response);
 		}
 	}
 

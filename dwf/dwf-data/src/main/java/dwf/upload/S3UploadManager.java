@@ -1,16 +1,10 @@
-package dwf.web.upload;
+package dwf.upload;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -20,16 +14,11 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
-import dwf.upload.UploadManager;
-
-@RequestMapping // responds to requests via /dl/**
 public class S3UploadManager implements UploadManager {
 
 	protected final AmazonS3Client awsS3Client;
 	private SecureRandom random = new SecureRandom();
 	private String bucketName;
-	
-	
 
 	public String getBucketName() {
 		return bucketName;
@@ -103,19 +92,6 @@ public class S3UploadManager implements UploadManager {
 		awsS3Client.deleteObject(getBucketName(), uploadKey);
 	}
 	
-	@RequestMapping("/dl/**")
-	public void redirectToFile(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		if(request.getServletPath().startsWith("/dl/")) {
-			String key = request.getServletPath().substring("/dl/".length());
-			String remoteURL = remoteUrl(key);
-			if(remoteURL != null) {
-				response.sendRedirect(remoteURL);
-				return;
-			}
-		}
-		response.sendError(404);
-	}
-
 	public InputStream openInputStream(String uploadKey) {
 		return awsS3Client.getObject(getBucketName(), uploadKey).getObjectContent();
 	}

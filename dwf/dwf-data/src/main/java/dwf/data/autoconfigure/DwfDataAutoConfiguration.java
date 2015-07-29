@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -43,6 +44,11 @@ import dwf.config.DwfDataConfig;
 import dwf.persistence.export.Importer;
 import dwf.persistence.utils.DwfNamingStrategy;
 import dwf.persistence.utils.MongoIdModule;
+import dwf.upload.FileSystemUploadManager;
+import dwf.upload.S3UploadManager;
+import dwf.upload.image.ImageResizer;
+import dwf.upload.image.RabbitAsyncImageResizer;
+import dwf.upload.image.SyncImageResizer;
 
 @SuppressWarnings("deprecation")
 @Configuration
@@ -264,6 +270,98 @@ public class DwfDataAutoConfiguration  {
 				return container;
 			}
 		}
+	}
+	
+	@Configuration
+	static class UploadManagerConfiguration {
+		@Configuration
+		@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "filesystem")
+		static class FileSystemUploadManagerConfiguration {
 
+			@Value("${dwf.web.uploadmanager.directory:'/temp'}")
+			private String directory = "testdb";
+
+			@Bean
+			public FileSystemUploadManager uploadManager() {
+				FileSystemUploadManager s = new FileSystemUploadManager();
+				s.setDirectory(directory);
+				return s;
+			}
+		}
+
+		@Configuration
+		@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "s3")
+		static class S3UploadManagerConfiguration {
+
+			@Value("${dwf.web.uploadmanager.bucketname:testdb}")
+			private String bucketName = "testdb";
+			@Value("${aws.accessKeyId:testdb}")
+			private String accessKeyId = "testdb";
+			@Value("${aws.secretKey:testdb}")
+			private String secretKey = "testdb";
+
+			@Bean
+			public S3UploadManager uploadManager() {
+				S3UploadManager s = new S3UploadManager(accessKeyId, secretKey);
+				s.setBucketName(bucketName);
+				return s;
+			}
+		}
+		
+		@Configuration
+		@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "s3-async")
+		static class S3UploadManagerAsyncConfiguration {
+
+			@Value("${dwf.web.uploadmanager.bucketname:testdb}")
+			private String bucketName = "testdb";
+			@Value("${aws.accessKeyId:testdb}")
+			private String accessKeyId = "testdb";
+			@Value("${aws.secretKey:testdb}")
+			private String secretKey = "testdb";
+
+			@Bean
+			public S3UploadManager uploadManager() {
+				S3UploadManager s = new S3UploadManager(accessKeyId, secretKey);
+				s.setBucketName(bucketName);
+				return s;
+			}
+			
+
+			@Value("${dwf.web.uploadmanager.s3-async.rabbitmq.queuename:nonono}")
+			private String queueName = "";
+			@Bean
+			public ImageResizer imageResizer() {
+				return new RabbitAsyncImageResizer(queueName);
+			}
+		}
+
+		@Configuration
+		@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled")
+		@ConditionalOnBean(S3UploadManagerAsyncConfiguration.class)
+		static class WithListenerConfiguration {
+			@Value("${dwf.web.uploadmanager.s3-async.rabbitmq.queuename:nonono}")
+			private String queueName = "";
+
+			@Bean
+			MessageListenerAdapter listenerAdapter(ImageResizer imageResizer) {
+				MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(imageResizer, "onMessage");
+				return messageListenerAdapter;
+			}
+			
+			@Bean
+			SimpleMessageListenerContainer container(ConnectionFactory connectionFactory, MessageListenerAdapter listenerAdapter) {
+				SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+				container.setConnectionFactory(connectionFactory);
+				container.setQueueNames(this.queueName);
+				container.setMessageListener(listenerAdapter);
+				return container;
+			}
+		}
+		
+		@Bean
+		@ConditionalOnMissingBean(ImageResizer.class)
+		public ImageResizer imageResizer() {
+			return new SyncImageResizer();
+		}
 	}
 }
