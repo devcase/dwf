@@ -503,11 +503,15 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	 */
 	protected void setIdForImport(D entity) {
 	}
+	
+	public D updateByAnnotation(D entity, Class<?>... groups) throws ValidationException {
+		return updateByAnnotation(entity, false, groups);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(rollbackFor = ValidationException.class)
-	public D updateByAnnotation(D entity, Class<?>... groups) throws ValidationException {
+	public D updateByAnnotation(D entity, boolean ignoreNulls, Class<?>... groups) throws ValidationException {
 		prepareEntity(entity);
 		validate(entity, groups);
 
@@ -568,6 +572,9 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 					Object value = PropertyUtils.getSimpleProperty(entity, property.getName());
 					Object oldValue = PropertyUtils.getSimpleProperty(retrievedEntity, property.getName());
 
+					if(value == null && ignoreNulls) {
+						continue;
+					}
 					
 //					if(value != null && t.isEntityType()  && !getSession().contains(value)) {
 //						//it's an entity - retrieving connected value

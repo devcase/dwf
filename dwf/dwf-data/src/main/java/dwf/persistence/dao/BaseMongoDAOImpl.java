@@ -665,5 +665,11 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 		}
 	}
 
+	@Override
+	public D updateByAnnotation(D entity, boolean ignoreNullValues,
+			Class<?>... groups) throws ValidationException {
+		return updateByAnnotation(entity, false, groups);
+	}
+
 	
 }
