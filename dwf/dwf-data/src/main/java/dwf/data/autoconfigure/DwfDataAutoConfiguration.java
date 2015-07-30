@@ -246,6 +246,7 @@ public class DwfDataAutoConfiguration  {
 		 */
 		@Configuration
 		@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled")
+		@ConditionalOnBean(AsyncImporterConfiguration.class)
 		static class ListenerConfiguration {
 			@Value("${dwf.data.asyncimporter.queuename:nonono}")
 			private String queueName = "";
@@ -325,36 +326,40 @@ public class DwfDataAutoConfiguration  {
 				s.setBucketName(bucketName);
 				return s;
 			}
-			
-
-			@Value("${dwf.web.uploadmanager.s3-async.rabbitmq.queuename:nonono}")
-			private String queueName = "";
-			@Bean
-			public ImageResizer imageResizer() {
-				return new RabbitAsyncImageResizer(queueName);
-			}
 		}
 
+		
+	}
+	
+	@Configuration
+	static class ImageResizerConfiguration {
+		
 		@Configuration
-		@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled")
-		@ConditionalOnBean(S3UploadManagerAsyncConfiguration.class)
-		static class WithListenerConfiguration {
-			@Value("${dwf.web.uploadmanager.s3-async.rabbitmq.queuename:nonono}")
-			private String queueName = "";
+		@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "s3-async")
+		static class AsyncConfig {
+			@Value("${dwf.web.uploadmanager.s3-async.rabbitmq.queuename:imageprocessingqueue}")
+			private String queueName = "imageprocessingqueue";
 
 			@Bean
-			MessageListenerAdapter listenerAdapter(ImageResizer imageResizer) {
+			@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled")
+			MessageListenerAdapter asyncImageResizerListenerAdapter(ImageResizer imageResizer) {
 				MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(imageResizer, "onMessage");
 				return messageListenerAdapter;
 			}
 			
 			@Bean
-			SimpleMessageListenerContainer container(ConnectionFactory connectionFactory, MessageListenerAdapter listenerAdapter) {
+			@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled")
+			SimpleMessageListenerContainer asyncImageListenerContainer(ConnectionFactory connectionFactory, MessageListenerAdapter listenerAdapter) {
 				SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 				container.setConnectionFactory(connectionFactory);
-				container.setQueueNames(this.queueName);
+				container.setQueueNames(queueName);
 				container.setMessageListener(listenerAdapter);
 				return container;
+			}
+
+			@Bean
+			public ImageResizer imageResizer() {
+				return new RabbitAsyncImageResizer(queueName);
 			}
 		}
 		
