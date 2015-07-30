@@ -246,7 +246,7 @@ public class DwfDataAutoConfiguration  {
 		 */
 		@Configuration
 		@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled")
-		@ConditionalOnBean(AsyncImporterConfiguration.class)
+//		@ConditionalOnBean(AsyncImporterConfiguration.class)
 		static class ListenerConfiguration {
 			@Value("${dwf.data.asyncimporter.queuename:nonono}")
 			private String queueName = "";
@@ -349,11 +349,11 @@ public class DwfDataAutoConfiguration  {
 			
 			@Bean
 			@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled")
-			SimpleMessageListenerContainer asyncImageListenerContainer(ConnectionFactory connectionFactory, MessageListenerAdapter listenerAdapter) {
+			SimpleMessageListenerContainer asyncImageListenerContainer(ConnectionFactory connectionFactory, MessageListenerAdapter asyncImageResizerListenerAdapter) {
 				SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 				container.setConnectionFactory(connectionFactory);
 				container.setQueueNames(queueName);
-				container.setMessageListener(listenerAdapter);
+				container.setMessageListener(asyncImageResizerListenerAdapter);
 				return container;
 			}
 
