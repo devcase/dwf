@@ -176,14 +176,18 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 
 	@Override
 	public List<D> findByFilter(ParsedMap filter) {
-		MongoCursor<D> cursor = getCollection().find(createDBObjectFromFilter(filter).toString()).as(clazz);
-		List<D> list = IteratorUtils.toList(cursor);
-		try {
-			cursor.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (filter.containsKey("searchstring")){
+			return findBySearchString(filter, null, null);
+		} else {
+			MongoCursor<D> cursor = getCollection().find(createDBObjectFromFilter(filter).toString()).as(clazz);
+			List<D> list = IteratorUtils.toList(cursor);
+			try {
+				cursor.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return list;
 		}
-		return list;
 	}
 
 	@Override
@@ -211,13 +215,14 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 	private DBObject createDBObjectFromFilter(ParsedMap filter) {
 		return createDBObjectFromFilter(filter, false);
 	}
-	
+
 	private DBObject createDBObjectFromFilter(ParsedMap filter, boolean allowDisabled) {
 		BasicDBObject obj = new BasicDBObject();
 		if (!allowDisabled) {
 			obj.append("enabled", true);
 		}
 		if (filter == null) return obj;
+		
 		for (PropertyDescriptor pDescriptor : propertyList) {
 			String pName = pDescriptor.getName();
 			if(filter.containsKey(pName)) {
@@ -244,8 +249,11 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 				Object key = filter.get(pName+".after");
 				if (key == null) key = filter.get(pName+".gte");
 				obj.append(pName, new BasicDBObject("$gte", key));
-			}
+			} 
 		}
+		
+		
+		
 		return obj;
 	}
 
@@ -261,19 +269,49 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 		entity.setId(ObjectId.get().toString());
 		
 		getCollection().insert(entity);
+		
 		activityLogService.log(entity, ActivityLogService.OPERATION_CREATE);
 
 		return entity;
 	}
 
-	@Override
-	public List<D> findByFilter(ParsedMap filter,
-			int offset, int fetchSize) {
-		Find find = getCollection().find(createDBObjectFromFilter(filter).toString()).skip(offset>0?offset:0);
-		if (fetchSize>0)
-			find = find.limit(fetchSize);
-		MongoCursor<D> cursor = find.as(clazz); 
+	private List<D> findBySearchString (ParsedMap filter, Integer offset, Integer fetchSize){
 		
+		String mongoRegexQuery;
+		String mongoRegexQueryParameters;
+		boolean wildCardStart = true;
+		boolean wildCardEnd = true;
+		if (filter.containsKey("searchwildcards") && StringUtils.isNotBlank(filter.getString("searchwildcards")) ){
+			if (filter.getString("searchwildcards").toUpperCase().equals("NONE") ){
+				wildCardStart = false;
+				wildCardEnd = false;
+			} else if (filter.getString("searchwildcards").toUpperCase().equals("BEFORE")){
+				wildCardStart = true;
+				wildCardEnd = false;
+			} else if (filter.getString("searchwildcards").toUpperCase().equals("AFTER")){
+				wildCardStart = false;
+				wildCardEnd = true;
+			} else if(filter.getString("searchwildcards").toUpperCase().equals("BOTH")){
+				wildCardStart = true;
+				wildCardEnd = true;
+			}
+						
+		}
+		
+		mongoRegexQuery = "{searchstring: {$regex:" + "'(?i)" + (wildCardStart ? "" : "^") + filter.getString("searchstring") + (wildCardEnd ? "" : "$") + "'}}";
+		
+		
+		Find find;
+		
+		if (offset != null && offset > 0) {
+			find = getCollection().find(mongoRegexQuery).skip(offset);
+		} else find = getCollection().find(mongoRegexQuery);
+		
+		
+		if (fetchSize != null && fetchSize>0)
+			find = find.limit(fetchSize);
+		
+		MongoCursor<D> cursor = find.as(clazz); 
 		List<D> list = IteratorUtils.toList(cursor);
 		try {
 			cursor.close();
@@ -281,6 +319,29 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 			e.printStackTrace();
 		}
 		return list;
+	}
+	
+	@Override
+	public List<D> findByFilter(ParsedMap filter,
+			int offset, int fetchSize) {
+		
+		Find find;
+		if (filter.containsKey("searchstring")){
+			return findBySearchString(filter, offset, fetchSize);
+			
+		} else {
+			find = getCollection().find(createDBObjectFromFilter(filter).toString()).skip(offset>0?offset:0);
+			if (fetchSize>0)
+				find = find.limit(fetchSize);
+			MongoCursor<D> cursor = find.as(clazz); 
+			List<D> list = IteratorUtils.toList(cursor);
+			try {
+				cursor.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return list;
+		}
 	}
 
 	@Override
