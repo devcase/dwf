@@ -59,6 +59,7 @@ import dwf.persistence.utils.NotSyncPropertyDescriptor;
 import dwf.persistence.validation.ValidationGroups;
 import dwf.user.DwfUserUtils;
 import dwf.utils.ParsedMap;
+import dwf.utils.SearchstringUtils;
 import dwf.utils.SimpleParsedMap;
 
 public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<D> {
@@ -298,7 +299,8 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 						
 		}
 		
-		mongoRegexQuery = "{searchstring: {$regex:" + "'(?i)" + (wildCardStart ? "" : "^") + filter.getString("searchstring") + (wildCardEnd ? "" : "$") + "'}}";
+		String searchString = SearchstringUtils.prepareForSearch(filter.getString("searchstring"));
+		mongoRegexQuery = "{searchstring: {$regex:" + "'(?i)" + (wildCardStart ? "" : "^") + searchString + (wildCardEnd ? "" : "$") + "'}}";
 		
 		
 		Find find;
