@@ -169,7 +169,7 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 	@Override
 	public D findById(Serializable id) {
 		if (id instanceof String) {
-			return getCollection().findOne(createDBObjectFromFilter(new SimpleParsedMap("id", (String) id), true).toString()).as(clazz);
+			return getCollection().findOne(mongoQueryBuilder(new SimpleParsedMap("id", (String) id), true).toString()).as(clazz);
 		}
 		else
 			throw new InvalidParameterException("id deve ser String");
@@ -177,23 +177,21 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 
 	@Override
 	public List<D> findByFilter(ParsedMap filter) {
-		if (filter.containsKey("searchstring")){
-			return findBySearchString(filter, null, null);
-		} else {
-			MongoCursor<D> cursor = getCollection().find(createDBObjectFromFilter(filter).toString()).as(clazz);
-			List<D> list = IteratorUtils.toList(cursor);
-			try {
-				cursor.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return list;
+				
+		MongoCursor<D> cursor = getCollection().find(mongoQueryBuilder(filter)).as(clazz);
+		List<D> list = IteratorUtils.toList(cursor);
+		try {
+			cursor.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+		return list;
+		
 	}
 
 	@Override
 	public List<D> findAll() {
-		MongoCursor<D> cursor = getCollection().find(createDBObjectFromFilter(null).toString()).as(clazz);
+		MongoCursor<D> cursor = getCollection().find(mongoQueryBuilder(null)).as(clazz);
 		List<D> list = IteratorUtils.toList(cursor);
 		try {
 			cursor.close();
@@ -205,57 +203,90 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 
 	@Override
 	public D findFirstByFilter(ParsedMap filter) {
-		return getCollection().findOne(createDBObjectFromFilter(filter).toString()).as(clazz);
+		return getCollection().findOne(mongoQueryBuilder(filter)).as(clazz);
 	}
 
 	@Override
 	public int countByFilter(ParsedMap filter) {
-		return (int) getCollection().count(createDBObjectFromFilter(filter).toString());
+		
+		return (int) getCollection().count(mongoQueryBuilder(filter));
+		
 	}
 	
-	private DBObject createDBObjectFromFilter(ParsedMap filter) {
-		return createDBObjectFromFilter(filter, false);
+	private String mongoQueryBuilder(ParsedMap filter) {
+		return mongoQueryBuilder(filter, false);
 	}
 
-	private DBObject createDBObjectFromFilter(ParsedMap filter, boolean allowDisabled) {
+	private String mongoQueryBuilder(ParsedMap filter, boolean allowDisabled) {
 		BasicDBObject obj = new BasicDBObject();
-		if (!allowDisabled) {
-			obj.append("enabled", true);
+		
+		if (filter.containsKey("searchstring")){
+			// Se a busca é por searchstring, cria query com wildcards requisitados em searchwildcards
+			String mongoRegexQuery;
+			boolean wildCardStart = true;
+			boolean wildCardEnd = true;
+			if (filter.containsKey("searchwildcards") && StringUtils.isNotBlank(filter.getString("searchwildcards")) ){
+				if (filter.getString("searchwildcards").toUpperCase().equals("NONE") ){
+					wildCardStart = false;
+					wildCardEnd = false;
+				} else if (filter.getString("searchwildcards").toUpperCase().equals("BEFORE")){
+					wildCardStart = true;
+					wildCardEnd = false;
+				} else if (filter.getString("searchwildcards").toUpperCase().equals("AFTER")){
+					wildCardStart = false;
+					wildCardEnd = true;
+				} else if(filter.getString("searchwildcards").toUpperCase().equals("BOTH")){
+					wildCardStart = true;
+					wildCardEnd = true;
+				}
+							
+			}
+			
+			String searchString = SearchstringUtils.prepareForSearch(filter.getString("searchstring"));
+			mongoRegexQuery = "{searchstring: {$regex:" + "'(?i)" + (wildCardStart ? "" : "^") + searchString + (wildCardEnd ? "" : "$") + "'}" + (allowDisabled ? "" : ", enabled:true") + "}";
+			
+			return mongoRegexQuery;
+			
+		} else {
+			
+			if (!allowDisabled) {
+				obj.append("enabled", true);
+			}
+			if (filter == null) return obj.toString();
+			
+			for (PropertyDescriptor pDescriptor : propertyList) {
+				String pName = pDescriptor.getName();
+				if(filter.containsKey(pName)) {
+					if (pName.equals("id")) obj.append("_id", new BasicDBObject("$oid", filter.get(pName))); // se for id busca pelo ObjectId de key _id (padrão do Mongo)
+					else obj.append(pName, filter.get(pName));
+				} else if(filter.containsKey(pName+ ".id")) {
+					//Não funciona para collection, só objeto único embedded
+					obj.append(pName+".id", filter.get(pName+".id"));
+				} else if (filter.containsKey(pName+".center") && filter.containsKey(pName+".radius")) {
+					//busca por geolocalização
+					
+					// para buscar pro geolocalização, o filtro tem que ter as duas propriedades:
+					// {propriedade}.center -> array de float ou double no formato [longitude, latitude]
+					// {propriedade}.radius -> int, raio da busca a ser feita
+					
+					BasicDBObject geometry = new BasicDBObject("type", "Point").append("coordinates", filter.get(pName+".center"));
+					obj.append(pName, new BasicDBObject("$near", new BasicDBObject("$geometry", geometry).append("$maxDistance", filter.get(pName+".radius"))));
+				} else if (filter.containsKey(pName+".after") || filter.containsKey(pName+".gte")) {
+					// filtrar após uma data ou maior que um número
+					
+					// {propriedade}.after -> Date
+					// {propriedade}.gte -> numero
+					
+					Object key = filter.get(pName+".after");
+					if (key == null) key = filter.get(pName+".gte");
+					obj.append(pName, new BasicDBObject("$gte", key));
+				} 
+			}
+			
+			return obj.toString();
 		}
-		if (filter == null) return obj;
-		
-		for (PropertyDescriptor pDescriptor : propertyList) {
-			String pName = pDescriptor.getName();
-			if(filter.containsKey(pName)) {
-				if (pName.equals("id")) obj.append("_id", new BasicDBObject("$oid", filter.get(pName))); // se for id busca pelo ObjectId de key _id (padrão do Mongo)
-				else obj.append(pName, filter.get(pName));
-			} else if(filter.containsKey(pName+ ".id")) {
-				//Não funciona para collection, só objeto único embedded
-				obj.append(pName+".id", filter.get(pName+".id"));
-			} else if (filter.containsKey(pName+".center") && filter.containsKey(pName+".radius")) {
-				//busca por geolocalização
-				
-				// para buscar pro geolocalização, o filtro tem que ter as duas propriedades:
-				// {propriedade}.center -> array de float ou double no formato [longitude, latitude]
-				// {propriedade}.radius -> int, raio da busca a ser feita
-				
-				BasicDBObject geometry = new BasicDBObject("type", "Point").append("coordinates", filter.get(pName+".center"));
-				obj.append(pName, new BasicDBObject("$near", new BasicDBObject("$geometry", geometry).append("$maxDistance", filter.get(pName+".radius"))));
-			} else if (filter.containsKey(pName+".after") || filter.containsKey(pName+".gte")) {
-				// filtrar após uma data ou maior que um número
-				
-				// {propriedade}.after -> Date
-				// {propriedade}.gte -> numero
-				
-				Object key = filter.get(pName+".after");
-				if (key == null) key = filter.get(pName+".gte");
-				obj.append(pName, new BasicDBObject("$gte", key));
-			} 
-		}
 		
 		
-		
-		return obj;
 	}
 
 	@Override
@@ -276,43 +307,15 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 		return entity;
 	}
 
-	private List<D> findBySearchString (ParsedMap filter, Integer offset, Integer fetchSize){
-		
-		String mongoRegexQuery;
-		String mongoRegexQueryParameters;
-		boolean wildCardStart = true;
-		boolean wildCardEnd = true;
-		if (filter.containsKey("searchwildcards") && StringUtils.isNotBlank(filter.getString("searchwildcards")) ){
-			if (filter.getString("searchwildcards").toUpperCase().equals("NONE") ){
-				wildCardStart = false;
-				wildCardEnd = false;
-			} else if (filter.getString("searchwildcards").toUpperCase().equals("BEFORE")){
-				wildCardStart = true;
-				wildCardEnd = false;
-			} else if (filter.getString("searchwildcards").toUpperCase().equals("AFTER")){
-				wildCardStart = false;
-				wildCardEnd = true;
-			} else if(filter.getString("searchwildcards").toUpperCase().equals("BOTH")){
-				wildCardStart = true;
-				wildCardEnd = true;
-			}
-						
-		}
-		
-		String searchString = SearchstringUtils.prepareForSearch(filter.getString("searchstring"));
-		mongoRegexQuery = "{searchstring: {$regex:" + "'(?i)" + (wildCardStart ? "" : "^") + searchString + (wildCardEnd ? "" : "$") + "'}}";
-		
+	@Override
+	public List<D> findByFilter(ParsedMap filter,
+			int offset, int fetchSize) {
 		
 		Find find;
-		
-		if (offset != null && offset > 0) {
-			find = getCollection().find(mongoRegexQuery).skip(offset);
-		} else find = getCollection().find(mongoRegexQuery);
-		
-		
-		if (fetchSize != null && fetchSize>0)
+					
+		find = getCollection().find(mongoQueryBuilder(filter)).skip(offset>0?offset:0);
+		if (fetchSize>0)
 			find = find.limit(fetchSize);
-		
 		MongoCursor<D> cursor = find.as(clazz); 
 		List<D> list = IteratorUtils.toList(cursor);
 		try {
@@ -320,30 +323,9 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return list;
-	}
-	
-	@Override
-	public List<D> findByFilter(ParsedMap filter,
-			int offset, int fetchSize) {
 		
-		Find find;
-		if (filter.containsKey("searchstring")){
-			return findBySearchString(filter, offset, fetchSize);
-			
-		} else {
-			find = getCollection().find(createDBObjectFromFilter(filter).toString()).skip(offset>0?offset:0);
-			if (fetchSize>0)
-				find = find.limit(fetchSize);
-			MongoCursor<D> cursor = find.as(clazz); 
-			List<D> list = IteratorUtils.toList(cursor);
-			try {
-				cursor.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return list;
-		}
+		return list;
+		
 	}
 
 	@Override
