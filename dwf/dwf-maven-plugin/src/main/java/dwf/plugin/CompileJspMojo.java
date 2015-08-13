@@ -19,9 +19,9 @@ import dwf.tools.jspc.DwfJspC;
  */
 @Mojo(name="compile-jsp")
 public class CompileJspMojo extends AbstractMojo {
-	@Parameter(name="uriRoot", required=true)
+	@Parameter(name="uriRoot", required=false, defaultValue="${basedir}/src/main/webapp")
 	private String uriRoot;
-	@Parameter(name="outputDir", required=true)
+	@Parameter(name="outputDir", required=false, defaultValue="${project.build.directory}/generated-sources/jsp")
 	private String outputDir;
 	@Parameter(name="targetPackage", required=true)
 	private String targetPackage;

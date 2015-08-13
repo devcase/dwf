@@ -6,6 +6,7 @@
 		<version>2.1.5-SNAPSHOT</version>
 	</parent>
 	<artifactId>dwf-sample</artifactId>
+	<packaging>war</packaging>
 	<build>
 		<plugins>
 			<plugin>
@@ -33,13 +34,32 @@
 				<groupId>br.com.devcase.dwf</groupId>
 				<artifactId>dwf-maven-plugin</artifactId>
 				<configuration>
-					<targetPackage>dwf.sample</targetPackage>
 					<entityPackage>dwf.sample.persistence.domain</entityPackage>
 					<daoPackage>dwf.sample.persistence.dao</daoPackage>
 					<controllerPackage>dwf.sample.web.controller</controllerPackage>
 					<daoSrcDir>${basedir}/src/main/java</daoSrcDir>
 					<controllerSrcDir>${basedir}/src/main/java</controllerSrcDir>
 					<viewSrcDir>${basedir}/src/main/webapp/WEB-INF/jsp</viewSrcDir>
+				</configuration>
+				<executions>
+					<execution>
+						<id>dwf-compile-jsp</id>
+						<configuration>
+							<targetPackage>dwf.sample</targetPackage>
+						</configuration>
+					</execution>
+					<execution>
+						<id>dwf-webapp-jar</id>
+						<goals>
+							<goal>webapp-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<attachClasses>true</attachClasses><!-- Gera e instala jar, para ser usado por travenup-backoffice-integration-test -->
 				</configuration>
 			</plugin>
 		</plugins>

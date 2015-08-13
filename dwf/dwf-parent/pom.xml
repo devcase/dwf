@@ -51,10 +51,6 @@
 							</goals>
 						</execution>
 					</executions>
-					<configuration>
-						<outputDir>${project.build.directory}/generated-sources/jsp</outputDir>
-						<uriRoot>${basedir}/src/main/webapp</uriRoot>
-					</configuration>
 				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
