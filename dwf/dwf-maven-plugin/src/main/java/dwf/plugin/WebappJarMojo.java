@@ -54,7 +54,7 @@ public class WebappJarMojo extends AbstractMojo {
     /**
      * Single directory for extra files to include in the WAR. This is where you place your JSP files.
      */
-    @Parameter( defaultValue = "${basedir}/src/main/", required = true )
+    @Parameter( defaultValue = "${basedir}/src/main/webapp", required = true )
     private File mainSourceDirectory;
 
     /**
@@ -94,14 +94,14 @@ public class WebappJarMojo extends AbstractMojo {
         final MavenArchiver archiver = new MavenArchiver();
         archiver.setArchiver( jarArchiver );
         archiver.setOutputFile( targetFile );
-        archiver.getArchiver().addFileSet(DefaultFileSet.fileSet(mainSourceDirectory).include(new String[] {webappDirectoryName + "/**"}));
+        archiver.getArchiver().addFileSet(DefaultFileSet.fileSet(mainSourceDirectory).prefixed("META-INF/resources/"));
         try {
 			archiver.createArchive( session, project, archiveConfiguration );
 		} catch (ArchiverException | ManifestException | IOException | DependencyResolutionRequiredException e) {
 			getLog().error("Error generating webapp", e);
 			throw new MojoExecutionException("Error generating webapp", e);
 		}
-
+		projectHelper.attachArtifact(project, "jar", classifier, targetFile);
 		
 	}
     

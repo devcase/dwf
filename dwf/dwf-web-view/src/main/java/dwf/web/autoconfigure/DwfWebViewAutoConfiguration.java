@@ -328,7 +328,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	@ConditionalOnBean(org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory.class)
 	@Conditional(AdicionaDwfTagLibCondition.class)
 	@AutoConfigureAfter(EmbeddedServletContainerAutoConfiguration.class)
-	@Profile("dev")
+	@Profile({"dev", "test"})
 	static class AdicionaDwfTaglibConfiguration extends WebMvcConfigurerAdapter {
 		@Bean
 		public EmbeddedServletContainerCustomizer tomcatContextCustomizer() {
