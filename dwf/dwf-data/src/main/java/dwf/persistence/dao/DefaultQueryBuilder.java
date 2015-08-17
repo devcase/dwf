@@ -145,6 +145,18 @@ public class DefaultQueryBuilder implements QueryBuilder {
 				Long value = filter.getLong(pName+ ".id"); //TODO - Só funciona com Long!
 				query.append(" and ").append(domainAlias).append(".").append(pName).append(".id = :").append(pName).append("Id ");
 				params.put(pName + "Id", value);
+			} else if(filter.containsKey(pName + "[0].id")){
+				Long value = filter.getLong(pName + "[0].id");
+				
+				query.append(" and (");
+				for(Integer i = 1; value != null; i++){
+					query.append(domainAlias).append(".").append(pName).append(".id = :").append(pName).append("Id" + i + " ");
+					params.put(pName + "Id" + i, value);
+					value = filter.getLong(pName + "[" + i + "].id");
+					if(value != null)
+						query.append(" or ");
+				}
+				query.append(")");
 			}
 		}
 		
