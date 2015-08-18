@@ -14,8 +14,8 @@
 		<module>dwf-crud</module>
 		<module>dwf-web-rest</module>
 		<module>dwf-web-view</module>
-		<module>dwf-parent</module>
 		<module>dwf-web-view-integration-test</module>
+		<module>dwf-parent</module>
 	</modules>
 	<properties>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

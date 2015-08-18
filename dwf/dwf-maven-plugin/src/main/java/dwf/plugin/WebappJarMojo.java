@@ -1,12 +1,8 @@
 package dwf.plugin;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.maven.archiver.MavenArchiveConfiguration;
-import org.apache.maven.archiver.MavenArchiver;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -18,13 +14,14 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
-import org.codehaus.plexus.archiver.ArchiverException;
-import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
-import org.codehaus.plexus.archiver.jar.ManifestException;
-import org.codehaus.plexus.archiver.util.DefaultFileSet;
 
-@Mojo( name = "webapp-jar", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.RUNTIME )
+/**
+ * Adiciona o conteúdo de webapp na pasta /public do jar - sem incluir o conteúdo de WEB-INF.
+ * @author hirata
+ *
+ */
+@Mojo( name = "webapp-jar", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class WebappJarMojo extends AbstractMojo {
 
     /**
@@ -55,7 +52,7 @@ public class WebappJarMojo extends AbstractMojo {
      * Single directory for extra files to include in the WAR. This is where you place your JSP files.
      */
     @Parameter( defaultValue = "${basedir}/src/main/webapp", required = true )
-    private File mainSourceDirectory;
+    private String webappDirectory;
 
     /**
      * Single directory for extra files to include in the WAR. This is where you place your JSP files.
@@ -90,19 +87,12 @@ public class WebappJarMojo extends AbstractMojo {
     
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		File targetFile = new File(outputDirectory,  warName + "-" + classifier + ".jar");
-        final MavenArchiver archiver = new MavenArchiver();
-        archiver.setArchiver( jarArchiver );
-        archiver.setOutputFile( targetFile );
-        archiver.getArchiver().addFileSet(DefaultFileSet.fileSet(mainSourceDirectory).prefixed("META-INF/resources/"));
-        try {
-			archiver.createArchive( session, project, archiveConfiguration );
-		} catch (ArchiverException | ManifestException | IOException | DependencyResolutionRequiredException e) {
-			getLog().error("Error generating webapp", e);
-			throw new MojoExecutionException("Error generating webapp", e);
-		}
-		projectHelper.attachArtifact(project, "jar", classifier, targetFile);
-		
+		Resource r = new Resource();
+		r.setDirectory(webappDirectory);
+		r.setTargetPath("/public/");
+		r.addExclude("**/*.jsp");
+		r.addExclude("/WEB-INF/**");
+		project.addResource(r);
 	}
     
     

@@ -6,7 +6,7 @@
 		<version>2.1.5-SNAPSHOT</version>
 	</parent>
 	<artifactId>dwf-sample</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<build>
 		<plugins>
 			<plugin>
@@ -47,12 +47,6 @@
 						<configuration>
 							<targetPackage>dwf.sample</targetPackage>
 						</configuration>
-					</execution>
-					<execution>
-						<id>dwf-webapp-jar</id>
-						<goals>
-							<goal>webapp-jar</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>

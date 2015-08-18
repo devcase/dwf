@@ -50,6 +50,13 @@
 								<goal>compile-jsp</goal>
 							</goals>
 						</execution>
+						<execution>
+							<id>dwf-webapp-jar</id>
+							<goals>
+								<goal>webapp-jar</goal>
+							</goals>
+							<phase>generate-resources</phase>
+						</execution>
 					</executions>
 				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
@@ -306,5 +313,6 @@
 	</dependencyManagement>
 	<modules>
 		<module>dwf-sample</module>
+		<module>dwf-sample-integration-test</module>
 	</modules>
 </project>
