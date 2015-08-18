@@ -83,11 +83,6 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-jsr310</artifactId>
-			<version>2.6.1</version>
-		</dependency>
-		<dependency>
 			<groupId>org.jongo</groupId>
 			<artifactId>jongo</artifactId>
 			<optional>true</optional>
