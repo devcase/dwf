@@ -89,7 +89,7 @@ public class WebappJarMojo extends AbstractMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		Resource r = new Resource();
 		r.setDirectory(webappDirectory);
-		r.setTargetPath("/public/");
+		r.setTargetPath("public/");
 		r.addExclude("**/*.jsp");
 		r.addExclude("/WEB-INF/**");
 		project.addResource(r);
