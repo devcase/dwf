@@ -24,7 +24,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -40,28 +39,23 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 
 import dwf.asynchronous.AsyncImporterListener;
-import dwf.config.DwfDataConfig;
 import dwf.persistence.export.Importer;
 import dwf.persistence.utils.DwfNamingStrategy;
 import dwf.persistence.utils.MongoIdModule;
 import dwf.upload.FileSystemUploadManager;
 import dwf.upload.S3UploadManager;
+import dwf.upload.UploadManager;
 import dwf.upload.image.ImageResizer;
 import dwf.upload.image.RabbitAsyncImageResizer;
 import dwf.upload.image.SyncImageResizer;
 
-@SuppressWarnings("deprecation")
 @Configuration
 @ComponentScan(basePackages = {"dwf.activitylog.service", "dwf.persistence", "dwf.multilang", "dwf.user"})
-@ConfigurationProperties(prefix = "dwf.data")
 @PropertySource("classpath:/dwf-data-default.properties")
+@ConfigurationProperties(prefix = "dwf.data")
 public class DwfDataAutoConfiguration  {
 	@Autowired
 	private DataSource dataSource;
-	@Autowired
-	private DwfDataConfig dwfDataConfig;
-	@Autowired
-	private ApplicationContext applicationContext;
 	
 	/**
 	 * configuravel a partir de dwf.data.hibernateproperties
@@ -97,15 +91,17 @@ public class DwfDataAutoConfiguration  {
 	}
 	
 	@Bean
+	public DwfNamingStrategy dwfNamingStrategy(){
+		return new DwfNamingStrategy();
+	}
+	
+	@Bean
 	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 	@DependsOn("flyway") //sessionFactory é criado após o bean flyway
-	public LocalSessionFactoryBean sessionFactory() {
-		if(entityPackage == null) {
-			entityPackage = dwfDataConfig.getClass().getPackage().getName();
-		}
+	public LocalSessionFactoryBean sessionFactory(DwfNamingStrategy dwfNamingStrategy) {
 		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
 		sessionFactory.setPackagesToScan( new String [] {"dwf.activitylog.domain", "dwf.user.domain", entityPackage});
-		sessionFactory.setNamingStrategy(new DwfNamingStrategy(dwfDataConfig));
+		sessionFactory.setNamingStrategy(dwfNamingStrategy);
 		sessionFactory.setDataSource(dataSource);
 		if(hibernateProperties != null) {
 			Properties p = new Properties();
@@ -153,45 +149,6 @@ public class DwfDataAutoConfiguration  {
 			MongoClientURI mongoUri = new MongoClientURI(uri);
 			DB db = new MongoClient(mongoUri).getDB(mongoUri.getDatabase());
 			return new Jongo(db,  MongoIdModule.getMapperBuilder().build());
-		}
-	}
-	
-	@Configuration
-	@ConditionalOnMissingBean(DwfDataConfig.class)
-	@ConfigurationProperties(prefix = "dwf.data")
-	static class DefaultDwfDataConfig {
-		
-		private String tablePrefix;
-		private String databaseSchema;
-		
-		
-		public String getTablePrefix() {
-			return tablePrefix;
-		}
-		public void setTablePrefix(String tablePrefix) {
-			this.tablePrefix = tablePrefix;
-		}
-		public String getDatabaseSchema() {
-			return databaseSchema;
-		}
-		public void setDatabaseSchema(String databaseSchema) {
-			this.databaseSchema = databaseSchema;
-		}
-
-
-		@Bean
-		public DwfDataConfig dwfDataConfig() {
-			return new DwfDataConfig() {
-				@Override
-				public String tablePrefix(String className) {
-					return tablePrefix;
-				}
-				
-				@Override
-				public String getDatabaseSchema() {
-					return databaseSchema;
-				}
-			};
 		}
 	}
 	
@@ -283,7 +240,7 @@ public class DwfDataAutoConfiguration  {
 			private String directory = "testdb";
 
 			@Bean
-			public FileSystemUploadManager uploadManager() {
+			public UploadManager uploadManager() {
 				FileSystemUploadManager s = new FileSystemUploadManager();
 				s.setDirectory(directory);
 				return s;
@@ -302,7 +259,7 @@ public class DwfDataAutoConfiguration  {
 			private String secretKey = "testdb";
 
 			@Bean
-			public S3UploadManager uploadManager() {
+			public UploadManager uploadManager() {
 				S3UploadManager s = new S3UploadManager(accessKeyId, secretKey);
 				s.setBucketName(bucketName);
 				return s;
@@ -321,7 +278,7 @@ public class DwfDataAutoConfiguration  {
 			private String secretKey = "testdb";
 
 			@Bean
-			public S3UploadManager uploadManager() {
+			public UploadManager uploadManager() {
 				S3UploadManager s = new S3UploadManager(accessKeyId, secretKey);
 				s.setBucketName(bucketName);
 				return s;
@@ -358,6 +315,7 @@ public class DwfDataAutoConfiguration  {
 			}
 
 			@Bean
+			@ConditionalOnBean(UploadManager.class)
 			public ImageResizer imageResizer() {
 				return new RabbitAsyncImageResizer(queueName);
 			}
@@ -365,6 +323,7 @@ public class DwfDataAutoConfiguration  {
 		
 		@Bean
 		@ConditionalOnMissingBean(ImageResizer.class)
+		@ConditionalOnBean(UploadManager.class)
 		public ImageResizer imageResizer() {
 			return new SyncImageResizer();
 		}

@@ -7,8 +7,6 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
@@ -17,22 +15,28 @@ import org.hibernate.engine.jdbc.dialect.spi.DatabaseMetaDataDialectResolutionIn
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.hibernate.tool.hbm2ddl.SchemaUpdateScript;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.stereotype.Component;
 
-import dwf.config.DwfDataConfig;
-
 @Component
 public class DdlTool {
-	private static Log log = LogFactory.getLog(DdlTool.class);
+//	private static Log log = LogFactory.getLog(DdlTool.class);
 
 	@Autowired
 	private DataSource dataSource;
 	@Autowired
 	private LocalSessionFactoryBean sessionFactoryBean;
-	@Autowired
-	private DwfDataConfig dwfConfig;
+	@Value("${dwf.data.databaseSchema:public}")
+	private String databaseSchema; 
+	
+	public String getDatabaseSchema() {
+		return databaseSchema;
+	}
 
+	public void setDatabaseSchema(String databaseSchema) {
+		this.databaseSchema = databaseSchema;
+	}
 
 	public String[] generateSchemaCreationScript()  throws SQLException, IOException, ClassNotFoundException {
 		Connection conn = dataSource.getConnection();
@@ -48,7 +52,7 @@ public class DdlTool {
 		Configuration cfg = sessionFactoryBean.getConfiguration();
 		String originalDefaultSchema = cfg.getProperty(Environment.DEFAULT_SCHEMA);
 		try {
-			cfg.getProperties().put( Environment.DEFAULT_SCHEMA , dwfConfig.getDatabaseSchema());
+			cfg.getProperties().put( Environment.DEFAULT_SCHEMA , databaseSchema);
 			return cfg.generateSchemaCreationScript(dialect);
 		} finally {
 			//restore previous default schema
@@ -66,8 +70,8 @@ public class DdlTool {
 		String originalDefaultSchema = cfg.getProperty(Environment.DEFAULT_SCHEMA);
 		try {
 			Dialect dialect = new StandardDialectResolver().resolveDialect(new DatabaseMetaDataDialectResolutionInfoAdapter(conn.getMetaData()));
-			DatabaseMetadata database = new DatabaseMetadata(conn, dialect, cfg);
-			cfg.getProperties().put( Environment.DEFAULT_SCHEMA , dwfConfig.getDatabaseSchema());
+//			DatabaseMetadata database = new DatabaseMetadata(conn, dialect, cfg);
+			cfg.getProperties().put( Environment.DEFAULT_SCHEMA , databaseSchema);
 			
 			return cfg.generateDropSchemaScript(dialect);
 		} finally {
@@ -88,7 +92,7 @@ public class DdlTool {
 		try {
 			Dialect dialect = new StandardDialectResolver().resolveDialect(new DatabaseMetaDataDialectResolutionInfoAdapter(conn.getMetaData()));
 			DatabaseMetadata database = new DatabaseMetadata(conn, dialect, cfg);
-			cfg.getProperties().put( Environment.DEFAULT_SCHEMA , dwfConfig.getDatabaseSchema());
+			cfg.getProperties().put( Environment.DEFAULT_SCHEMA , databaseSchema);
 			
 			return cfg.generateSchemaUpdateScriptList(dialect, database);
 		} finally {

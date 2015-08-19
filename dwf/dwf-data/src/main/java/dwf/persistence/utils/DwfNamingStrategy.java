@@ -3,16 +3,24 @@ package dwf.persistence.utils;
 import org.hibernate.AssertionFailure;
 import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.internal.util.StringHelper;
+import org.springframework.beans.factory.annotation.Value;
 
-import dwf.config.DwfDataConfig;
 
 
 public class DwfNamingStrategy implements NamingStrategy {
-	private final DwfDataConfig dwfConfig;
+	@Value("${dwf.data.tablePrefix:dwf}")
+	private String tablePrefix;
+	
+	public String getTablePrefix() {
+		return tablePrefix;
+	}
 
-	public DwfNamingStrategy(DwfDataConfig dwfConfig) {
+	public void setTablePrefix(String tablePrefix) {
+		this.tablePrefix = tablePrefix;
+	}
+
+	public DwfNamingStrategy() {
 		super();
-		this.dwfConfig = dwfConfig;
 	}
 	
 	/**
@@ -20,7 +28,7 @@ public class DwfNamingStrategy implements NamingStrategy {
 	 * underscores
 	 */
 	public String classToTableName(String className) {
-		return dwfConfig.tablePrefix(className) + addUnderscores( StringHelper.unqualify(className) );
+		return tablePrefix + addUnderscores( StringHelper.unqualify(className) );
 	}
 	/**
 	 * Return the full property path with underscore seperators, mixed

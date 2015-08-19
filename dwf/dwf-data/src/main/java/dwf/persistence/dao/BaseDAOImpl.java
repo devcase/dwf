@@ -90,7 +90,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	protected Validator beanValidator;
 	@Autowired(required = false)
 	private UploadManager uploadManager;
-	@Autowired
+	@Autowired(required = false)
 	private ImageResizer imageResizer;
 
 	protected Session getSession() {
