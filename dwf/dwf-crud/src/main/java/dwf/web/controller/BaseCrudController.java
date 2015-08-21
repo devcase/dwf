@@ -32,7 +32,6 @@ import dwf.persistence.dao.DAO;
 import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.export.Exporter;
 import dwf.persistence.export.Importer;
-import dwf.upload.UploadManager;
 import dwf.utils.ParsedMap;
 import dwf.web.message.UserMessageType;
 
@@ -51,8 +50,6 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 
 	@Autowired
 	private ActivityLogService activityLogService;
-	@Autowired(required=false)
-	private UploadManager uploadManager;
 	@Autowired(required=false)
 	private TranslationManager translationManager;
 	

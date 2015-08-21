@@ -9,7 +9,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 
 @Configuration
+#if( $conditionalOnProperty )
 @ConditionalOnProperty(prefix = "dwf.generated.jsp.configuration", name = "enabled", matchIfMissing = true)
+#end
 @ConditionalOnWebApplication
 public class GeneratedJspConfiguration {
 	@Autowired

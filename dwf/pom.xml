@@ -16,6 +16,7 @@
 		<module>dwf-web-view</module>
 		<module>dwf-web-view-integration-test</module>
 		<module>dwf-parent</module>
+		<module>dwf-whitelabel-views</module>
 	</modules>
 	<properties>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -81,6 +82,7 @@
 					<version>${dwf.version}</version>
 					<executions>
 						<execution>
+							<id>dwf-compile-jsp</id>
 							<phase>generate-sources</phase>
 							<goals>
 								<goal>compile-jsp</goal>

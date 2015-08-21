@@ -5,12 +5,34 @@
 <%@ tag dynamic-attributes="attrMap"%>
 <dwf:resolveEL el='${entityName}' var="entity"/>
 
+<%-- DETERMINAR TÍTULO --%>
+<c:choose>
+	<c:when test="${!empty attrMap.title}">
+		<c:set var="panelTitle" value="${attrMap.title}"/>
+	</c:when>
+	<c:when test="${!empty attrMap.labelKey}">
+		<spring:message code="${attrMap.labelKey}" var="panelTitle"/>
+	</c:when>
+	<c:when test="${!empty entityName}">
+		<spring:message code="label.editForm.header.${empty entity.id ? 'create' : 'edit'}" var="panelTitle"/>
+		<spring:message code="domain.${entityName}" var="entityDisplayName"/>
+		<c:set var="panelTitle" value="${panelTitle} ${entityDisplayName }"/>
+	</c:when>
+</c:choose><%-- /DETERMINAR TÍTULO --%>
 
 <c:if test="${!attrMap.panelless}">
-<h1><spring:message code="domain.${entityName}"/>: <dwf:autoFormat value="${entity}"/></h1>
-<div class="panel panel-default">
-	<div class="panel-body">
+	<c:if test="${empty attrMap.titleType or attrMap.titleType eq 'h1'}">
+		<c:if test="${!empty panelTitle and panelTitle ne 'none'}"><h1>${panelTitle}</h1></c:if>
+	</c:if>
+	<div class="panel panel-default center-block" style="${attrMap.panelStyle}">
+	<c:if test="${attrMap.titleType eq 'panel-heading'}">
+		<c:if test="${!empty panelTitle and panelTitle ne 'none'}">
+		<div class="panel-heading"><h3 class="panel-title">${panelTitle}</h3></div>
+		</c:if>
+	</c:if>
+		<div class="panel-body">
 </c:if>
+
 		<div class="form-horizontal" >
 			<jsp:doBody />
 			<dwf:outputText property="enabled" styleClass="label ${entity.enabled eq true ? 'label-success' : 'label-danger'}"></dwf:outputText>

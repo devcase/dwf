@@ -27,6 +27,8 @@ public class CompileJspMojo extends AbstractMojo {
 	private String targetPackage;
 	@Parameter(defaultValue="${project}")
     private MavenProject project;
+	@Parameter(name="conditionalOnProperty", defaultValue="true")
+	private boolean conditionalOnProperty;
 	
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -35,6 +37,7 @@ public class CompileJspMojo extends AbstractMojo {
 			jspc.setUriroot(this.uriRoot);
 			jspc.setOutputDir(this.outputDir);
 			jspc.targetPackage = this.targetPackage;
+			jspc.conditionalOnProperty = this.conditionalOnProperty;
 			
             this.getLog().info( "Compiling jsps." );      
 			jspc.execute();

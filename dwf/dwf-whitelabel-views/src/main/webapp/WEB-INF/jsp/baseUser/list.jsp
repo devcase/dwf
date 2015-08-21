@@ -8,6 +8,6 @@
 <meta name="decorator" content="${!empty param.decorator ? param.decorator : 'crud' }" />
 </head>
 <body>
-<dwf:dataGrid columns="name,enabled" var="entity"/>
+<dwf:dataGrid columns="email,roles,enabled" var="entity"/>
 </body>
 </html>

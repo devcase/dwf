@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.WebApplicationContext;
 
-import dwf.persistence.annotations.constraints.Password;
 import dwf.persistence.validation.ValidationGroups;
 import dwf.user.domain.BaseUser;
 import dwf.user.domain.TokenType;

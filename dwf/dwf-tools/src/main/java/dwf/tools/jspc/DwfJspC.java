@@ -16,6 +16,8 @@ import org.apache.velocity.app.VelocityEngine;
 public class DwfJspC extends org.apache.jasper.JspC {
 	List<String[]> generatedJsps = new ArrayList<String[]>();
 	public String targetPackage;
+	public boolean conditionalOnProperty;
+	public boolean ovewriteExisting = true;
 
 	public static void main(String[] args)  {
 		try {
@@ -56,11 +58,12 @@ public class DwfJspC extends org.apache.jasper.JspC {
 		VelocityContext context = new VelocityContext();
 		context.put("generatedJsps", generatedJsps );
 		context.put("targetPackage", targetPackage );
+		context.put("conditionalOnProperty", conditionalOnProperty);
 		
 		File targDir = new File(scratchDir, targetPackage.replace('.', '/'));
 		targDir.mkdir();
 		File outputFile = new File(targDir, "GeneratedJspConfiguration.java");
-		generateFile(ve, context, outputFile, "GeneratedJspConfigurationTemplate.template", false);
+		generateFile(ve, context, outputFile, "GeneratedJspConfigurationTemplate.template", ovewriteExisting);
 
 	}
 	

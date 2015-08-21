@@ -290,6 +290,11 @@
 				<version>${dwf.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>br.com.devcase.dwf</groupId>
+				<artifactId>dwf-whitelabel-views</artifactId>
+				<version>${dwf.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
 				<version>1.8</version>
