@@ -50,7 +50,7 @@ import dwf.upload.image.RabbitAsyncImageResizer;
 import dwf.upload.image.SyncImageResizer;
 
 @Configuration
-@ComponentScan(basePackages = {"dwf.activitylog.service", "dwf.persistence", "dwf.multilang", "dwf.user"})
+@ComponentScan(basePackages = {"dwf.activitylog.service", "dwf.persistence", "dwf.multilang", "dwf.user", "dwf.slack"})
 @PropertySource("classpath:/dwf-data-default.properties")
 @ConfigurationProperties(prefix = "dwf.data")
 public class DwfDataAutoConfiguration  {
