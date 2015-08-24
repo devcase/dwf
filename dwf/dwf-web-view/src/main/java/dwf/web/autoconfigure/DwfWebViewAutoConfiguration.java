@@ -140,6 +140,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	 *
 	 */
 	@Configuration
+	@ConditionalOnWebApplication
 	static class LocaleChangeInterceptorConfiguration extends WebMvcConfigurerAdapter {
 		@Override
 		public void addInterceptors(InterceptorRegistry registry) {
@@ -174,6 +175,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	 *
 	 */
 	@Configuration
+	@ConditionalOnWebApplication
 	@AutoConfigureBefore(ErrorMvcAutoConfiguration.class)
 	static class ErrorPageConfiguration   {
 		@Autowired
@@ -205,6 +207,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	
 	
 	@Configuration
+	@ConditionalOnWebApplication
 	@ConditionalOnClass(MemcachedBackupSessionManager.class)
 	@ConditionalOnProperty("dwf.webview.memcachedsessionmanager.servers")
 	static class MemcachedSessionManagerConfiguration {
@@ -260,6 +263,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	 *
 	 */
 	@Configuration
+	@ConditionalOnWebApplication
 	@AutoConfigureBefore(EmbeddedServletContainerAutoConfiguration.class)
 	@ConditionalOnProperty(prefix = "dwf.generated.jsp.configuration", name = "enabled", matchIfMissing = false)
 	static class DwfTomcatEmbeddedServletContainerFactoryConfiguration {
@@ -324,6 +328,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	 * @return
 	 */
 	@Configuration
+	@ConditionalOnWebApplication
 	@ConditionalOnBean(org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory.class)
 	@Conditional(AdicionaDwfTagLibCondition.class)
 	@AutoConfigureAfter(EmbeddedServletContainerAutoConfiguration.class)
