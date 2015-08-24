@@ -58,6 +58,7 @@ import dwf.persistence.annotations.ConditionalGroup;
 import dwf.persistence.annotations.EntityStateValidator;
 import dwf.persistence.annotations.FillWithCurrentUser;
 import dwf.persistence.annotations.HideActivityLogValues;
+import dwf.persistence.annotations.IgnoreActivityLog;
 import dwf.persistence.annotations.Image;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.persistence.annotations.UpdatableProperty;
@@ -557,7 +558,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			}
 		}
 
-		List<UpdatedProperty> updatedProperties = new ArrayList<UpdatedProperty>();
+		List<UpdatedProperty> loggedUpdatedProperties = new ArrayList<UpdatedProperty>();
 
 		
 		ClassMetadata cm = sessionFactory.getClassMetadata(clazz);
@@ -632,19 +633,22 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 
 
 					UpdatedProperty up = new UpdatedProperty();
-					if (property.getReadMethod().getAnnotation(HideActivityLogValues.class) != null) {
-						up.setHiddenValues(true);
-					} else if(t.isAssociationType()) {
-						up.setNewValue(value != null ? t.toLoggableString(value, (SessionFactoryImplementor) sessionFactory) : "-");
-						up.setOldValue(oldValue != null ? t.toLoggableString(oldValue, (SessionFactoryImplementor) sessionFactory) : "-");
-						up.setHiddenValues(false);
-					} else {
-						up.setNewValue(value != null ? value.toString() : "-");
-						up.setOldValue(oldValue != null ? oldValue.toString() : "-");
-						up.setHiddenValues(false);
+					if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
+						if (property.getReadMethod().getAnnotation(HideActivityLogValues.class) != null) {
+							up.setHiddenValues(true);
+						} else if(t.isAssociationType()) {
+							up.setNewValue(value != null ? t.toLoggableString(value, (SessionFactoryImplementor) sessionFactory) : "-");
+							up.setOldValue(oldValue != null ? t.toLoggableString(oldValue, (SessionFactoryImplementor) sessionFactory) : "-");
+							up.setHiddenValues(false);
+						} else {
+							up.setNewValue(value != null ? value.toString() : "-");
+							up.setOldValue(oldValue != null ? oldValue.toString() : "-");
+							up.setHiddenValues(false);
+						}
+						up.setPropertyName(property.getName());
+						loggedUpdatedProperties.add(up);
 					}
-					up.setPropertyName(property.getName());
-					updatedProperties.add(up);
+					
 					BeanUtils.copyProperty(retrievedEntity, property.getName(), value);
 				}
 			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -652,12 +656,14 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 				throw new RuntimeException(e);
 			}
 		}
+		
+		if(!loggedUpdatedProperties.isEmpty()) {
+			activityLogService.logEntityUpdate(entity, loggedUpdatedProperties, groups);
+		}
 		retrievedEntity.setUpdateTime(new Date());
-
-		activityLogService.logEntityUpdate(entity, updatedProperties, groups);
-
 		getSession().update(retrievedEntity);
 		return retrievedEntity;
+
 	}
 
 	@Override
