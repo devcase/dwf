@@ -87,6 +87,25 @@
 										<ignore />
 									</action>
 								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											br.com.devcase.dwf
+										</groupId>
+										<artifactId>
+											dwf-maven-plugin
+										</artifactId>
+										<versionRange>
+											[2.0.0-RELEASE,)
+										</versionRange>
+										<goals>
+											<goal>webapp-jar</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
