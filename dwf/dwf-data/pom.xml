@@ -124,6 +124,7 @@
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk</artifactId>
+
 			<exclusions>
 				<exclusion>
 					<artifactId>httpclient</artifactId>
@@ -136,5 +137,6 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.5</version>
 		</dependency>
+
 	</dependencies>
 </project>
