@@ -20,7 +20,7 @@
 	%><spring:message code="label.${attrMap.name}" var="_labelText"  text=""/><%
 %></c:if><%
 %><c:if test="${empty _labelText}"><%-- PROCURA POR NOME DE ENTIDADE --%><%
-	%><spring:message code="domain.${attrMap.property}" var="_labelText"  text="?${entityName}.${attrMap.property}?"/><%
+	%><spring:message code="domain.${attrMap.property}" var="_labelText"  text="${attrMap.property}"/><%
 %></c:if><%
 %><%
 String varName = (String) getJspContext().getAttribute("var");
