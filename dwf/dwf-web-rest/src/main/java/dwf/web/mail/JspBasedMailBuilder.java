@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -40,6 +41,7 @@ import org.springframework.web.context.support.ContextExposingHttpServletRequest
  */
 @Component
 @ConditionalOnWebApplication
+@ConditionalOnBean(JavaMailSender.class)
 public class JspBasedMailBuilder {
 	@Autowired
 	private JavaMailSender javaMailSender;
