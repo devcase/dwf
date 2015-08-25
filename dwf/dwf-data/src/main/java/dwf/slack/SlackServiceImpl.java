@@ -34,14 +34,24 @@ public class SlackServiceImpl implements SlackService {
 		this.slackApiUrl = slackApiUrl;
 	}
 	
-	public void postMessage(String channel, String text) {
+	/**
+	 * @see {@link https://api.slack.com/methods/chat.postMessage}
+	 */
+	public void postMessage(String channel, String text, String... extraArgs) {
 		RestTemplate restTemplate = new RestTemplate();
 		MultiValueMap<String, Object> request = new LinkedMultiValueMap<String, Object>();
 		request.add("token", slackApiToken);
 		request.add("text", text);
 		request.add("channel", channel);
 		
+		if(extraArgs!= null) {
+			for (int i = 0; i+1 < extraArgs.length; i+=2) {
+				request.add(extraArgs[i], extraArgs[i+1]);
+			}
+		}
+		
 		ResponseEntity<String> resp = restTemplate.postForEntity(slackApiUrl + "chat.postMessage", request, String.class);
-		log.info("Response got from SLACK: " + resp);
+		log.debug("Response got from SLACK: " + resp);
 	}
+	
 }
