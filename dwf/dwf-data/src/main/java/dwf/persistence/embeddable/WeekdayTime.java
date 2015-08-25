@@ -114,4 +114,10 @@ public class WeekdayTime implements Serializable{
 	public static String formatOf(String weekday, String time){
 		return weekday + "-" + time;
 	}
+	
+	@Transient
+	@Override
+	public String toString(){
+		return format();
+	}
 }
