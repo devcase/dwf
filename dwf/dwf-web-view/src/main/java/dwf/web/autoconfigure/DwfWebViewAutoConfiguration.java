@@ -133,6 +133,11 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	public AjaxHashKeyManager ajaxHashKeyManager() {
 		return new AjaxHashKeyManager();
 	}
+	
+	@Bean
+	public static BaseControllerBeanDefinitionPostProcessor baseControllerBeanDefinitionPostProcessor(){
+		return new BaseControllerBeanDefinitionPostProcessor(); 
+	}
 
 	/**
 	 * Registers LocaleChangeInterceptor, that looks for a request paramenter called `locale`
