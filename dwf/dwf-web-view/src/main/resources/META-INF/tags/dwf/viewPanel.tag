@@ -33,9 +33,18 @@
 		<div class="panel-body">
 </c:if>
 
+
+
+
 		<div class="form-horizontal" >
 			<jsp:doBody />
-			<dwf:outputText property="enabled" styleClass="label ${entity.enabled eq true ? 'label-success' : 'label-danger'}"></dwf:outputText>
+			<%-- FIELDS ATTRIBUTE --%>
+			<c:if test="${!empty attrMap.fields}">
+				<c:forTokens items="${attrMap.fields}" delims="," var="fieldName"><dwf:outputText property="${fieldName}"/>
+				</c:forTokens>
+			</c:if>
+			<%-- ENABLED - shows by default --%>
+			<c:if test="${empty attrMap.showEnabledField || attrMap.showEnabledField eq true}"><dwf:outputText property="enabled" styleClass="label ${entity.enabled eq true ? 'label-success' : 'label-danger'}"></dwf:outputText></c:if>
 		</div>
 		
 <c:if test="${!attrMap.panelless}">		
