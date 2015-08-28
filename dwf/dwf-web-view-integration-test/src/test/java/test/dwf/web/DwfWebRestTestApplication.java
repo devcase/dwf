@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan
 public class DwfWebRestTestApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DwfWebRestTestApplication.class, args);
