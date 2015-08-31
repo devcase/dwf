@@ -15,6 +15,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -23,7 +24,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.bind.RelaxedDataBinder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -203,7 +206,6 @@ public class DwfDataAutoConfiguration  {
 		 */
 		@Configuration
 		@ConditionalOnProperty(prefix="dwf.rabbitmq.listener", name="enabled")
-//		@ConditionalOnBean(AsyncImporterConfiguration.class)
 		static class ListenerConfiguration {
 			@Value("${dwf.data.asyncimporter.queuename:nonono}")
 			private String queueName = "";
@@ -290,7 +292,6 @@ public class DwfDataAutoConfiguration  {
 	
 	@Configuration
 	static class ImageResizerConfiguration {
-		
 		@Configuration
 		@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "s3-async")
 		static class AsyncConfig {
@@ -326,6 +327,41 @@ public class DwfDataAutoConfiguration  {
 		@ConditionalOnBean(UploadManager.class)
 		public ImageResizer imageResizer() {
 			return new SyncImageResizer();
+		}
+	}
+	
+	@Configuration
+	@ConfigurationProperties(prefix = "spring.datasource")
+	@EnableConfigurationProperties
+	protected static class DataSourcePoolConfiguration {
+		
+		private Map<String, String> properties;
+		public Map<String, String> getProperties() {
+			return properties;
+		}
+		public void setProperties(Map<String, String> properties) {
+			this.properties = properties;
+		}
+
+
+		@Bean
+		public BeanPostProcessor dataSourcePostProcessor() {
+			return new BeanPostProcessor() {
+				
+				@Override
+				public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+					if( properties!=null && bean instanceof DataSource) {
+						MutablePropertyValues pv = new MutablePropertyValues(properties);
+						new RelaxedDataBinder(bean).bind(pv);
+					}
+					return bean;
+				}
+				
+				@Override
+				public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+					return bean;
+				}
+			};
 		}
 	}
 }
