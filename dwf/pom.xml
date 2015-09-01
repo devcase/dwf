@@ -31,14 +31,14 @@
 	<!-- see configuration instructions (settings.xml): https://github.com/spring-projects/aws-maven -->
 	<distributionManagement>
 		<repository>
-			<id>devcase-repo</id>
+			<id>devcase-sp-repo</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>s3://devcase-repo/release</url>
+			<url>s3://devcase-sp-repo/release</url>
 		</repository>
 		<snapshotRepository>
-			<id>devcase-repo-snapshots</id>
+			<id>devcase-sp-repo-snapshots</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>s3://devcase-repo/snapshot</url>
+			<url>s3://devcase-sp-repo/snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
 	<build>

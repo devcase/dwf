@@ -157,14 +157,14 @@
 	<!-- see configuration instructions (settings.xml): https://github.com/spring-projects/aws-maven -->
 	<distributionManagement>
 		<repository>
-			<id>devcase-repo</id>
+			<id>devcase-sp-repo</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>s3://devcase-repo/release</url>
+			<url>s3://devcase-sp-repo/release</url>
 		</repository>
 		<snapshotRepository>
-			<id>devcase-repo-snapshots</id>
+			<id>devcase-sp-repo-snapshots</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>s3://devcase-repo/snapshot</url>
+			<url>s3://devcase-sp-repo/snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
 	<repositories>
@@ -177,17 +177,17 @@
 			</snapshots>
 		</repository>
 		<repository>
-			<id>devcase-repo</id>
+			<id>devcase-sp-repo</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>http://devcase-repo.s3-website-us-east-1.amazonaws.com/release</url>
+			<url>http://devcase-sp-repo.s3.amazonaws.com/release</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
 		<repository>
-			<id>devcase-repo-snapshots</id>
+			<id>devcase-sp-repo-snapshots</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>http://devcase-repo.s3-website-us-east-1.amazonaws.com/snapshot</url>
+			<url>http://devcase-sp-repo.s3.amazonaws.com/snapshot</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
@@ -203,17 +203,17 @@
 			</snapshots>
 		</pluginRepository>
 		<pluginRepository>
-			<id>devcase-repo</id>
+			<id>devcase-sp-repo</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>http://devcase-repo.s3-website-us-east-1.amazonaws.com/release</url>
+			<url>http://devcase-sp-repo.s3.amazonaws.com/release</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
 		</pluginRepository>
 		<pluginRepository>
-			<id>devcase-repo-snapshots</id>
+			<id>devcase-sp-repo-snapshots</id>
 			<name>Devcase Repository S3 Bucket</name>
-			<url>http://devcase-repo.s3-website-us-east-1.amazonaws.com/snapshot</url>
+			<url>http://devcase-sp-repo.s3.amazonaws.com/snapshot</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
