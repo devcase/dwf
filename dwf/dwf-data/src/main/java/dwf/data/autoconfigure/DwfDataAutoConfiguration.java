@@ -235,10 +235,10 @@ public class DwfDataAutoConfiguration  {
 	@Configuration
 	static class UploadManagerConfiguration {
 		@Configuration
-		@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "filesystem")
+		@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "filesystem", matchIfMissing=true)
 		static class FileSystemUploadManagerConfiguration {
 
-			@Value("${dwf.web.uploadmanager.directory:'/temp'}")
+			@Value("${dwf.web.uploadmanager.directory:'/tmp'}")
 			private String directory = "testdb";
 
 			@Bean
@@ -316,16 +316,14 @@ public class DwfDataAutoConfiguration  {
 			}
 
 			@Bean
-			@ConditionalOnBean(UploadManager.class)
-			public ImageResizer imageResizer() {
+			public ImageResizer imageResizer(UploadManager uploadManager) {
 				return new RabbitAsyncImageResizer(queueName);
 			}
 		}
 		
 		@Bean
 		@ConditionalOnMissingBean(ImageResizer.class)
-		@ConditionalOnBean(UploadManager.class)
-		public ImageResizer imageResizer() {
+		public ImageResizer imageResizer(UploadManager uploadManager) {
 			return new SyncImageResizer();
 		}
 	}
