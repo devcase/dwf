@@ -28,6 +28,7 @@
 		<dwf.version>2.1.5-SNAPSHOT</dwf.version>
 		<java.version>1.8</java.version>
 		<jackson.version>2.6.1</jackson.version>
+		<aws-java-sdk.version>1.10.15</aws-java-sdk.version>
 	</properties>
 	<!-- see configuration instructions (settings.xml): https://github.com/spring-projects/aws-maven -->
 	<distributionManagement>
@@ -392,7 +393,12 @@
 			<dependency>
 				<groupId>com.amazonaws</groupId>
 				<artifactId>aws-java-sdk-s3</artifactId>
-				<version>1.10.15</version>
+				<version>${aws-java-sdk.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.amazonaws</groupId>
+				<artifactId>aws-java-sdk-sns</artifactId>
+				<version>${aws-java-sdk.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
