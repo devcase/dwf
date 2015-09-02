@@ -1,9 +1,5 @@
 package dwf.web.autoconfigure;
 
-import javax.sql.DataSource;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -13,15 +9,13 @@ import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import dwf.web.rest.autoconfigure.DwfWebRestAutoConfiguration;
@@ -35,29 +29,23 @@ public class DwfWebViewSecurityAutoConfiguration {
 	@Configuration
 	@ConditionalOnProperty(prefix="dwf.security.web", value="enabled", matchIfMissing=true)
 	static class WebDefaultConfig  {
+		@Autowired
+		private UserDetailsService userDetailsService;
 		
-		/**
-		 * Repositório JDBC para armazenar tokens para a função Remember-me
-		 * @param dataSource
-		 * @return
-		 */
-		@Bean
-		public PersistentTokenRepository tokenRepository(DataSource dataSource) {
-			JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl() {
-				Log log = LogFactoryImpl.getLog(getClass());
+		@Value("${dwf.security.web.tokenbasedrememberme.key}")
+		private String rememberMeTokenKey;
+		public String getRememberMeTokenKey() {
+			return rememberMeTokenKey;
+		}
+		public void setRememberMeTokenKey(String rememberMeTokenKey) {
+			this.rememberMeTokenKey = rememberMeTokenKey;
+		}
 
-				@Override
-				protected void initDao() {
-					try {
-						getJdbcTemplate().execute(CREATE_TABLE_SQL);
-					} catch (Exception ignore) {
-						log.info("Could not create persistent_logins table - it probably already exists: " + ignore.getMessage());
-					}
-				}
-				
-			};
-			tokenRepository.setDataSource(dataSource);
-			return tokenRepository;
+
+		@Bean
+		public RememberMeServices rememberMeServices() {
+			TokenBasedRememberMeServices rememberMeServices = new TokenBasedRememberMeServices(rememberMeTokenKey, userDetailsService);
+			return rememberMeServices;
 		}
 	}
 	
@@ -67,13 +55,18 @@ public class DwfWebViewSecurityAutoConfiguration {
 	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER + 1)
 	@EnableWebSecurity
 	static class DwfWebSecurityConfig extends WebSecurityConfigurerAdapter {
-		@Autowired
-		private PersistentTokenRepository tokenRepository;
 		
+		@Autowired
+		private RememberMeServices rememberMeServices;
+		@Autowired
+		private UserDetailsService userDetailsService;
+
 		@Value("${dwf.security.web.permitallpatterns:}")
 		private String[] permitAllPatterns = new String[0];
 		@Value("${dwf.security.web.ignorecsrfpatterns:}")
 		private String[] ignoreCsrfPatterns = new String[0];
+		@Value("${dwf.security.web.tokenbasedrememberme.key}")
+		private String rememberMeTokenKey;
 		
 
 		@Override
@@ -92,7 +85,7 @@ public class DwfWebViewSecurityAutoConfiguration {
 					.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
 					.invalidateHttpSession(true)
 					.and()
-				.rememberMe().tokenRepository(tokenRepository);
+				.rememberMe().rememberMeServices(rememberMeServices).userDetailsService(userDetailsService).key(rememberMeTokenKey);
 			
 			
 			ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorize = http.authorizeRequests();
