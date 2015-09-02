@@ -262,59 +262,7 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	}
 
 
-	/**
-	 * Customizations that will improve the startup time
-	 * @author Hirata
-	 *
-	 */
-	@Configuration
-	@ConditionalOnWebApplication
-	@AutoConfigureBefore(EmbeddedServletContainerAutoConfiguration.class)
-	@ConditionalOnProperty(prefix = "dwf.generated.jsp.configuration", name = "enabled", matchIfMissing = false)
-	static class DwfTomcatEmbeddedServletContainerFactoryConfiguration {
-		@Bean
-		public TomcatEmbeddedServletContainerFactory tomcatEmbeddedServletContainerFactory() {
-			TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory() {
 
-				@Override
-				protected void configureContext(Context context, ServletContextInitializer[] initializers) {
-					super.configureContext(context, initializers);
-					
-					//disables jar scanning - tld are already compiled
-					context.getJarScanner();
-					StandardJarScanner standardJarScanner = (StandardJarScanner) context.getJarScanner();
-					standardJarScanner.setScanAllDirectories(false);
-					standardJarScanner.setScanClassPath(false);
-
-					try {
-						//needed for compiled jsp (still don't know exactly why)
-						ServletContainerInitializer initializer = (ServletContainerInitializer) ClassUtils
-								.forName("org.apache.jasper.servlet.JasperInitializer", null)
-								.newInstance();
-						context.addServletContainerInitializer(initializer, null);
-					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | LinkageError e) {
-					}
-				}
-
-				@Override
-				protected void customizeConnector(Connector connector) {
-					//binds the port on initialization, tricking heroku
-					super.customizeConnector(connector);
-					connector.setProperty("bindOnInit", "true");
-					try {
-						connector.init();
-					} catch (LifecycleException e) {
-						throw new RuntimeException (e);
-					}
-				}
-			};
-			
-			//don't register JspServlet - uses compiled jsp
-			factory.setRegisterJspServlet(false);
-			return factory;
-		}
-
-	}
 	
 	/**
 	 * <p>Workaround maldito para usar a taglib do dwf-web-view como item do classpath como diretório
