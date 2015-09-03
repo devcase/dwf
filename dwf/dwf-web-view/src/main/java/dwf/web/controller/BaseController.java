@@ -19,6 +19,7 @@ import javax.validation.ValidationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
@@ -154,7 +155,7 @@ public abstract class BaseController implements ApplicationContextAware {
 	@InitBinder
 	public void bindingPreparation(WebDataBinder binder, HttpServletRequest request) {
 		Locale locale = RequestContextUtils.getLocale(request);
-		DecimalFormat df = new DecimalFormat("0.0", new DecimalFormatSymbols(locale));
+		DecimalFormat df = new DecimalFormat("#,##0.0", new DecimalFormatSymbols(locale));
 		binder.registerCustomEditor(Double.class, new CustomNumberEditor(Double.class, df, true));
 		binder.registerCustomEditor(BigDecimal.class, new CustomNumberEditor(BigDecimal.class, df, true));
 		binder.registerCustomEditor(Float.class, new CustomNumberEditor(Float.class, df, true));
@@ -162,7 +163,8 @@ public abstract class BaseController implements ApplicationContextAware {
 		binder.registerCustomEditor(double.class, new CustomNumberEditor(Double.class, df, true));
 		binder.registerCustomEditor(Integer.class, new CustomNumberEditor(Integer.class, df, true));
 		binder.registerCustomEditor(int.class, new CustomNumberEditor(Integer.class, df, true));
-		
+		binder.registerCustomEditor(String.class, new StringTrimmerEditor(true)); //string vazias viram nulll
+
 		Map<String, CustomPropertyEditorFactory> editorFactories = applicationContext.getBeansOfType(CustomPropertyEditorFactory.class);
 		for (CustomPropertyEditorFactory customEditorFactory : editorFactories.values()) {
 			PropertyEditor customEditor = customEditorFactory.getPropertyEditor(request);
