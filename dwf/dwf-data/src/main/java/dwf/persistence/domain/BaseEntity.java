@@ -1,7 +1,6 @@
 package dwf.persistence.domain;
 
 import java.io.Serializable;
-import java.text.Normalizer;
 import java.util.Date;
 
 import javax.persistence.Access;
@@ -16,9 +15,10 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import dwf.persistence.annotations.ExcludeFromSerialization;
 import dwf.persistence.annotations.MongoId;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.serialization.View;
@@ -26,6 +26,7 @@ import dwf.utils.SearchstringUtils;
 
 @MappedSuperclass
 @Access(AccessType.PROPERTY)
+@JsonIgnoreProperties({"parent", "autocompleteText"})
 public abstract class BaseEntity<ID extends Serializable> implements Serializable {
 	
 	/**
@@ -34,11 +35,8 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	private static final long serialVersionUID = 6441974999647599671L;
 	private ID id;
 	
-	@ExcludeFromSerialization
 	private boolean enabled = true;
-	@JsonView(View.Summary.class)
 	private Date creationTime;
-	@ExcludeFromSerialization
 	private Date updateTime;
 
 	@Id @MongoId
@@ -100,6 +98,8 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(nullable=false, updatable=false)
 	@NotEditableProperty()
+	@JsonView(View.Summary.class)
+	
 	public Date getCreationTime() {
 		return creationTime;
 	}
@@ -143,6 +143,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	
 	@Column(length=1000, name="autocompletetext")
 	@NotEditableProperty()
+	@JsonIgnore
 	public String getAutocompleteText() {
 		String text = getDisplayText();
 		if(text != null && text.length() > 1000)

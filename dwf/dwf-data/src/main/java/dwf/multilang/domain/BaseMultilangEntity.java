@@ -10,6 +10,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import dwf.persistence.annotations.NotEditableProperty;
@@ -17,6 +18,7 @@ import dwf.persistence.domain.BaseEntity;
 import dwf.serialization.View;
 
 @MappedSuperclass
+@JsonIgnoreProperties({"translationClass", "defaultLanguage"})
 public abstract class BaseMultilangEntity<T extends Translation<?>> extends BaseEntity<Long> {
 	/**
 	 * 

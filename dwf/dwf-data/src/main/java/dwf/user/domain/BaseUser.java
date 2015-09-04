@@ -16,6 +16,7 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import dwf.persistence.annotations.HideActivityLogValues;
@@ -61,6 +62,7 @@ public class BaseUser extends BaseEntity<Long> {
 	@Column(length=200)
 	@UpdatableProperty(groups=ValidationGroups.ChangePassword.class)
 	@HideActivityLogValues
+	@JsonIgnore
 	public String getHashedpass() {
 		return hashedpass;
 	}
@@ -70,6 +72,7 @@ public class BaseUser extends BaseEntity<Long> {
 	}
 	
 	@Temporal(TemporalType.TIMESTAMP)
+	@JsonIgnore
 	public Date getExpirationDate() {
 		return expirationDate;
 	}
@@ -78,6 +81,7 @@ public class BaseUser extends BaseEntity<Long> {
 		this.expirationDate = expirationDate;
 	}
 	
+	@JsonIgnore
 	public boolean isVerified() {
 		return verified;
 	}
@@ -92,6 +96,7 @@ public class BaseUser extends BaseEntity<Long> {
 	}
 
 	@ElementCollection
+	@JsonIgnore
 	public List<String> getRoles() {
 		return roles;
 	}
@@ -101,6 +106,7 @@ public class BaseUser extends BaseEntity<Long> {
 	}
 	
 	@Transient
+	@JsonIgnore
 	public boolean isExpired() {
 		return expirationDate != null && expirationDate.getTime() < System.currentTimeMillis();
 	}
