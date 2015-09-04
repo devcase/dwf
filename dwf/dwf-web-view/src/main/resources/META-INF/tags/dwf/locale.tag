@@ -1,5 +1,5 @@
-<%@tag import="java.text.DecimalFormatSymbols"%>
-<%@tag import="org.springframework.web.servlet.DispatcherServlet"%><%@tag import="org.springframework.web.servlet.LocaleResolver"%><%@tag import="java.util.Locale"
+<%@tag import="java.text.DecimalFormatSymbols"
+%><%@tag import="org.springframework.web.servlet.DispatcherServlet"%><%@tag import="org.springframework.web.servlet.LocaleResolver"%><%@tag import="java.util.Locale"
 %><%@ attribute name="var" required="false" type="java.lang.String"
 %><%@ attribute name="format" required="false" type="java.lang.String"
 %><%
