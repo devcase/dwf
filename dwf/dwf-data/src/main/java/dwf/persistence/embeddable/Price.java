@@ -27,6 +27,13 @@ public class Price implements Serializable {
 	public Price() {
 		super();
 	}
+	
+
+	public Price(Double value, String currencyCode) {
+		this.value = value;
+		this.currencyCode = currencyCode;
+	}
+
 
 
 	@Column(name="price_value")
