@@ -297,3 +297,11 @@ $(document).on("submit", "form.dwf-progressbaronsubmit", function(evt) {
 	$(this).css({'position': 'relative'});
 	$(this).append('<div style="position:absolute; height: 100%; width: 100%; z-index: 1000; top:0; "><div class="progress no-margin"  style="left: 20%; width: 60%; top: 50%;position: relative;transform: translateY(-50%);"><div class="progress-bar progress-bar-striped active"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"></div></div></div>');
 });
+
+/**
+ * <dwf:inputPrice>
+ */
+$(document).on("change", ".dwf-input-price-dropdown-item input[type='radio']", function() {
+	var labelText = $(this).attr('labelText');
+	$(this).closest('.dwf-input-price').find('.dwf-input-price-dropdown-button-text').html(labelText);
+});
