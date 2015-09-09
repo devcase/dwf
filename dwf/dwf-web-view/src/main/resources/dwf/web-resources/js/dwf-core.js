@@ -31,6 +31,7 @@ $.extend($.validator.methods, {
 $.validator.addClassRules("validate-date", { date: true });
 $.validator.addClassRules("validate-number", { number: true });
 $.validator.addClassRules("validate-digits", { digits: true });
+$.validator.addClassRules("validate-email", { email: true });
 $.validator.addClassRules("required", { required: true });
 
 /**
@@ -303,4 +304,11 @@ $(document).on("submit", "form.dwf-progressbaronsubmit", function(evt) {
 $(document).on("change", ".dwf-input-price-dropdown-item input[type='radio']", function() {
 	var labelText = $(this).attr('labelText');
 	$(this).closest('.dwf-input-price').find('.dwf-input-price-dropdown-button-text').html(labelText);
+});
+
+/**
+ * <dwf:inputEmail>
+ */
+$(document).on("change", "input.dwf-auto-trimandlowercase", function() {
+	$(this).val($(this).val().trim().toLowerCase());
 });

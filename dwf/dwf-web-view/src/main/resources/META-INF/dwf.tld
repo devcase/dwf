@@ -258,5 +258,9 @@
 		<name>inputBankCodeCombo</name>
 		<path>/META-INF/tags/dwf/inputBankCodeCombo.tag</path>
 	</tag-file>
+	<tag-file>
+		<name>inputEmail</name>
+		<path>/META-INF/tags/dwf/inputEmail.tag</path>
+	</tag-file>
 	
 </taglib>
