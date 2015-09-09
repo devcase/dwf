@@ -12,7 +12,7 @@
 %>
 <%-- has to be inside form (verifies result on submit) - see dwf-core.js --%>
 <dwf:formGroup parentAttrMap="${attrMap}" withoutLabel="true">
-	<div class="g-recaptcha" data-sitekey="${publickey}" data-callback="reCaptchaRemoveError"></div>
+	<div class="g-recaptcha" data-sitekey="${publickey}" data-callback="reCaptchaRemoveError"></div><%-- See dwf-core.js --%>
 <%-- text parameter is shown only if it can't find label by code (in correct language) --%>
 	<span class="recaptcha-error" style="display: none"><spring:message code="label.recaptchaError" text="Please, show us you are human."></spring:message></span>
 </dwf:formGroup>

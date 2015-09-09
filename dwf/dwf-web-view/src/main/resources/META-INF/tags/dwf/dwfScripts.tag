@@ -58,4 +58,4 @@ getJspContext().setAttribute("groupingSeparator", grouping);
 <script type="text/javascript" src="${appPath}/resources/js/dwf-paginator.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-horizontal-scroller.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-autoreload.js"></script>
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script src="https://www.google.com/recaptcha/api.js?hl=<dwf:locale format='language'/>" async defer></script>
