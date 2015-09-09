@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import dwf.persistence.annotations.HideActivityLogValues;
 import dwf.persistence.annotations.UniqueValue;
 import dwf.persistence.annotations.UpdatableProperty;
+import dwf.persistence.annotations.constraints.Lowercase;
 import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.validation.ValidationGroups;
 import dwf.serialization.View;
@@ -50,6 +51,7 @@ public class BaseUser extends BaseEntity<Long> {
 	
 	@NotEmpty
 	@Email
+	@Lowercase
 	@NaturalId(mutable=true)
 	public String getEmail() {
 		return email;
