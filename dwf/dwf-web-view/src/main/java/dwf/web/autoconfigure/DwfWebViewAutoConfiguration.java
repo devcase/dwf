@@ -63,6 +63,7 @@ import de.javakaffee.web.msm.MemcachedBackupSessionManager;
 import dwf.web.AjaxHashKeyManager;
 import dwf.web.sitemesh.SitemeshView;
 import dwf.web.spring.DwfReCaptchaInterceptor;
+import dwf.web.spring.ExposeApplicationContextFilter;
 
 @Configuration
 @ComponentScan(basePackages = {"dwf.web"})
@@ -93,6 +94,11 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		return viewResolver;
 	}
 	
+	@Bean
+	public ExposeApplicationContextFilter exposeApplicationContextFilter() {
+		return new ExposeApplicationContextFilter();
+	}
+	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		//<!-- Ao acessar urls do tipo /resources/, ele procura na pasta da aplicação e, depois, nos arquivos do dwf -->
@@ -120,6 +126,8 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(new DwfReCaptchaInterceptor(recaptchaPrivateKey)).addPathPatterns("/**");
 	}
+	
+	
 
 	@Bean
 	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
