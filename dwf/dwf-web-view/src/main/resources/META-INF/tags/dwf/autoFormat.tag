@@ -1,7 +1,14 @@
-<%-- ATENÇÃO - NÃO quebre linhas! --%><%@tag import="dwf.persistence.embeddable.Price"%><%@tag import="java.util.TimeZone"%><%@tag import="org.apache.commons.lang3.time.DateUtils"%><%@tag import="org.springframework.web.context.support.WebApplicationContextUtils"%><%@tag import="dwf.multilang.TranslationManager"%><%@tag import="java.util.Locale"%><%@tag import="org.springframework.context.i18n.LocaleContextHolder"%><%@tag import="dwf.multilang.domain.BaseMultilangEntity"%><%@tag import="java.util.Calendar"%><%@tag import="java.util.Date"%><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%><%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%><%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%><%@taglib uri="http://www.springframework.org/tags" prefix="spring"%><%@ attribute name="value" required="true" type="java.lang.Object"%><%
+<%-- ATENÇÃO - NÃO quebre linhas! --%><%@tag import="dwf.persistence.embeddable.Price"%><%@tag import="java.util.TimeZone"%><%@tag import="org.apache.commons.lang3.time.DateUtils"%><%@tag import="org.springframework.web.context.support.WebApplicationContextUtils"%><%@tag import="dwf.multilang.TranslationManager"%><%@tag import="java.util.Locale"%><%@tag import="org.springframework.context.i18n.LocaleContextHolder"%><%@tag import="dwf.multilang.domain.BaseMultilangEntity"%><%@tag import="java.util.Calendar"%><%@tag import="java.util.Date"%><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%><%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%><%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%><%@taglib uri="http://www.springframework.org/tags" prefix="spring"
+%><%@ attribute name="format" required="false" type="java.lang.String"%><%
+%><%@ attribute name="value" required="true" type="java.lang.Object"%><%
 	Object value = getJspContext().getAttribute("value");
 	if(value == null) {
 		return;
+	}
+	
+	String format = (String) getJspContext().getAttribute("format");
+	if(format != null && !format.isEmpty()) {
+		getJspContext().setAttribute("format", format);
 	} else if (value instanceof CharSequence) {
 		getJspContext().setAttribute("format", "string");
 	} else if (value instanceof Number) {
@@ -21,10 +28,10 @@
 		
 		if(hasTime && hasDate) {
 			getJspContext().setAttribute("format", "datetime");
-		} else if (hasTime) {
-			getJspContext().setAttribute("format", "time");
-		} else {
+		} else if (hasDate) {
 			getJspContext().setAttribute("format", "date");
+		} else {
+			getJspContext().setAttribute("format", "time");
 		}
 		String datePatternJava;
 		Locale locale = LocaleContextHolder.getLocale();
