@@ -12,7 +12,12 @@
 		<c:forEach begin="${!empty attrMap.min ? attrMap.min : 0}" end="${!empty attrMap.max ? attrMap.max : 100}" varStatus="loopStatus">
 			<option value="${loopStatus.index}"
 				<c:if test="${loopStatus.index eq value}">selected</c:if>
-				>${loopStatus.index}</option>
+				>${loopStatus.index}
+				<c:choose>
+					<c:when test="${!empty attrMap.pluralunit and loopStatus.index ne 1}"> <spring:message code="${attrMap.pluralunit}" text="${attrMap.pluralunit}"/></c:when>
+					<c:when test="${!empty attrMap.unit}"> <spring:message code="${attrMap.unit}" text="${attrMap.unit}"/></c:when>
+				</c:choose>
+				</option>
 		</c:forEach>
-	</select>
+	</select> 
 </dwf:formGroup>
