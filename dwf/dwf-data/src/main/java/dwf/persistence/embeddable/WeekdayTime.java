@@ -37,6 +37,12 @@ public class WeekdayTime implements Serializable{
 		setWeekdayTime(string);
 	}
 	
+	public WeekdayTime(LocalTime time, DayOfWeek weekday) {
+		super();
+		setTime(time);
+		this.weekday = weekday;
+	}
+
 	@JsonView(View.Summary.class)
 	@Transient
 	public LocalTime getTime() {
