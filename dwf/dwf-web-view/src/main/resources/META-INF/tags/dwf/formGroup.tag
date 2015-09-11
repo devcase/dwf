@@ -13,9 +13,9 @@ Atributos:
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
-<%@ variable name-given="name" scope="AT_BEGIN" %>
-<%@ variable name-given="value" scope="AT_BEGIN" variable-class="java.lang.Object"%>
-<%@ variable name-given="label" scope="AT_BEGIN" variable-class="java.lang.String"%>
+<%@ variable name-given="name" scope="NESTED" %>
+<%@ variable name-given="value" scope="NESTED" variable-class="java.lang.Object"%>
+<%@ variable name-given="label" scope="NESTED" variable-class="java.lang.String"%>
 <dwf:mergeMaps map1="${attrMap}" map2="${attrMap.parentAttrMap}" var="attrMap"/>
 <dwf:simpleLabel parentAttrMap="${attrMap}" var="label"/>
 <%-- VALOR PADRÃO E NOME DO INPUT --%>
