@@ -262,5 +262,13 @@
 		<name>inputEmail</name>
 		<path>/META-INF/tags/dwf/inputEmail.tag</path>
 	</tag-file>
+	<tag-file>
+		<name>inputWeekdayTimes</name>
+		<path>/META-INF/tags/dwf/inputWeekdayTimes.tag</path>
+	</tag-file>
+	<tag-file>
+		<name>valueForInput</name>
+		<path>/META-INF/tags/dwf/valueForInput.tag</path>
+	</tag-file>
 	
 </taglib>
