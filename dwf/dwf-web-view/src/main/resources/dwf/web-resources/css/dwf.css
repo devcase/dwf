@@ -217,7 +217,7 @@ a.horizontal-scroller-control {
 }
 
 
-/* <dwf:inputWeekdayTimes> */
+/* <dwf:inputWeekdayTimes>/<dwf:inputDayOfWeekTimeCalendar> */
 .pagination.carousel-indicators {
 	position: inherit;
 	bottom: 0px;
@@ -228,6 +228,7 @@ a.horizontal-scroller-control {
   	padding-left: 0;
   	text-align: center;
   	margin: 0px;
+  	margin-bottom: 5px;
 }
 .pagination.carousel-indicators li {
     display: inline;
@@ -239,4 +240,14 @@ a.horizontal-scroller-control {
     border: none;
     border-radius: 0px;
     background-color:transparent;
+}
+td.dwf-inputdayofweektime-inputtd,td.dwf-inputdayofweektime-labeltd {
+	padding:0px 8px !important;
+}
+td.dwf-inputdayofweektime-inputtd {
+	padding:0px 0px !important;
+	width: 12% !important;
+}
+td.dwf-inputdayofweektime-inputtd>label {
+	width: 100%; height:100%;
 }

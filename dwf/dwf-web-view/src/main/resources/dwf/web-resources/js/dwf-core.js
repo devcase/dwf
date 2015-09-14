@@ -312,3 +312,39 @@ $(document).on("change", ".dwf-input-price-dropdown-item input[type='radio']", f
 $(document).on("change", "input.dwf-auto-trimandlowercase", function() {
 	$(this).val($(this).val().trim().toLowerCase());
 });
+
+/**
+ * <dwf:inputDayOfWeekSchedule>
+ */
+$(document).on("click", ".dwf-check-all-checkbox-from-row", function() {
+	var $cboxes = $(this).closest('tr').find('input[type="checkbox"]');
+	if($cboxes.not(':checked').size() > 0) {
+		$cboxes.prop('checked', true);
+		$cboxes.trigger('change');
+	} else {
+		$cboxes.prop('checked', false);
+		$cboxes.trigger('change');
+	}
+});
+$(document).on("click", ".dwf-check-all-checkbox-from-column", function() {
+	var $colindex = $(this).closest('th,td')[0].cellIndex + 1;
+	var $cboxes = $(this).closest('table').find('tr>:nth-child(' + $colindex + ') input[type="checkbox"]');
+	if($cboxes.not(':checked').size() > 0) {
+		$cboxes.prop('checked', true);
+		$cboxes.trigger('change');
+	} else {
+		$cboxes.prop('checked', false);
+		$cboxes.trigger('change');
+	}
+});
+$(document).on("change", ".dwf-checkbox-listener input[type='checkbox']", function() {
+	if($(this).prop("checked") ) {
+		$(this).closest('.dwf-checkbox-listener').addClass('info');
+	} else {
+		$(this).closest('.dwf-checkbox-listener').removeClass('info');
+	}
+});
+$(document).on("dwf-postupdate", function() {
+	$(this).find(".dwf-checkbox-listener input[type='checkbox']:checked").closest('.dwf-checkbox-listener').addClass('info');
+	$(this).find(".dwf-checkbox-listener input[type='checkbox']").not(":checked").closest('.dwf-checkbox-listener').removeClass('info');
+});

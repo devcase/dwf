@@ -267,6 +267,10 @@
 		<path>/META-INF/tags/dwf/inputWeekdayTimes.tag</path>
 	</tag-file>
 	<tag-file>
+		<name>inputDayOfWeekTimeSchedule</name>
+		<path>/META-INF/tags/dwf/inputDayOfWeekTimeSchedule.tag</path>
+	</tag-file>
+	<tag-file>
 		<name>valueForInput</name>
 		<path>/META-INF/tags/dwf/valueForInput.tag</path>
 	</tag-file>

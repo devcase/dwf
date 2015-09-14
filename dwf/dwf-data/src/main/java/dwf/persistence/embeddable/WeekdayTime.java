@@ -17,7 +17,13 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import dwf.serialization.View;
 
+/**
+ * 
+ * @author hirata
+ * @deprecated See {@link DayOfWeekTime}
+ */
 @Embeddable
+@Deprecated
 public class WeekdayTime implements Serializable{
 	
 	/**
