@@ -11,5 +11,5 @@
 		<c:if test="${!empty attrMap.maxlength}">maxlength="${attrMap.maxlength}"</c:if>
 		<c:if test="${empty attrMap.maxlength}">maxlength="200"</c:if><%-- Padrão - limite de 200 caracteres --%>
 		<c:if test="${!empty attrMap.minlength}">minlength="${attrMap.minlength}"</c:if>
-		class='form-control <c:if test="${attrMap.required}">required</c:if>' />
+		class='form-control <c:if test="${attrMap.required}">required</c:if> ${attrMap.inputStyleClass}' />
 </dwf:formGroup>
