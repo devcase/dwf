@@ -29,7 +29,7 @@ public class BaseRestController<T extends BaseEntity<?>> {
 		return dao;
 	}
 	
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(method = {RequestMethod.POST, RequestMethod.GET})
 	@JsonView(View.Summary.class)
 	public Callable<ResponseEntity<List<T>>> list(ParsedMap filter,
 			@RequestParam(defaultValue = "0") final int pageNumber,
