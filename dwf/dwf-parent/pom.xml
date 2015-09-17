@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.2.5.RELEASE</version>
+		<version>1.2.6.RELEASE</version>
 		<relativePath />
 	</parent>
 	<groupId>br.com.devcase.dwf</groupId>
@@ -14,9 +14,9 @@
 	<properties>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.version>4.2.0.RELEASE</spring.version>
+		<spring.version>4.2.1.RELEASE</spring.version>
 		<spring-security.version>4.0.1.RELEASE</spring-security.version>
-		<spring-boot.version>1.2.5.RELEASE</spring-boot.version>
+		<spring-boot.version>1.2.6.RELEASE</spring-boot.version>
 		<tomcat.version>8.0.23</tomcat.version>
 		<dwf.version>2.1.6-SNAPSHOT</dwf.version>
 		<java.version>1.8</java.version>
