@@ -1,10 +1,13 @@
+<%@tag import="java.util.Arrays"%>
 <%@tag import="java.util.Map"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ attribute name="columns" required="true" type="java.lang.String"%>
+<%@ attribute name="ordercolumns" required="false" type="java.lang.String"%>
 <%@ attribute name="var" required="true" rtexprvalue="false"%>
+<c:set var="ordercolumns" value="${empty ordercolumns ? columns : ordercolumns}"/>
 <%
 	//Monta querystring com o filtro, removendo fetchSize e pageNumber
 	StringBuilder sb = new StringBuilder();
@@ -17,6 +20,11 @@
 		}
 	}
 	jspContext.setAttribute("_querystring", sb.toString());
+	
+	//monta lista com colunas para ordenar
+	String[] ordercolumnsarray = ((String) jspContext.getAttribute("ordercolumns")).split("[,| ,|, ]");
+	java.util.List<String> ordercolumnslist = Arrays.asList(ordercolumnsarray);
+	jspContext.setAttribute("ordercolumns", ordercolumnslist);
 %>
 
 <div class="panel panel-default">
@@ -30,7 +38,9 @@
 								<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 							</div>
 							<input type="text" class="form-control" name="searchstring" placeholder="Pesquisar" value="${param.searchstring}">
-						</div>
+						</div><!-- /.input-group -->
+						
+						
 					</div>
 				</form>
 			</div>
@@ -58,7 +68,25 @@
 				<c:set var="columnCount" value="${0}" />
 				<c:forTokens items="${columns}" delims="," var="column">
 					<c:set var="columnCount" value="${columnCount +1}" />
-					<th><dwf:simpleLabel property="${column}" /></th>
+					<th>
+						<c:choose>
+							<c:when test="${!ordercolumns.contains(column)}">
+								<%-- NO ORDER BY --%>
+								<dwf:simpleLabel property="${column}" />
+							</c:when>
+							<c:when test="${param['orderBy'] eq column }">
+							!
+							</c:when>
+							<c:otherwise>
+								<%-- ORDER BY --%>
+								<a href="${appPath}/${entityName}/?orderBy=${column}${_querystring}" class="orderby">
+									<dwf:simpleLabel property="${column}" />
+								</a>
+							</c:otherwise>
+						</c:choose>
+					
+
+					</th>
 				</c:forTokens>
 			</tr>
 		</thead>
@@ -90,8 +118,7 @@
 		<c:if test="${pageCount > 1}">
 			<tfoot>
 				<tr>
-					<td colspan="${columnCount}" class="text-center"><dwf:paginator
-							contentHref="${appPath}/${entityName}/?decorator=table" fetchSize="${fetchSize}" pageNumber="${pageNumber}" /></td>
+					<td colspan="${columnCount}" class="text-center"><dwf:paginator contentHref="${appPath}/${entityName}/?decorator=table" fetchSize="${fetchSize}" pageNumber="${pageNumber}" /></td>
 				</tr>
 			</tfoot>
 		</c:if>

@@ -160,8 +160,9 @@ public class DefaultQueryBuilder implements QueryBuilder {
 			}
 		}
 		
-		if(Boolean.TRUE.equals(filter.getBoolean("includeDisabled"))) {
+		if(Boolean.TRUE.equals(filter.getBoolean("includeDisabled")) || filter.containsKey("enabled")) { 
 		} else {
+			//by default - only enabled
 			query.append(" and ").append(domainAlias).append(".enabled = true ");
 		}
 		
