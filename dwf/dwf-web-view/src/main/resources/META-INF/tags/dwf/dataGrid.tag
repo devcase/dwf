@@ -26,6 +26,8 @@
 	java.util.List<String> ordercolumnslist = Arrays.asList(ordercolumnsarray);
 	jspContext.setAttribute("ordercolumns", ordercolumnslist);
 %>
+<jsp:useBean id="queryStringBuilder" class="dwf.utils.QueryStringBuilder"/>
+<c:set var="queryStringBuilder" value="${queryStringBuilder.fromRequest(pageContext.request)}"/>
 
 <div class="panel panel-default">
 	<div class="panel-body">
@@ -39,7 +41,7 @@
 							</div>
 							<input type="text" class="form-control" name="searchstring" placeholder="Pesquisar" value="${param.searchstring}">
 						</div><!-- /.input-group -->
-						
+												
 						
 					</div>
 				</form>
@@ -69,23 +71,33 @@
 				<c:forTokens items="${columns}" delims="," var="column">
 					<c:set var="columnCount" value="${columnCount +1}" />
 					<th>
+						<dwf:simpleLabel property="${column}" var="columnName"/>
 						<c:choose>
 							<c:when test="${!ordercolumns.contains(column)}">
 								<%-- NO ORDER BY --%>
-								<dwf:simpleLabel property="${column}" />
+								${columnName}
 							</c:when>
-							<c:when test="${param['orderBy'] eq column }">
-							!
+							<c:when test="${param['orderBy'] ne column }">
+								<%-- ORDER BY - NOT CURRENT--%>
+								<a href="${appPath}/${entityName}/${queryStringBuilder.without('orderBy').setting('orderBy', column, 'orderByDirection', 'ASC').buildStartingWith('?')}" class="orderby">
+									${columnName}
+								</a>
+							</c:when>
+							<c:when test="${param['orderByDirection'] eq 'DESC'}">
+								<%-- ORDER BY - CURRENT DESC--%>
+								<a href="${appPath}/${entityName}/${queryStringBuilder.without('orderBy').setting('orderBy', column, 'orderByDirection', 'ASC').buildStartingWith('?')}" class="orderby">
+									${columnName}
+									<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
+								</a>
 							</c:when>
 							<c:otherwise>
-								<%-- ORDER BY --%>
-								<a href="${appPath}/${entityName}/?orderBy=${column}${_querystring}" class="orderby">
-									<dwf:simpleLabel property="${column}" />
+								<%-- ORDER BY - CURRENT ASC --%>
+								<a href="${appPath}/${entityName}/${queryStringBuilder.without('orderBy').setting('orderBy', column, 'orderByDirection', 'DESC').buildStartingWith('?')}" class="orderby">
+									${columnName}
+									<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
 								</a>
 							</c:otherwise>
 						</c:choose>
-					
-
 					</th>
 				</c:forTokens>
 			</tr>
