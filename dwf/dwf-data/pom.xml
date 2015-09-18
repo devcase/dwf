@@ -136,6 +136,12 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
+		<dependency>
+			<!-- dwf.data.autoconfigure.DwfDataAutoConfiguration  -->
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<optional>true</optional>
+		</dependency>
 
 	</dependencies>
 </project>

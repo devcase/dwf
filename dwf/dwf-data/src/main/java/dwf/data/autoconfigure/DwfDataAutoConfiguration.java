@@ -20,10 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.bind.RelaxedDataBinder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -34,8 +34,11 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
+import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
@@ -83,14 +86,40 @@ public class DwfDataAutoConfiguration  {
 		this.entityPackage = entityPackage;
 	}
 
+	/**
+	 * Bean Validation Provider. 
+	 *  (http://docs.spring.io/spring-framework/docs/current/spring-framework-reference/html/validation.html#validation-beanvalidation)
+	 * @return
+	 */
 	@Bean
-	public javax.validation.Validator beanValidator() {
+	public LocalValidatorFactoryBean validator() {
 		LocalValidatorFactoryBean a = new LocalValidatorFactoryBean();
 		a.setMessageInterpolator(
 				new LocaleContextMessageInterpolator(
 						new ResourceBundleMessageInterpolator(
-								new AggregateResourceBundleLocator(Arrays.asList(new String[] {"labels", "dwf.labels", "org.hibernate.validator.ValidationMessages"})))));
+								new AggregateResourceBundleLocator(Arrays.asList(new String[] {"labels", "dwf.labels", "org.hibernate.validator.ValidationMessages", "ValidationMessages"})))));
 		return a;
+	}
+	
+	@Configuration
+	@ConditionalOnWebApplication
+	@ConditionalOnClass(org.springframework.web.servlet.config.annotation.WebMvcConfigurer.class)
+	public static class WebMvcValidationConfiguration extends WebMvcConfigurerAdapter {
+		@Autowired
+		private LocalValidatorFactoryBean validator;
+		@Override
+		public Validator getValidator() {
+			return validator;
+		}
+	}
+	
+	/**
+	 * Enables Spring-driven Method Validation (http://docs.spring.io/spring-framework/docs/current/spring-framework-reference/html/validation.html#validation-beanvalidation)
+	 * @return
+	 */
+	@Bean
+	public MethodValidationPostProcessor methodValidationPostProcessor() {
+		return new MethodValidationPostProcessor();
 	}
 	
 	@Bean
