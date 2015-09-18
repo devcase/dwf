@@ -24,7 +24,6 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import dwf.web.rest.spring.ParsedMapArgumentResolver;
-import dwf.web.upload.DownloadEndpoint;
 import dwf.web.upload.FileSystemDownloadEndpoint;
 import dwf.web.upload.S3DownloadEndpoint;
 

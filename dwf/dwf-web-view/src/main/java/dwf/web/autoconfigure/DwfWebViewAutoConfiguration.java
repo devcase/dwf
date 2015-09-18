@@ -5,17 +5,14 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Locale;
 
-import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Context;
-import org.apache.catalina.LifecycleException;
 import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.WebResourceRoot.ResourceSetType;
-import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.tomcat.util.scan.StandardJarScanner;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +44,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -71,7 +67,8 @@ import dwf.web.spring.ExposeApplicationContextFilter;
 @EnableWebMvc
 @PropertySource("classpath:/dwf-web-view-default.properties")
 public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
-	
+
+
 	@Bean
 	public MessageSource messageSource() {
 		ResourceBundleMessageSource messageSource = new  ResourceBundleMessageSource();
