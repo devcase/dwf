@@ -21,6 +21,7 @@
 		<dwf.version>2.1.6-SNAPSHOT</dwf.version>
 		<java.version>1.8</java.version>
 		<jackson.version>2.6.1</jackson.version>
+		<json-path.version>2.0.0</json-path.version><!-- overriding version defined by 1.2.6.RELEASE -->
 	</properties>
 
 	<build>

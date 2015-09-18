@@ -29,6 +29,7 @@
 		<java.version>1.8</java.version>
 		<jackson.version>2.6.1</jackson.version>
 		<aws-java-sdk.version>1.10.19</aws-java-sdk.version>
+		<json-path.version>2.0.0</json-path.version>
 	</properties>
 	<!-- see configuration instructions (settings.xml): https://github.com/spring-projects/aws-maven -->
 	<distributionManagement>
