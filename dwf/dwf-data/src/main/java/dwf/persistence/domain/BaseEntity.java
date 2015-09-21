@@ -136,12 +136,12 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	@Column(length=1000, name="autocompletetext")
 	@NotEditableProperty()
 	@JsonIgnore
-	public final String getAutocompleteText() {
+	public String getAutocompleteText() {
 		String text = autocompleteText();
 		return SearchstringUtils.prepareForSearch(text, 1000);
 	}
 	
-	public final void setAutocompleteText(String autocompleteText) {
+	public void setAutocompleteText(String autocompleteText) {
 		//do nothing
 	}
 	
