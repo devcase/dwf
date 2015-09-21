@@ -133,29 +133,24 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 		return displayText();
 	}
 	
-	/**
-	 * Convert a string to the stored format
-	 * @return
-	 */
-	public String autocompleteForm(String string){
-		return SearchstringUtils.prepareForSearch(string);
-	}
-	
 	@Column(length=1000, name="autocompletetext")
 	@NotEditableProperty()
 	@JsonIgnore
-	public String getAutocompleteText() {
-		String text = getDisplayText();
-		if(text != null && text.length() > 1000)
-			return autocompleteForm(text.substring(0, 1000));
-		if(text == null)
-			return "";
-		else
-			return autocompleteForm(text);
+	public final String getAutocompleteText() {
+		String text = autocompleteText();
+		return SearchstringUtils.prepareForSearch(text, 1000);
 	}
 	
-	public void setAutocompleteText(String autocompleteText) {
+	public final void setAutocompleteText(String autocompleteText) {
 		//do nothing
+	}
+	
+	/**
+	 * Subclasses may override it here.
+	 * @return
+	 */
+	protected String autocompleteText() {
+		return displayText();
 	}
 	
 	

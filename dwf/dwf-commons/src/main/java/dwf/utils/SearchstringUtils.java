@@ -5,15 +5,23 @@ import java.text.Normalizer;
 public class SearchstringUtils {
 	static int UPPER_TO_LOW = 'A' - 'a';
 	public static String prepareForSearch(String str) {
+		return prepareForSearch(str, Integer.MAX_VALUE);
+	}
+	
+	public static String prepareForSearch(String str, int maxlength) {
 		if(str == null) { return ""; }
 		
 		str = Normalizer.normalize(str, Normalizer.Form.NFD); //substitui acentos por letras
 		
-		StringBuilder sb = new StringBuilder(str.length());
+		StringBuilder sb = new StringBuilder(Math.min(str.length(), maxlength));
 		
 		boolean appendSpace = false;
 		
 		for (int i = 0; i < str.length(); i++) {
+			if(sb.length() >= maxlength) {
+				break;
+			}
+			
 			char c = str.charAt(i);
 			if(c >= 'A' && c <= 'Z') {
 				sb.append((char) (c - UPPER_TO_LOW));
@@ -26,6 +34,8 @@ public class SearchstringUtils {
 					sb.append(' ');
 					appendSpace = false; //evita espaços duplos
 				}
+			} else {
+				//ignora outros caracteres
 			}
 		}
 		while(sb.length() > 0 && sb.charAt(sb.length() -1) == ' ') {
@@ -34,4 +44,5 @@ public class SearchstringUtils {
 		
 		return sb.toString();
 	}
+
 }
