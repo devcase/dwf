@@ -20,8 +20,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javassist.bytecode.SignatureAttribute.ArrayType;
-
 import javax.persistence.Transient;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -70,6 +68,7 @@ import dwf.upload.image.ImageResizer;
 import dwf.user.DwfUserUtils;
 import dwf.utils.ParsedMap;
 import dwf.utils.SimpleParsedMap;
+import javassist.bytecode.SignatureAttribute.ArrayType;
 
 /**
  * 
@@ -231,7 +230,11 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	@SuppressWarnings("unchecked")
 	public D retrieveCopy(Serializable id) {
 		StatelessSession ss = sessionFactory.openStatelessSession();
-		return (D) ss.get(clazz, id);
+		try {
+			return (D) ss.get(clazz, id);
+		} finally {
+			ss.close();
+		}
 	}
 
 	@Override
