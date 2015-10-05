@@ -348,3 +348,10 @@ $(document).on("dwf-postupdate", function() {
 	$(this).find(".dwf-checkbox-listener input[type='checkbox']:checked").closest('.dwf-checkbox-listener').addClass('info');
 	$(this).find(".dwf-checkbox-listener input[type='checkbox']").not(":checked").closest('.dwf-checkbox-listener').removeClass('info');
 });
+
+/**
+ *
+ */
+$(document).on("click", ".dwf-popover-confirm", function(evt) {
+	
+});

@@ -9,18 +9,6 @@
 <%@ attribute name="var" required="true" rtexprvalue="false"%>
 <c:set var="ordercolumns" value="${empty ordercolumns ? columns : ordercolumns}"/>
 <%
-	//Monta querystring com o filtro, removendo fetchSize e pageNumber
-	StringBuilder sb = new StringBuilder();
-	for (Map.Entry<String, String[]> parameter : request.getParameterMap().entrySet()) {
-		if ("fetchSize".equals(parameter.getKey()) || "pageNumber".equals(parameter.getKey()) || "decorator".equals(parameter.getKey())) {
-		} else {
-			for (String value : parameter.getValue()) {
-				sb.append("&").append(parameter.getKey()).append("=").append(value);
-			}
-		}
-	}
-	jspContext.setAttribute("_querystring", sb.toString());
-	
 	//monta lista com colunas para ordenar
 	String[] ordercolumnsarray = ((String) jspContext.getAttribute("ordercolumns")).split("[,| ,|, ]");
 	java.util.List<String> ordercolumnslist = Arrays.asList(ordercolumnsarray);
@@ -55,7 +43,7 @@
 							<strong>${size}</strong>
 						</c:when>
 						<c:otherwise>
-							<a href="${appPath}/${entityName}/?fetchSize=${size}${_querystring}">${size}</a>
+							<a href="${appPath}/${entityName}/${queryStringBuilder.without('fetchSize', 'decorator', 'pageNumber').setting('fetchSize', size).buildStartingWith('?')}">${size}</a>
 						</c:otherwise>
 					</c:choose>
 
@@ -79,7 +67,7 @@
 							</c:when>
 							<c:when test="${param['orderBy'] ne column }">
 								<%-- ORDER BY - NOT CURRENT--%>
-								<a href="${appPath}/${entityName}/${queryStringBuilder.without('orderBy').setting('orderBy', column, 'orderByDirection', 'ASC').buildStartingWith('?')}" class="orderby">
+								<a href="${appPath}/${entityName}/${queryStringBuilder.without('orderBy', 'orderByDirection', 'decorator').setting('orderBy', column, 'orderByDirection', 'ASC').buildStartingWith('?')}" class="orderby">
 									${columnName}
 								</a>
 							</c:when>
