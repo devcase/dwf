@@ -13,6 +13,7 @@ public interface ActivityLogService {
 	static String OPERATION_CREATE = "create";
 	static String OPERATION_RESTORE = "restore";
 	static String OPERATION_DELETE = "delete";
+	static String OPERATION_CASCADE_DELETE = "cascadedelete";
 	static String OPERATION_CANCEL = "cancel";
 	static String OPERATION_CONFIRM = "confirm";
 	static String OPERATION_EVALUATE = "evaluate";

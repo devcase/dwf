@@ -53,6 +53,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dwf.activitylog.domain.UpdatedProperty;
 import dwf.activitylog.service.ActivityLogService;
+import dwf.persistence.annotations.CascadeDelete;
 import dwf.persistence.annotations.ConditionalGroup;
 import dwf.persistence.annotations.EntityStateValidator;
 import dwf.persistence.annotations.FillWithCurrentUser;
@@ -119,6 +120,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	private List<NotSyncPropertyDescriptor> propertyList;
 	private Set<String> propertyNames;
 	private final Set<String> readAndWritePropertyNames;
+	private Set<NotSyncPropertyDescriptor> cascadeDeleteProperties;
 
 	public BaseDAOImpl(Class<D> clazz) {
 		super();
@@ -136,7 +138,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		this.readAndWritePropertyNames = new HashSet<String>();
 		this.filledWithUser = new HashMap<NotSyncPropertyDescriptor, FillWithCurrentUser>();
 		this.entityProperties = new HashMap<String, PropertyDescriptor>();
-
+		this.cascadeDeleteProperties = new HashSet<NotSyncPropertyDescriptor>();
 		try {
 			processClazzPropertiesRecursive(this.clazz);
 		} catch (IllegalAccessException | InvocationTargetException | IntrospectionException e) {
@@ -169,25 +171,19 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		}
 
 		for (PropertyDescriptor p1 : PropertyUtils.getPropertyDescriptors(cl)) {
-
 			NotSyncPropertyDescriptor p = new NotSyncPropertyDescriptor(p1);
 			Method writeMethod = p.getWriteMethod();
 			Method readMethod = p.getReadMethod();
+			
 
-			// ignorar propriedades transientes
-			if (readMethod.isAnnotationPresent(Transient.class) && !readMethod.isAnnotationPresent(UpdatableProperty.class)) { // usado
-																																// para
-																																// dar
-																																// override
-																																// (ex:
-																																// override
-																																// do
-																																// UpdatableProperty
-																																// do
-																																// getName
-																																// de
-																																// BaseMultilangEntity)
+			if (readMethod.isAnnotationPresent(Transient.class) && !readMethod.isAnnotationPresent(UpdatableProperty.class)) {
+				// ignorar propriedades transientes
+				// usado para dar override (ex: override do UpdatableProperty do getName de BaseMultilangEntity)				
 				continue;
+			}
+			
+			if (readMethod.isAnnotationPresent(CascadeDelete.class)) {
+				cascadeDeleteProperties.add(p);
 			}
 
 			propertyList.add(p);
@@ -671,8 +667,30 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	public void delete(D entity, String comment) {
 		D connectedEntity = findById(entity.getId());
 		if (connectedEntity.isEnabled()) {
-			activityLogService.log(entity, "delete", comment);
+			activityLogService.log(entity, ActivityLogService.OPERATION_DELETE, comment);
 			connectedEntity.setEnabled(false);
+		}
+		//delete em cascata
+		for (NotSyncPropertyDescriptor pd : this.cascadeDeleteProperties) {
+			Object value;
+			try {
+				value = PropertyUtils.getSimpleProperty(entity, pd.getName());
+				if(value != null) {
+					if(value instanceof BaseEntity<?> && ((BaseEntity<?>) value).isEnabled()) {
+						activityLogService.log((BaseEntity<?>) value, ActivityLogService.OPERATION_CASCADE_DELETE, comment);
+						((BaseEntity<?>) value).setEnabled(false);
+					} else if (value instanceof Collection) {
+						for (Object obj : (Collection<?>) value) {
+							if(obj instanceof BaseEntity<?> && ((BaseEntity<?>) obj).isEnabled()) {
+								activityLogService.log((BaseEntity<?>) obj, ActivityLogService.OPERATION_CASCADE_DELETE, comment);
+								((BaseEntity<?>) obj).setEnabled(false);
+							}
+						}
+					}
+				} 
+			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
