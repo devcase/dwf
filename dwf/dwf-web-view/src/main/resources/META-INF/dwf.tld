@@ -274,5 +274,9 @@
 		<name>valueForInput</name>
 		<path>/META-INF/tags/dwf/valueForInput.tag</path>
 	</tag-file>
-	
+	<function>
+		<name>memberOf</name>
+		<function-class>dwf.web.taglib.DwfFunctions</function-class>
+		<function-signature>boolean memberOf( java.lang.Object, java.lang.Object )</function-signature>
+	</function>
 </taglib>
