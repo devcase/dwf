@@ -41,6 +41,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.ListType;
 import org.hibernate.type.MapType;
@@ -229,12 +230,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 
 	@SuppressWarnings("unchecked")
 	public D retrieveCopy(Serializable id) {
-		StatelessSession ss = sessionFactory.openStatelessSession();
-		try {
-			return (D) ss.get(clazz, id);
-		} finally {
-			ss.close();
-		}
+		StatelessSession ss = sessionFactory.openStatelessSession(((SessionImplementor) getSession()).connection());
+		return (D) ss.get(clazz, id);
 	}
 
 	@Override
