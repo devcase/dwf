@@ -73,14 +73,14 @@
 							</c:when>
 							<c:when test="${param['orderByDirection'] eq 'DESC'}">
 								<%-- ORDER BY - CURRENT DESC--%>
-								<a href="${appPath}/${entityName}/${queryStringBuilder.without('orderBy').setting('orderBy', column, 'orderByDirection', 'ASC').buildStartingWith('?')}" class="orderby">
+								<a href="${appPath}/${entityName}/${queryStringBuilder.setting('orderByDirection', 'ASC').buildStartingWith('?')}" class="orderby">
 									${columnName}
 									<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
 								</a>
 							</c:when>
 							<c:otherwise>
 								<%-- ORDER BY - CURRENT ASC --%>
-								<a href="${appPath}/${entityName}/${queryStringBuilder.without('orderBy').setting('orderBy', column, 'orderByDirection', 'DESC').buildStartingWith('?')}" class="orderby">
+								<a href="${appPath}/${entityName}/${queryStringBuilder.setting('orderByDirection', 'DESC').buildStartingWith('?')}" class="orderby">
 									${columnName}
 									<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
 								</a>
