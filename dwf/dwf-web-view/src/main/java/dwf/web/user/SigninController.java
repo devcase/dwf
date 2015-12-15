@@ -1,11 +1,14 @@
 package dwf.web.user;
 
+import java.util.Enumeration;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.WebApplicationContext;
 
 import dwf.web.controller.BaseController;
@@ -16,14 +19,12 @@ public class SigninController extends BaseController {
 
 	@RequestMapping(value = "/signin", method = RequestMethod.GET)
 	public String getLoginPage(
-			@RequestParam(required = false) String error,
-			@RequestParam(required = false) String logout, 
+			HttpServletRequest request, 
 			Model model) {
-		
-		if (error != null) {
+		if (request.getParameter("error") != null) {
 			model.addAttribute("loginerror", true);
 		}
-		if (logout != null) {
+		if (request.getParameter("logout") != null) {
 			model.addAttribute("logout", true);
 		}
 		return "signin";
