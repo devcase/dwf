@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>br.com.devcase.dwf</groupId>
 	<artifactId>dwf-parent</artifactId>
-	<version>2.1.6-SNAPSHOT</version>
+	<version>2.1.6</version>
 	<packaging>pom</packaging>
 
 	<properties>
@@ -18,7 +18,7 @@
 		<spring-security.version>4.0.1.RELEASE</spring-security.version>
 		<spring-boot.version>1.2.6.RELEASE</spring-boot.version>
 		<tomcat.version>8.0.23</tomcat.version>
-		<dwf.version>2.1.6-SNAPSHOT</dwf.version>
+		<dwf.version>2.1.6</dwf.version>
 		<java.version>1.8</java.version>
 		<jackson.version>2.6.1</jackson.version>
 		<json-path.version>2.0.0</json-path.version><!-- overriding version defined by 1.2.6.RELEASE -->
@@ -347,4 +347,8 @@
 		<module>dwf-sample</module>
 		<module>dwf-sample-integration-test</module>
 	</modules>
+
+  <scm>
+    <tag>dwf-2.1.6</tag>
+  </scm>
 </project>
