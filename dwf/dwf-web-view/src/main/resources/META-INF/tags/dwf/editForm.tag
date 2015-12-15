@@ -6,6 +6,7 @@ Atributos:
   * labelKey: 		Chave para o cabeçalho do painel (se title não informado)
   * buttonLabelKey:	Chave para o texto do botão submit (padrão: action.save)
   * panelless:		Não imprime o painel ou o título - basicamente apenas o formulário
+  * formlayout: horizontal/vertical (padrão: horizontal)
 
  --%><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
@@ -54,9 +55,10 @@ Atributos:
 	</c:if>
 		<div class="panel-body">
 </c:if>
+<c:set var="originalformlayout" value="${formlayout}"/>
+<c:set var="formlayout" value="${attrMap.formlayout eq 'vertical' ? 'vertical' : 'horizontal' }" scope="request"/>
 
-
-		<form class="form-horizontal validate dwf-progressbaronsubmit" method="POST" action="${formaction}" role="form" <c:if test="${!empty attrMap.formId}">id="${attrMap.formId}"</c:if>
+		<form class="${formlayout eq 'horizontal' ? 'form-horizontal' : ''} validate dwf-progressbaronsubmit" method="POST" action="${formaction}" role="form" <c:if test="${!empty attrMap.formId}">id="${attrMap.formId}"</c:if>
 			<c:if test="${!empty attrMap.enctype}">enctype="${attrMap.enctype}"</c:if>>
 			
 
@@ -85,3 +87,6 @@ Atributos:
 		</div><!-- /.box-content -->
 	</div>
 </c:if>
+
+<c:set var="formlayout" value="${originalformlayout}"/>
+

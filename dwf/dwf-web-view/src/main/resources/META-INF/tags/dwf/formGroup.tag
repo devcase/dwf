@@ -7,6 +7,7 @@ Atributos:
   * labelStyleClass
   * withoutLabel:	para não mostrar nenhum label
   * label:			'none' para não mostrar nenhum label
+  * formlayout: vertical/horizontal
 
  --%><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
@@ -51,6 +52,13 @@ Atributos:
 <c:if test="${attrMap.withoutLabel || label eq 'none'}">
 	<c:set var="controlStyleClasses" value="${controlStyleClasses} col-sm-offset-${labelWidth}"/>
 </c:if>
+<%-- formulário com layout vertical --%>
+<c:if test="${formlayout eq 'vertical'}">
+	<c:set var="labelStyleClasses" value=""/>
+	<c:set var="controlStyleClasses" value=""/>
+	
+</c:if>
+
 
 <c:if test="${!empty value or empty attrMap.hideIfEmpty or !attrMap.hideIfEmpty}">
 <div class="form-group ${(!empty violation || !empty bindingErrors) ?  'has-error' : ''}">
