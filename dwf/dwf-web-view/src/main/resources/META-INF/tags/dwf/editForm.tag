@@ -18,6 +18,10 @@ Atributos:
 <c:if test="${!empty entityName}">
 	<dwf:resolveEL el="${entityName}" var="entity"/>
 </c:if>
+<c:if test="${!empty attrMap.entity}">
+	<c:set var="entity" value="${attrMap.entity}"/>
+</c:if>
+
 <dwf:mergeMaps map1="${attrMap}" map2="${attrMap.parentAttrMap}" var="attrMap"/>
 <c:set var="formaction" value="${attrMap.formaction}"/>
 <c:if test="${empty attrMap.formaction}">
