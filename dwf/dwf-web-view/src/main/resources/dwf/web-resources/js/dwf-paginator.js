@@ -1,7 +1,7 @@
 /**
  */
 
-$(document).on('click', '[dwf-toggle="paginator"]', function (evt) {
+$(document).on('click', '[dwf-toggle~="paginator"]', function (evt) {
     var $this   = $(this);
     var href    = $this.attr('href');
     var $target = $this.closest('table'); 

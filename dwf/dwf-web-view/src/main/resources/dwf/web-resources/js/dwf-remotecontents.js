@@ -4,7 +4,7 @@
  */
 
 $(document).on('dwf-postupdate', function (evt) {
-	$(evt.target).find('[dwf-toggle="remotecontents"][dwf-url][dwf-remotecontents-loaded!="true"]').each(function() {
+	$(evt.target).find('[dwf-toggle~="remotecontents"][dwf-url][dwf-remotecontents-loaded!="true"]').each(function() {
 		var href    = $(this).attr('dwf-url');
 	    var $target = $(this); //strip for ie7
 	    evt.preventDefault();

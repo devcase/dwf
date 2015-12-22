@@ -1,7 +1,7 @@
 /**
  */
-$(document).on('dwf-postupdate', function() {
-	$(this).find('[dwf-toggle="autoreloadcontent"][autoreload-href]').each(function() {
+$(document).on('dwf-postupdate', function(evt) {
+	$(evt.target).find('[dwf-toggle~="autoreloadcontent"][autoreload-href]').each(function() {
 		dwfAutoReloadContentQueue(this);
 	});
 });

@@ -3,7 +3,7 @@
  */
 
 $(document).on('dwf-postupdate', function(evt) {
-	$(evt.target).find("[dwf-toggle='horizontal-scroller']").each(function() {
+	$(evt.target).find("[dwf-toggle~='horizontal-scroller']").each(function() {
 
 		var scrollTarget = $(this).find('ul');
 		scrollTarget.css({'position' : 'absolute'});

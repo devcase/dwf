@@ -1,6 +1,6 @@
 /**
  */
-$(document).on('submit', 'form[dwf-toggle="ajaxform"]', function(evt) {
+$(document).on('submit', 'form[dwf-toggle~="ajaxform"]', function(evt) {
 	evt.preventDefault();
 	$this = $(this);
     var $wrapper   = $this.wrap('<div class="ajaxform-wrapper"></div>').parent();

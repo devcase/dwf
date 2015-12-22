@@ -4,7 +4,7 @@
  *  <a href="url" dwf-toggle="remoteload"  dwf-target="#divid">Click here</a>
  */
 
-$(document).on('click', '[dwf-toggle="remoteload"][dwf-target][href]', function (evt) {
+$(document).on('click', '[dwf-toggle~="remoteload"][dwf-target][href]', function (evt) {
     var $this   = $(this);
     var href    = $this.attr('href');
     var $target = $($this.attr('dwf-target')); //strip for ie7
@@ -24,7 +24,7 @@ $(document).on('click', '[dwf-toggle="remoteload"][dwf-target][href]', function 
     		$target.fadeOut({
 				always: function() {
 		    		$target.html(data);
-		    		$target.find('[dwf-toggle="remoteload"]').not('[dwf-target]').attr('dwf-target', '#' + $target.attr('id'))
+		    		$target.find('[dwf-toggle~="remoteload"]').not('[dwf-target]').attr('dwf-target', '#' + $target.attr('id'))
 		    	    $target.fadeIn();
 		    		$target.trigger('dwf-postupdate');
 				}

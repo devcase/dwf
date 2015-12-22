@@ -2,10 +2,10 @@
  */
 $(document).on('dwf-postupdate', function(evt) {
 	var autoreloadelements;
-	if($(evt.target).attr('dwf-toggle') == 'autoreload') {
+	if($(evt.target).is('[dwf-toggle~="autoreload"][autoreload-href]') > 0) {
 		autoreloadelements = $(evt.target);
 	} else {
-		autoreloadelements =$(evt.target).find('[dwf-toggle="autoreload"][autoreload-href]');
+		autoreloadelements =$(evt.target).find('[dwf-toggle~="autoreload"][autoreload-href]');
 	}
 	
 	autoreloadelements.each(function() {
