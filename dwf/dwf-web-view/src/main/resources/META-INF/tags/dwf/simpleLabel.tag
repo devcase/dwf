@@ -20,11 +20,18 @@
 	%><spring:message code="label.${attrMap.name}" var="_labelText"  text=""/><%
 %></c:if><%
 %><c:if test="${empty _labelText}"><%-- PROCURA POR NOME DE ENTIDADE --%><%
-	%><spring:message code="domain.${attrMap.property}" var="_labelText"  text="${attrMap.property}"/><%
+	%><spring:message code="domain.${attrMap.property}" var="_labelText"  text="${attrMap.property }"/><%
+%></c:if><%
+%><c:if test="${_labelText eq attrMap.property}"><%-- USA O NOME DA PROPRIEDADE --%><%
+	String text =  (String) getJspContext().getAttribute("_labelText");
+	if(text.length() > 0){
+		text = text.replaceAll("(\\p{Ll})(\\p{Lu})","$1 $2");
+		getJspContext().setAttribute("_labelText", (char)((int)text.charAt(0) + ('A'-'a')) + text.substring(1));
+	}
 %></c:if><%
 %><%
 String varName = (String) getJspContext().getAttribute("var");
-Object value =  (String) getJspContext().getAttribute("_labelText");
+Object value =  getJspContext().getAttribute("_labelText");
 
 if(varName != null && varName != "") {
 	getJspContext().setAttribute(varName, value, PageContext.REQUEST_SCOPE);
