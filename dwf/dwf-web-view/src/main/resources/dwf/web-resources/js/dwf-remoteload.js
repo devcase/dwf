@@ -17,7 +17,6 @@ $(document).on('click', '[dwf-toggle="remoteload"][dwf-target][href]', function 
     	url: href,
     	statusCode: {
     		302: function (x) {
-    			console.log(x);
     			return false;
     		}
     	},
