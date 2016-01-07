@@ -1,5 +1,6 @@
 package dwf.plugin;
 
+import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -8,6 +9,7 @@ import java.util.Set;
 
 import javax.persistence.Entity;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -37,7 +39,10 @@ public class GenerateCrudMojo extends AbstractMojo {
 	@Parameter(property = "dwf.generate.crud.viewsrcdir", required=true)
 	private File viewSrcDir;
 	@Parameter(property = "dwf.generate.crud.override", defaultValue="false")
+	@Deprecated
 	private boolean override = false;
+	@Parameter(property = "dwf.generate.crud.overwrite", defaultValue="false")
+	private boolean overwrite = false;
 	@Parameter(defaultValue="${project.build.outputDirectory}")
 	private File classesDirectory;
 
@@ -50,9 +55,25 @@ public class GenerateCrudMojo extends AbstractMojo {
 			Set<Class<?>> entities = reflections.getTypesAnnotatedWith(Entity.class);
 			for (Class<?> entityClass : entities) {
 				if(BaseEntity.class.isAssignableFrom(entityClass)) {
-					GenerateCrud.generateCrud(daoPackage, controllerPackage, daoSrcDir, controllerSrcDir, viewSrcDir, override, entityClass);
+					GenerateCrud.generateCrud(daoPackage, controllerPackage, daoSrcDir, controllerSrcDir, viewSrcDir, override || overwrite, entityClass);
 				}
 			}
+			
+
+			System.out.println("# 2. DOMAIN");
+			System.out.println("");
+			for (Class<?> entityClass : entities) {
+				String entityClassLowerCase = entityClass.getSimpleName().substring(0, 1).toLowerCase() + entityClass.getSimpleName().substring(1);
+				System.out.println("domain." + entityClassLowerCase + "=");
+				System.out.println("domain." + entityClassLowerCase + ".plural=");
+				for (PropertyDescriptor propertyDescr : PropertyUtils.getPropertyDescriptors(entityClass)) {
+					if(propertyDescr.getReadMethod().getDeclaringClass().equals(entityClass)) {
+						System.out.println(entityClassLowerCase + "." + propertyDescr.getName().substring(0, 1).toLowerCase() + propertyDescr.getName().substring(1) +  "=");
+					}
+				}
+				System.out.println("");
+			}
+
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 		}
