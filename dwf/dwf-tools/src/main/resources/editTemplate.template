@@ -4,9 +4,11 @@
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf" %>
 <html>
 	<head>
-		<meta name="decorator" content="crud"/>
+		<meta name="decorator" content="default"/>
+		<title><spring:message code="domain.${entityName}" /></title>
 	</head>
 	<body>
+		<dwf:navCrudBar/>
 		<dwf:editForm>
 #foreach( $field in $entityClass.fields )
  	#if( ${field.name} != 'serialVersionUID' )

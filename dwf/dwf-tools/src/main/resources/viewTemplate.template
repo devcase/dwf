@@ -6,10 +6,11 @@
 <dwf:resolveEL el="${entityName}" var="entity" />
 <html>
 <head>
-<meta name="decorator" content="crud" />
-<title>${service}</title>
+<meta name="decorator" content="default" />
+<title><spring:message code="domain.${entityName}" /></title>
 </head>
 <body>
+	<dwf:navCrudBar/>
 	<dwf:viewPanel>
 #foreach( $field in $entityClass.fields )
  #if( ${field.name} != 'serialVersionUID' )

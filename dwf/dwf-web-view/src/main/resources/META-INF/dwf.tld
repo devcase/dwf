@@ -30,6 +30,10 @@
 		<path>/META-INF/tags/dwf/navItemCrud.tag</path>
 	</tag-file>
 	<tag-file>
+		<name>navCrudBar</name>
+		<path>/META-INF/tags/dwf/navCrudBar.tag</path>
+	</tag-file>
+	<tag-file>
 		<name>resolveEL</name>
 		<path>/META-INF/tags/dwf/resolveEL.tag</path>
 	</tag-file>

@@ -525,6 +525,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		if (groups != null) {
 			for (Class<?> validGrpClazz : groups) {
 				if (validGrpClazz.isAnnotationPresent(ConditionalGroup.class)) {
+					//A ConditionalGroup class may implement EntityStateValidator. The validateState method may throw 
+					//a ValidationException, cancelling any changes to the entity
 					try {
 						ConditionalGroup cg = validGrpClazz.getAnnotation(ConditionalGroup.class);
 						if (cg.validatedBy() != null) {
