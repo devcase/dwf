@@ -8,6 +8,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.scan.StandardJarScanner;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -80,7 +81,7 @@ public class DwfWebRestAutoConfiguration {
 	
 
 	@Configuration
-	@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "filesystem")
+	@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "filesystem", matchIfMissing=true)
 	static class FileSystemDownloadEndpointConfiguration {
 		@Bean
 		public FileSystemDownloadEndpoint downloadEndpoint() {

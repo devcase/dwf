@@ -267,8 +267,8 @@ public class DwfDataAutoConfiguration  {
 		@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "filesystem", matchIfMissing=true)
 		static class FileSystemUploadManagerConfiguration {
 
-			@Value("${dwf.web.uploadmanager.directory:'/tmp'}")
-			private String directory = "testdb";
+			@Value("${dwf.web.uploadmanager.directory:uploadedFiles}")
+			private String directory = "uploadedFiles";
 
 			@Bean
 			public UploadManager uploadManager() {
