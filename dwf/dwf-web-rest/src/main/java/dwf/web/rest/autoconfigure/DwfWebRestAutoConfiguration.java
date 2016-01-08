@@ -34,22 +34,26 @@ public class DwfWebRestAutoConfiguration {
 	@Autowired
 	private ParsedMapArgumentResolver parsedMapArgumentResolver;
 	
-	@Configuration
+	@Autowired
+	private SessionFactory sessionFactory;
+
+	@Bean(name="openSessionInViewInterceptor")
+	public OpenSessionInViewInterceptor openSessionInViewInterceptor() {
+		OpenSessionInViewInterceptor o = new OpenSessionInViewInterceptor();
+		o.setSessionFactory(sessionFactory);
+		return o;
+	}
+	
+	@Configuration("dwfWebRestAutoConfiguration.OpenSessionInViewInterceptorConfiguration")
 	@ConditionalOnClass(name="dwf.data.autoconfigure.DwfDataAutoConfiguration")
+	@ConditionalOnWebApplication
 	static class OpenSessionInViewInterceptorConfiguration extends WebMvcConfigurerAdapter {
 		@Autowired
-		private SessionFactory sessionFactory;
-
-		@Bean
-		public OpenSessionInViewInterceptor openSessionInViewInterceptor() {
-			OpenSessionInViewInterceptor o = new OpenSessionInViewInterceptor();
-			o.setSessionFactory(sessionFactory);
-			return o;
-		}
+		private OpenSessionInViewInterceptor openSessionInViewInterceptor;
 		
 		@Override
 		public void addInterceptors(InterceptorRegistry registry) {
-			registry.addWebRequestInterceptor(openSessionInViewInterceptor());
+			registry.addWebRequestInterceptor(openSessionInViewInterceptor);
 		}
 	}
 	
