@@ -54,7 +54,7 @@ public class DwfWebViewSecurityAutoConfiguration {
 	@ConditionalOnWebApplication
 	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER + 1)
 	@EnableWebSecurity
-	static class DwfWebSecurityConfig extends WebSecurityConfigurerAdapter {
+	static class DwfWebViewSecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		@Autowired
 		private RememberMeServices rememberMeServices;
@@ -89,6 +89,9 @@ public class DwfWebViewSecurityAutoConfiguration {
 			
 			
 			ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorize = http.authorizeRequests();
+			
+			//dwf.security.web.permitallpatterns define some urls that may be accessed
+			//anonymously
 			if(permitAllPatterns != null && permitAllPatterns.length > 0) {
 				authorize = authorize.antMatchers(permitAllPatterns).permitAll();
 			}
@@ -96,7 +99,6 @@ public class DwfWebViewSecurityAutoConfiguration {
 					.antMatchers("/signin","/signin/authenticate","/resources/**","/resetPassword/**").permitAll()
 					.anyRequest().authenticated();
 			authorize.and();
-			
 			
 			if(ignoreCsrfPatterns != null && ignoreCsrfPatterns.length > 0) {
 				http.csrf().ignoringAntMatchers(ignoreCsrfPatterns);

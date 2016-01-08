@@ -12,6 +12,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 public class DwfWebRestSecurityAutoConfiguration {
 	
+	/**
+	 * Configuração para aplicações REST, que não tenham dwf-web-view
+	 * @author hirata
+	 *
+	 */
 	@Configuration(value="dwfWebRestSecurityConfig")
 	@ConditionalOnWebApplication
 	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER + 1)
@@ -21,6 +26,7 @@ public class DwfWebRestSecurityAutoConfiguration {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http.authorizeRequests().anyRequest().permitAll();
+			//desabilita segurança CSRF para o projeto rest
 			http.csrf().disable();
 		}
 	}
