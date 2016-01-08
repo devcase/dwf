@@ -107,7 +107,7 @@
 									<c:when test="${column eq 'enabled'}">
 										<span class="label ${entity.enabled ? 'label-success' : 'label-danger'}"><dwf:yesNo value="${entity.enabled}" /></span>
 									</c:when>
-									<c:otherwise><dwf:autoFormat value="${entity[column]}"/></c:otherwise>
+									<c:otherwise><dwf:resolveEL var="property" el="item.${column}"/><dwf:autoFormat value="${property}"/></c:otherwise>
 								</c:choose>
 							</td>
 						</c:forTokens></tr>
