@@ -10,7 +10,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -121,6 +123,22 @@ public class DwfSecurityAutoConfiguration  {
 		}
 	}
 	
+	@Configuration
+	static class MethodSecurityExpressionHandlerConfiguration {
+		@Autowired
+		private PermissionEvaluator permissionEvaluator;
+		
+		@Bean
+		public MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+			MethodSecurityExpressionHandler expHandler =  new DefaultMethodSecurityExpressionHandler();
+			if(expHandler instanceof AbstractSecurityExpressionHandler) {
+				((AbstractSecurityExpressionHandler<?>) expHandler).setPermissionEvaluator(permissionEvaluator);
+			}
+			return expHandler;
+		}
+
+	}
+	
 	/**
 	 * Associa o DefaultMethodSecurityExpressionHandler ao permissionEvaluator definido aqui ou na aplicação.
 	 * @author Hirata
@@ -129,17 +147,22 @@ public class DwfSecurityAutoConfiguration  {
 	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled=true, securedEnabled=true)
 	static class DwfGlobalMethodSecurityConfiguration extends GlobalMethodSecurityConfiguration {
+		@Autowired(required=false)
+		private MethodSecurityMetadataSource customMethodSecurityMetadataSource;
 		@Autowired
-		private PermissionEvaluator permissionEvaluator;
+		private MethodSecurityExpressionHandler methodSecurityExpressionHandler;
 
 		@Override
 		protected MethodSecurityExpressionHandler createExpressionHandler() {
-			MethodSecurityExpressionHandler expHandler =  super.createExpressionHandler();
-			if(expHandler instanceof AbstractSecurityExpressionHandler) {
-				((AbstractSecurityExpressionHandler<?>) expHandler).setPermissionEvaluator(permissionEvaluator);
-			}
-			return expHandler;
+			return methodSecurityExpressionHandler;
 		}
+
+		@Override
+		protected MethodSecurityMetadataSource customMethodSecurityMetadataSource() {
+			return customMethodSecurityMetadataSource;
+		}
+		
+		
 	}
 	
 	
