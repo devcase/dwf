@@ -33,10 +33,22 @@
 		<name>navCrudBar</name>
 		<path>/META-INF/tags/dwf/navCrudBar.tag</path>
 	</tag-file>
-	<tag-file>
+	<tag>
 		<name>resolveEL</name>
-		<path>/META-INF/tags/dwf/resolveEL.tag</path>
-	</tag-file>
+		<tag-class>dwf.web.taglib.tag.ResolveELTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<name>el</name>
+			<rtexprvalue>true</rtexprvalue>
+			<required>true</required>
+		</attribute>
+		<attribute>
+			<name>var</name>
+			<rtexprvalue>no</rtexprvalue>
+			<required>no</required>
+			<type>java.lang.String</type>
+		</attribute>
+	</tag>
 	<tag-file>
 		<name>dwfScripts</name>
 		<path>/META-INF/tags/dwf/dwfScripts.tag</path>
