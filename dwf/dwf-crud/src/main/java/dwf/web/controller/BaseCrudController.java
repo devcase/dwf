@@ -66,6 +66,13 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 		this.entityName = StringUtils.uncapitalize(clazz.getSimpleName());
 	}
 	
+	public String getEntityName(){
+		return entityName;
+	}
+	public Class<D> getEntityClass() {
+		return clazz;
+	}
+	
 	@SuppressWarnings("unchecked")
 	@PostConstruct
 	public void initDependencies() {
@@ -420,12 +427,13 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 		if (entity != null && entity.getId() != null) {
 			if(OPERATION_VIEW.equals(operation)) {
 				navCrud.getItems().add(new NavCrudItem(null, OPERATION_LIST, NavCrudItem.ICON_LIST, false, true));
+				navCrud.getItems().add(new NavCrudItem(entity, OPERATION_EDIT, NavCrudItem.ICON_EDIT));
+				navCrud.getItems().add(new NavCrudItem(entity, OPERATION_DELETE, NavCrudItem.ICON_DELETE, !entity.isEnabled()));
+				navCrud.getItems().add(new NavCrudItem(entity, OPERATION_RESTORE, NavCrudItem.ICON_RESTORE, entity.isEnabled()));
+				navCrud.getItems().add(new NavCrudItem(entity, OPERATION_LOG, NavCrudItem.ICON_LOG));
+			} else {
+				navCrud.getItems().add(new NavCrudItem(entity, OPERATION_VIEW, NavCrudItem.ICON_VIEW, false, !OPERATION_VIEW.equals(operation)));
 			}
-			navCrud.getItems().add(new NavCrudItem(entity, OPERATION_VIEW, NavCrudItem.ICON_VIEW, false, !OPERATION_VIEW.equals(operation)));
-			navCrud.getItems().add(new NavCrudItem(entity, OPERATION_EDIT, NavCrudItem.ICON_EDIT));
-			navCrud.getItems().add(new NavCrudItem(entity, OPERATION_DELETE, NavCrudItem.ICON_DELETE, !entity.isEnabled()));
-			navCrud.getItems().add(new NavCrudItem(entity, OPERATION_RESTORE, NavCrudItem.ICON_RESTORE, entity.isEnabled()));
-			navCrud.getItems().add(new NavCrudItem(entity, OPERATION_LOG, NavCrudItem.ICON_LOG));
 		} else {
 			navCrud.getItems().add(new NavCrudItem(null, OPERATION_LIST, NavCrudItem.ICON_LIST, false, OPERATION_CREATE.equals(operation)));
 			navCrud.getItems().add(new NavCrudItem(null, OPERATION_CREATE, NavCrudItem.ICON_CREATE));
