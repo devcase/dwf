@@ -38,7 +38,11 @@ public class FileSystemDownloadEndpoint implements InitializingBean, DownloadEnd
 		resourceHttpRequestHandler.setApplicationContext(applicationContext);
 		
 		//FileSystemResource fsResource = new FileSystemResource(rootDir); <- não funciona
-		FileSystemResource fsResource = new FileSystemResource(fileUploadManager.getDirectory());
+		String fileDir = fileUploadManager.getDirectory().trim();
+		if(!fileDir.endsWith("/") && !fileDir.endsWith("\\")) {
+			fileDir = fileDir + "/";
+		}
+		FileSystemResource fsResource = new FileSystemResource(fileDir);
 		resourceHttpRequestHandler.setLocations(Collections.singletonList((Resource) fsResource));
 		resourceHttpRequestHandler.afterPropertiesSet();
 	}
