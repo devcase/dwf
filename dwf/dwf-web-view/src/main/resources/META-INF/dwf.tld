@@ -294,14 +294,19 @@
 		<name>valueForInput</name>
 		<path>/META-INF/tags/dwf/valueForInput.tag</path>
 	</tag-file>
+	<tag-file>
+		<name>inputTextList</name>
+		<path>/META-INF/tags/dwf/inputTextList.tag</path>
+	</tag-file>
 	<function>
 		<name>memberOf</name>
 		<function-class>dwf.web.taglib.DwfFunctions</function-class>
 		<function-signature>boolean memberOf( java.lang.Object, java.lang.Object )</function-signature>
 	</function>
-	<tag-file>
-		<name>inputTextList</name>
-		<path>/META-INF/tags/dwf/inputTextList.tag</path>
-	</tag-file>
+	<function>
+		<name>periodFormat</name>
+		<function-class>dwf.web.taglib.DwfFunctions</function-class>
+		<function-signature>String periodFormat( java.lang.Object, java.util.Locale )</function-signature>
+	</function>
 	
 </taglib>

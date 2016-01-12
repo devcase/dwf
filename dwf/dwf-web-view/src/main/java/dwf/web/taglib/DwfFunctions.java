@@ -1,9 +1,15 @@
 package dwf.web.taglib;
 
+import java.time.Period;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Locale;
 
 import org.apache.commons.collections4.iterators.ArrayIterator;
+import org.joda.time.LocalDate;
+import org.joda.time.ReadablePeriod;
+import org.joda.time.format.PeriodFormat;
 
 public class DwfFunctions {
 	
@@ -37,6 +43,23 @@ public class DwfFunctions {
 			if(itemB.getClass().isEnum()) itemB = ((Enum<?>) itemB).name();
 			return itemA.equals(itemB);
 		}
-		
+	}
+	
+	public static String periodFormat(Object obj, Locale locale) {
+		if(locale == null) {
+			locale = Locale.getDefault();
+		}
+		ReadablePeriod period;
+		LocalDate inicio = new LocalDate();
+		LocalDate fim ;
+		if(obj instanceof java.util.Date) {
+			fim = LocalDate.fromDateFields((java.util.Date) obj);
+		} else if(obj instanceof Calendar) {
+			fim = LocalDate.fromCalendarFields((Calendar) obj);
+		} else {
+			fim = new LocalDate(obj);
+		}
+		period = org.joda.time.Period.fieldDifference(inicio, fim);
+		return PeriodFormat.wordBased(locale).print(period);
 	}
 }
