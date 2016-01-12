@@ -19,7 +19,7 @@ Atributos:
 <%@ variable name-given="label" scope="NESTED" variable-class="java.lang.String"%>
 <dwf:mergeMaps map1="${attrMap}" map2="${attrMap.parentAttrMap}" var="attrMap"/>
 <dwf:simpleLabel parentAttrMap="${attrMap}" var="label"/>
-<%-- VALOR PADRÃO E NOME DO INPUT --%>
+<%-- NOME DO PARÂMETRO DO REQUEST E VALOR PREENCHIDO --%>
 <c:choose>
 	<c:when test="${!empty attrMap.name}">
 		<dwf:resolveEL el="${attrMap.name}" var="value" />
@@ -30,6 +30,9 @@ Atributos:
 		<c:set var="name" value="${attrMap.property}"/>
 	</c:when>
 </c:choose>
+<c:if test="${!attrMap.ignoreParams and !empty pageContext.request.getParameterValues(name.concat('[]')) }">
+	<c:set var="value" value="${pageContext.request.getParameterValues(name.concat('[]'))}"/>
+</c:if>
 <c:if test="${!attrMap.ignoreParams and !empty param[name]}"><%-- usa o parâmetro do request no lugar da propriedade--%>
 	<c:set var="value" value="${param[name]}"/>
 </c:if>

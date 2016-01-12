@@ -350,8 +350,34 @@ $(document).on("dwf-postupdate", function() {
 });
 
 /**
- *
+ * <dwf:inputTextList />
  */
-$(document).on("click", ".dwf-popover-confirm", function(evt) {
+$(document).on("change", ".dwf-inputtextlist-textarea", function(evt) {
+	$(this).val($(this).val().trim());
+	var $container = $($(this).closest('.dwf-inputtextlist-container'));
+	var inputName=$container.attr('dwf-inputtextlist-name');
+	var inputMaxlength=$container.attr('dwf-inputtextlist-maxlength');
+	var inputClass=$container.attr('dwf-inputtextlist-class');
+	var inputPlaceholder=$container.attr('dwf-inputtextlist-placeholder');
 	
+	//se apagou o conteúdo, remove o textarea
+	if($(this).val() == "") {
+		$(this).remove();
+	}
+	//se não tem nenhum item vazio restante, adiciona item extra ao fim da lista
+	if($container.find('.dwf-inputtextlist-textarea').last().val() != "" ) {
+		$container.append('<textarea name="' + inputName + '" rows="3" class="' + inputClass + '" placeholder="' + inputPlaceholder + '" maxlength="' + inputMaxlength + '"></textarea>');
+		$container.find('.dwf-inputtextlist-textarea').last().focus();
+	}
+});
+
+/**
+ * Classe dwf-dont-send-empty
+ */
+$(document).on("submit", "form", function(evt) {
+	$(this).find('.dwf-dont-send-empty').each(function() {
+		if($(this).val() == "") {
+			$(this).prop('disabled', true);
+		}
+	});
 });

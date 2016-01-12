@@ -146,6 +146,10 @@
 		<path>/META-INF/tags/dwf/inputBooleanCheckbox.tag</path>
 	</tag-file>
 	<tag-file>
+		<name>inputBooleanButtonGroup</name>
+		<path>/META-INF/tags/dwf/inputBooleanButtonGroup.tag</path>
+	</tag-file>
+	<tag-file>
 		<name>inputCurrencyCodeCombo</name>
 		<path>/META-INF/tags/dwf/inputCurrencyCodeCombo.tag</path>
 	</tag-file>
@@ -295,4 +299,9 @@
 		<function-class>dwf.web.taglib.DwfFunctions</function-class>
 		<function-signature>boolean memberOf( java.lang.Object, java.lang.Object )</function-signature>
 	</function>
+	<tag-file>
+		<name>inputTextList</name>
+		<path>/META-INF/tags/dwf/inputTextList.tag</path>
+	</tag-file>
+	
 </taglib>
