@@ -3,6 +3,7 @@ package dwf.web.autoconfigure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -52,7 +53,7 @@ public class DwfWebViewSecurityAutoConfiguration {
 
 	@Configuration(value="dwfWebViewSecurityConfig")
 	@ConditionalOnWebApplication
-	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER + 1)
+	@AutoConfigureOrder(SecurityProperties.ACCESS_OVERRIDE_ORDER + 1)
 	@EnableWebSecurity
 	static class DwfWebViewSecurityConfig extends WebSecurityConfigurerAdapter {
 		

@@ -8,11 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.stereotype.Controller;
@@ -32,7 +32,7 @@ public class DwfWebRestTestApplication {
 	}
 	
 	@Configuration
-	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+	@AutoConfigureOrder(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 	static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
