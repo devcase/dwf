@@ -314,7 +314,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	 * @see dwf.persistence.dao.DAO#findAll()
 	 */
 	@Override
-	public List<?> findAll() {
+	public List<D> findAll() {
 		return this.findByFilter(new ParsedMap() {
 
 			/*
