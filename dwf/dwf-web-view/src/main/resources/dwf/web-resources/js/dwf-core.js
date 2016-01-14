@@ -352,22 +352,26 @@ $(document).on("dwf-postupdate", function() {
 /**
  * <dwf:inputTextList />
  */
-$(document).on("change", ".dwf-inputtextlist-textarea", function(evt) {
-	$(this).val($(this).val().trim());
+$(document).on("change keyup", ".dwf-inputtextlist-textarea", function(evt) {
 	var $container = $($(this).closest('.dwf-inputtextlist-container'));
 	var inputName=$container.attr('dwf-inputtextlist-name');
 	var inputMaxlength=$container.attr('dwf-inputtextlist-maxlength');
 	var inputClass=$container.attr('dwf-inputtextlist-class');
 	var inputPlaceholder=$container.attr('dwf-inputtextlist-placeholder');
-	
-	//se apagou o conteúdo, remove o textarea
-	if($(this).val() == "") {
-		$(this).remove();
-	}
 	//se não tem nenhum item vazio restante, adiciona item extra ao fim da lista
 	if($container.find('.dwf-inputtextlist-textarea').last().val() != "" ) {
 		$container.append('<textarea name="' + inputName + '" rows="3" class="' + inputClass + '" placeholder="' + inputPlaceholder + '" maxlength="' + inputMaxlength + '"></textarea>');
-		$container.find('.dwf-inputtextlist-textarea').last().focus();
+	}
+});
+/**
+ * <dwf:inputTextList />
+ * Remove um item apagado
+ */
+$(document).on("focusout", ".dwf-inputtextlist-textarea", function(evt) {
+	$(this).val($(this).val().trim());
+	var $container = $($(this).closest('.dwf-inputtextlist-container'));
+	if($(this).val() == "" && !$(this).is(":focus") && !$container.find('.dwf-inputtextlist-textarea').last().is(this)) {
+		$(this).remove();
 	}
 });
 
