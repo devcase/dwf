@@ -9,6 +9,7 @@
 <body>
 	<dwf:editForm>
 		<dwf:inputText property="name" required="true" />
+		<dwf:inputBooleanCheckbox property="adminOnly"/>
 		<dwf:inputText property="description" required="true" />
 	</dwf:editForm>
 </body>

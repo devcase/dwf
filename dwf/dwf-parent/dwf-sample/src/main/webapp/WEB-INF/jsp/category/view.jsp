@@ -14,6 +14,7 @@
 			<br/><a href="#" data-toggle="modal" data-target="#translateName" class="btn btn-default btn-xs"><i class="fa fa-language"></i> traduzir</a>
 		</dwf:outputText>
  		<dwf:outputText property="description"/>
+ 		<dwf:outputText property="adminOnly"/>
  	</dwf:viewPanel>
  	
  	<%-- TRANSLATE NAME POPUP --%>

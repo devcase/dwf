@@ -6,6 +6,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.PermissionEvaluator;
@@ -147,8 +148,7 @@ public class DwfSecurityAutoConfiguration  {
 	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled=true, securedEnabled=true)
 	static class DwfGlobalMethodSecurityConfiguration extends GlobalMethodSecurityConfiguration {
-		@Autowired(required=false)
-		private MethodSecurityMetadataSource customMethodSecurityMetadataSource;
+		
 		@Autowired
 		private MethodSecurityExpressionHandler methodSecurityExpressionHandler;
 
@@ -156,13 +156,6 @@ public class DwfSecurityAutoConfiguration  {
 		protected MethodSecurityExpressionHandler createExpressionHandler() {
 			return methodSecurityExpressionHandler;
 		}
-
-		@Override
-		protected MethodSecurityMetadataSource customMethodSecurityMetadataSource() {
-			return customMethodSecurityMetadataSource;
-		}
-		
-		
 	}
 	
 	

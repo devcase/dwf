@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.expression.method.ExpressionBasedAnnotationAttributeFactory;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.access.method.AbstractMethodSecurityMetadataSource;
 import org.springframework.security.access.prepost.PreInvocationAttribute;
 import org.springframework.stereotype.Component;
 
+import dwf.security.CustomMethodSecurityMetadataSource;
 import dwf.web.controller.BaseCrudController;
 
 /**
@@ -21,7 +21,7 @@ import dwf.web.controller.BaseCrudController;
  *
  */
 @Component
-public class CrudMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
+public class CrudMethodSecurityMetadataSource extends CustomMethodSecurityMetadataSource {
 
 	private ExpressionBasedAnnotationAttributeFactory attributeFactory; 
 
@@ -57,5 +57,7 @@ public class CrudMethodSecurityMetadataSource extends AbstractMethodSecurityMeta
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		return null;
 	}
+	
+	
 
 }

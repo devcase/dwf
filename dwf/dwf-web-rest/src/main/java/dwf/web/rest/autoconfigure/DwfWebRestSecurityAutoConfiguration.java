@@ -2,6 +2,7 @@ package dwf.web.rest.autoconfigure;
 
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,7 @@ public class DwfWebRestSecurityAutoConfiguration {
 	@ConditionalOnWebApplication
 	@AutoConfigureOrder(SecurityProperties.ACCESS_OVERRIDE_ORDER + 1)
 	@EnableWebSecurity
-	@ConditionalOnMissingBean(name="dwfWebViewSecurityConfig")
+	@ConditionalOnMissingClass(value="dwf.web.autoconfigure.DwfWebViewSecurityAutoConfiguration.DwfWebViewSecurityConfig")
 	static class DwfWebSecurityConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {

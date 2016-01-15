@@ -31,18 +31,6 @@ public class DwfWebRestTestApplication {
 		SpringApplication.run(DwfWebRestTestApplication.class, args);
 	}
 	
-	@Configuration
-	@AutoConfigureOrder(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-	static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http.authorizeRequests().anyRequest().permitAll();
-		}
-		
-	}
-	
-	
 	@Controller("exampleController")
 	@RequestMapping("/example")
 	public static class ExampleController extends BaseController {

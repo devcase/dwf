@@ -33,9 +33,6 @@ import dwf.web.upload.S3DownloadEndpoint;
 public class DwfWebRestAutoConfiguration {
 	
 	@Autowired
-	private ParsedMapArgumentResolver parsedMapArgumentResolver;
-	
-	@Autowired
 	private SessionFactory sessionFactory;
 
 	@Bean(name="openSessionInViewInterceptor")
