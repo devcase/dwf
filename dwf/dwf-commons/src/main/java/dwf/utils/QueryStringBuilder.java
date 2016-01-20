@@ -1,5 +1,7 @@
 package dwf.utils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,24 +34,32 @@ public class QueryStringBuilder {
 
 
 	public String build() {
-		StringBuilder sb = new StringBuilder();
-		for (Map.Entry<String, String[]> parameter : consolidateParams().entrySet()) {
-			for (String value : parameter.getValue()) {
-				sb.append("&").append(parameter.getKey()).append("=").append(value);
+		try {
+			StringBuilder sb = new StringBuilder();
+			for (Map.Entry<String, String[]> parameter : consolidateParams().entrySet()) {
+				for (String value : parameter.getValue()) {
+					sb.append("&").append(parameter.getKey()).append("=").append(URLEncoder.encode(value, "UTF-8"));
+				}
 			}
+			return sb.toString();
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException ("Inesperado - deveria suportar UTF-8", e);
 		}
-		return sb.toString();
 	}
 	public String buildStartingWith(char firstChar) {
-		StringBuilder sb = new StringBuilder();
-		for (Map.Entry<String, String[]> parameter : consolidateParams().entrySet()) {
-			for (String value : parameter.getValue()) {
-				sb.append("&").append(parameter.getKey()).append("=").append(value);
+		try {
+			StringBuilder sb = new StringBuilder();
+			for (Map.Entry<String, String[]> parameter : consolidateParams().entrySet()) {
+				for (String value : parameter.getValue()) {
+					sb.append("&").append(parameter.getKey()).append("=").append(URLEncoder.encode(value, "UTF-8"));
+				}
 			}
+			if(sb.length() > 0)
+				sb.setCharAt(0, firstChar);
+			return sb.toString();
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException ("Inesperado - deveria suportar UTF-8", e);
 		}
-		if(sb.length() > 0)
-			sb.setCharAt(0, firstChar);
-		return sb.toString();
 	}
 	
 	
