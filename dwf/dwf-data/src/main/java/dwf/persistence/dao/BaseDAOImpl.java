@@ -470,11 +470,11 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	@Override
 	@Transactional(rollbackFor = ValidationException.class)
 	public D importFromFile(D entity) throws ValidationException {
-		prepareEntity(entity);
-		validate(entity, ValidationGroups.ImportFromFile.class);
-		if (entity.getId() != null) {
+		if (entity.getId() == null) {
 			setIdForImport(entity);
 		}
+		prepareEntity(entity);
+		validate(entity, ValidationGroups.ImportFromFile.class);
 
 		D existent = entity.getId() != null ? findById(entity.getId()) : null;
 
