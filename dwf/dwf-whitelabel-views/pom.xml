@@ -32,6 +32,10 @@
 			<artifactId>dwf-web-view</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>br.com.devcase.dwf</groupId>
+			<artifactId>dwf-data</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-el-api</artifactId>
 			<scope>provided</scope>

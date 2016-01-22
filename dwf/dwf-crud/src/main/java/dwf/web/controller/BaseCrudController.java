@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,8 @@ import dwf.persistence.dao.DAO;
 import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.export.Exporter;
 import dwf.persistence.export.Importer;
+import dwf.user.domain.BaseUser;
+import dwf.user.domain.LoggedUserDetails;
 import dwf.utils.ParsedMap;
 import dwf.web.message.UserMessageType;
 
@@ -412,6 +415,15 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
+	}
+	
+
+	
+	protected BaseUser getCurrentBaseUser() {
+		Object currentUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if(currentUser instanceof LoggedUserDetails) {
+			return ((LoggedUserDetails) currentUser).getBaseUser();
+		} return null;
 	}
 
 	/**

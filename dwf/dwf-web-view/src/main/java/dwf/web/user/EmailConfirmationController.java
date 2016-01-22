@@ -3,6 +3,7 @@ package dwf.web.user;
 import javax.validation.ValidationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import dwf.web.message.UserMessageType;
 
 @Controller
 @Scope(WebApplicationContext.SCOPE_REQUEST)
+@ConditionalOnClass(value=VerificationTokenService.class)
 public class EmailConfirmationController extends BaseController {
 
 	private final VerificationTokenService verificationTokenService;

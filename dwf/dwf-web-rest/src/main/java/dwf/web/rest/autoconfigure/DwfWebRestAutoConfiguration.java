@@ -8,8 +8,8 @@ import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.scan.StandardJarScanner;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -24,40 +24,46 @@ import org.springframework.util.ClassUtils;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import dwf.web.rest.spring.ParsedMapArgumentResolver;
+import dwf.upload.UploadManager;
 import dwf.web.upload.FileSystemDownloadEndpoint;
 import dwf.web.upload.S3DownloadEndpoint;
 
 @Configuration
 @ComponentScan(basePackages = {"dwf.web"})
 public class DwfWebRestAutoConfiguration {
-	
-	@Autowired
-	private SessionFactory sessionFactory;
 
-	@Bean(name="openSessionInViewInterceptor")
-	public OpenSessionInViewInterceptor openSessionInViewInterceptor() {
-		OpenSessionInViewInterceptor o = new OpenSessionInViewInterceptor();
-		o.setSessionFactory(sessionFactory);
-		return o;
-	}
-	
-	@Configuration("dwfWebRestAutoConfiguration.OpenSessionInViewInterceptorConfiguration")
-	@ConditionalOnClass(name="dwf.data.autoconfigure.DwfDataAutoConfiguration")
 	@ConditionalOnWebApplication
-	static class OpenSessionInViewInterceptorConfiguration extends WebMvcConfigurerAdapter {
+	@ConditionalOnClass(name={"dwf.data.autoconfigure.DwfDataAutoConfiguration", "org.hibernate.SessionFactory"})
+	public static class OpenSessionInViewConfiguration {
 		@Autowired
-		private OpenSessionInViewInterceptor openSessionInViewInterceptor;
+		private SessionFactory sessionFactory;
+	
+		@Bean(name="openSessionInViewInterceptor")
+		public OpenSessionInViewInterceptor openSessionInViewInterceptor() {
+			OpenSessionInViewInterceptor o = new OpenSessionInViewInterceptor();
+			o.setSessionFactory(sessionFactory);
+			return o;
+		}
 		
-		@Override
-		public void addInterceptors(InterceptorRegistry registry) {
-			registry.addWebRequestInterceptor(openSessionInViewInterceptor);
+		@Configuration("dwfWebRestAutoConfiguration.OpenSessionInViewInterceptorConfiguration")
+		@ConditionalOnClass(name="dwf.data.autoconfigure.DwfDataAutoConfiguration")
+		@ConditionalOnWebApplication
+		static class OpenSessionInViewConfigurerAdapter extends WebMvcConfigurerAdapter {
+			@Autowired
+			private OpenSessionInViewInterceptor openSessionInViewInterceptor;
+			
+			@Override
+			public void addInterceptors(InterceptorRegistry registry) {
+				registry.addWebRequestInterceptor(openSessionInViewInterceptor);
+			}
 		}
 	}
 	
 	
 	@Configuration
 	@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "s3")
+	@ConditionalOnWebApplication
+	@ConditionalOnBean(value=UploadManager.class)
 	static class S3UploadManagerConfiguration {
 		@Bean
 		public S3DownloadEndpoint downloadEndpoint() {
@@ -68,6 +74,8 @@ public class DwfWebRestAutoConfiguration {
 	
 	@Configuration
 	@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "s3-async")
+	@ConditionalOnWebApplication
+	@ConditionalOnBean(value=UploadManager.class)
 	static class S3DownloadEndpointConfiguration {
 		@Bean
 		public S3DownloadEndpoint downloadEndpoint() {
@@ -79,6 +87,8 @@ public class DwfWebRestAutoConfiguration {
 
 	@Configuration
 	@ConditionalOnProperty(prefix = "dwf.web", name = "uploadmanager", havingValue = "filesystem", matchIfMissing=true)
+	@ConditionalOnWebApplication
+	@ConditionalOnBean(value=UploadManager.class)
 	static class FileSystemDownloadEndpointConfiguration {
 		@Bean
 		public FileSystemDownloadEndpoint downloadEndpoint() {

@@ -8,6 +8,7 @@ import javax.validation.ValidationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,6 +31,7 @@ import dwf.web.message.UserMessageType;
 
 @Controller
 @Scope(WebApplicationContext.SCOPE_REQUEST)
+@ConditionalOnClass(value=BaseUserService.class)
 public class ResetPasswordController extends BaseController {
 
 	@Autowired

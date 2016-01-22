@@ -9,6 +9,22 @@
 	<tlib-version>1.0</tlib-version>
 	<short-name>dwf</short-name>
 	<uri>http://dwf.devcase.com.br/dwf</uri>
+	<tag>
+		<name>resolveEL</name>
+		<tag-class>dwf.web.taglib.tag.ResolveELTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<name>el</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>var</name>
+			<required>no</required>
+			<rtexprvalue>no</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+	</tag>
 	<tag-file>
 		<name>breadcrumbCrud</name>
 		<path>/META-INF/tags/dwf/breadcrumbCrud.tag</path>
@@ -33,22 +49,7 @@
 		<name>navCrudBar</name>
 		<path>/META-INF/tags/dwf/navCrudBar.tag</path>
 	</tag-file>
-	<tag>
-		<name>resolveEL</name>
-		<tag-class>dwf.web.taglib.tag.ResolveELTag</tag-class>
-		<body-content>empty</body-content>
-		<attribute>
-			<name>el</name>
-			<rtexprvalue>true</rtexprvalue>
-			<required>true</required>
-		</attribute>
-		<attribute>
-			<name>var</name>
-			<rtexprvalue>no</rtexprvalue>
-			<required>no</required>
-			<type>java.lang.String</type>
-		</attribute>
-	</tag>
+
 	<tag-file>
 		<name>dwfScripts</name>
 		<path>/META-INF/tags/dwf/dwfScripts.tag</path>

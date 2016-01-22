@@ -176,13 +176,6 @@ public abstract class BaseController implements ApplicationContextAware {
 	}
 	
 	
-	protected BaseUser getCurrentBaseUser() {
-		Object currentUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if(currentUser instanceof LoggedUserDetails) {
-			return ((LoggedUserDetails) currentUser).getBaseUser();
-		} return null;
-	}
-	
 	protected String getMessage(String code, String... args) {
 		Locale locale = RequestContextUtils.getLocale(request);
 		return messageSource.getMessage(code, args, locale);

@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Scope;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ import dwf.web.AjaxHashKeyManager;
 @RestController
 @RequestMapping("/ajax")
 @Scope(WebApplicationContext.SCOPE_REQUEST)
+@ConditionalOnClass(value=DAO.class)
 public class AjaxController extends BaseController {
 	@Autowired
 	private AjaxHashKeyManager ajaxHashKeyManager;
