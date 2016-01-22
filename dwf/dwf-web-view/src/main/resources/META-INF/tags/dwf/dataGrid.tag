@@ -59,7 +59,7 @@
 				<c:forTokens items="${columns}" delims="," var="column">
 					<c:set var="columnCount" value="${columnCount +1}" />
 					<th>
-						<dwf:simpleLabel property="${column}" var="columnName"/>
+						<dwf:simpleLabel property="${column}" var="columnName" labelKey="${column }"/>
 						<c:choose>
 							<c:when test="${!ordercolumns.contains(column)}">
 								<%-- NO ORDER BY --%>
