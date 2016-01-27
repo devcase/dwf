@@ -59,6 +59,7 @@ import dwf.upload.image.SyncImageResizer;
 @ComponentScan(basePackages = {"dwf.activitylog.service", "dwf.persistence", "dwf.multilang", "dwf.user", "dwf.slack"})
 @PropertySource("classpath:/dwf-data-default.properties")
 @ConfigurationProperties(prefix = "dwf.data")
+@ConditionalOnProperty(prefix="dwf.data", name="entityPackage")
 public class DwfDataAutoConfiguration  {
 	@Autowired
 	private DataSource dataSource;

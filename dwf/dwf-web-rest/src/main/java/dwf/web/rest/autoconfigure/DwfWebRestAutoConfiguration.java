@@ -10,7 +10,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration;
@@ -33,7 +32,7 @@ import dwf.web.upload.S3DownloadEndpoint;
 public class DwfWebRestAutoConfiguration {
 
 	@ConditionalOnWebApplication
-	@ConditionalOnClass(name={"dwf.data.autoconfigure.DwfDataAutoConfiguration", "org.hibernate.SessionFactory"})
+	@ConditionalOnBean(type={"dwf.data.autoconfigure.DwfDataAutoConfiguration", "org.hibernate.SessionFactory"})
 	public static class OpenSessionInViewConfiguration {
 		@Autowired
 		private SessionFactory sessionFactory;
@@ -44,20 +43,21 @@ public class DwfWebRestAutoConfiguration {
 			o.setSessionFactory(sessionFactory);
 			return o;
 		}
+	}
+	
+	@Configuration("dwfWebRestAutoConfiguration.OpenSessionInViewInterceptorConfiguration")
+	@ConditionalOnBean(type={"dwf.data.autoconfigure.DwfDataAutoConfiguration", "org.hibernate.SessionFactory"})
+	@ConditionalOnWebApplication
+	static class OpenSessionInViewConfigurerAdapter extends WebMvcConfigurerAdapter {
+		@Autowired
+		private OpenSessionInViewInterceptor openSessionInViewInterceptor;
 		
-		@Configuration("dwfWebRestAutoConfiguration.OpenSessionInViewInterceptorConfiguration")
-		@ConditionalOnClass(name="dwf.data.autoconfigure.DwfDataAutoConfiguration")
-		@ConditionalOnWebApplication
-		static class OpenSessionInViewConfigurerAdapter extends WebMvcConfigurerAdapter {
-			@Autowired
-			private OpenSessionInViewInterceptor openSessionInViewInterceptor;
-			
-			@Override
-			public void addInterceptors(InterceptorRegistry registry) {
-				registry.addWebRequestInterceptor(openSessionInViewInterceptor);
-			}
+		@Override
+		public void addInterceptors(InterceptorRegistry registry) {
+			registry.addWebRequestInterceptor(openSessionInViewInterceptor);
 		}
 	}
+
 	
 	
 	@Configuration

@@ -7,13 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -33,7 +32,7 @@ import dwf.web.rest.autoconfigure.DwfWebRestAutoConfiguration;
 @ConditionalOnWebApplication
 public class DwfWebViewSecurityAutoConfiguration {
 
-	@ConditionalOnMissingClass(value="dwf.user.service.UserDetailsServiceImpl")
+	@ConditionalOnMissingBean(value=UserDetailsService.class)
 	static class NoDwfDataUserDetailsServiceConfiguration {
 		@Bean
 		public UserDetailsService userDetailsService() {
