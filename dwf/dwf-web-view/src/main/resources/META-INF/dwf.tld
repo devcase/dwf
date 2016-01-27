@@ -299,6 +299,10 @@
 		<name>inputTextList</name>
 		<path>/META-INF/tags/dwf/inputTextList.tag</path>
 	</tag-file>
+	<tag-file>
+		<name>inputTextCombo</name>
+		<path>/META-INF/tags/dwf/inputTextCombo.tag</path>
+	</tag-file>
 	<function>
 		<name>memberOf</name>
 		<function-class>dwf.web.taglib.DwfFunctions</function-class>
