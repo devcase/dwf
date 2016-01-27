@@ -19,6 +19,12 @@
 	</div>
 </c:if>
 
+<c:if test="${!empty userException }">
+	<div class="alert alert-danger" role="alert alert-dismissable fade in">
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+		${userException}
+	</div>
+</c:if>
 
 
 <c:if test="${!empty validationException || bindingResults.errorCount > 0}">

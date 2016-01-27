@@ -41,6 +41,7 @@ public abstract class BaseController implements ApplicationContextAware {
 	protected static final String USER_MESSAGES_FLASH_MAP_KEY = "userMessagesList";
 	protected static final String VALIDATION_EXCEPTION_FLASH_MAP_KEY = "validationException";
 	protected static final String VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY = "violationsMap";
+	protected static final String USER_EXCEPTION_FLASH_MAP_KEY = "userException";
 	protected static final String BACK_TO_URL_FLASH_MAP_KEY = "backToUrl";
 	protected RedirectAttributes redirectAttributes;
 	protected Model model;
@@ -82,6 +83,18 @@ public abstract class BaseController implements ApplicationContextAware {
 		}
 		request.setAttribute(USER_MESSAGES_FLASH_MAP_KEY, list);
 		list.add(new UserMessage(key, userMessageType));
+	}
+	
+	/**
+	 * Cria e adiciona UserMessage baseada em uma exceção
+	 * 
+	 * @param key
+	 * @param userMessageType
+	 * @param model
+	 */
+	protected void addUserException(Exception exception) {
+		redirectAttributes.addFlashAttribute(USER_EXCEPTION_FLASH_MAP_KEY, exception);
+		request.setAttribute(USER_EXCEPTION_FLASH_MAP_KEY, exception);
 	}
 	
 	@SuppressWarnings("unchecked")
