@@ -31,7 +31,7 @@ Atributos:
 	</c:when>
 </c:choose>
 <c:if test="${!attrMap.ignoreParams and !empty pageContext.request.getParameterValues(name.concat('[]')) }">
-	<c:set var="value" value="${pageContext.request.getParameterValues(name.concat('[]'))}"/>
+	<c:set var="value" value="${pageContext.request.getParameterValues(name.concat('[]')) }"/>
 </c:if>
 <c:if test="${!attrMap.ignoreParams and !empty param[name]}"><%-- usa o parâmetro do request no lugar da propriedade--%>
 	<c:set var="value" value="${param[name]}"/>

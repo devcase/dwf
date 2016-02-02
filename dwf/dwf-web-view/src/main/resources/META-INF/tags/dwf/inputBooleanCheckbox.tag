@@ -12,7 +12,7 @@
 	</c:if>
 	<input type="checkbox" value="true" name="${name}"
 		<c:if test="${attrMap.required}">required="required"</c:if>
-		class="<c:if test="${attrMap.required}">required="required"</c:if> "
+		class="<c:if test="${attrMap.required}">required</c:if> "
 		<c:if test="${value}">checked</c:if>/>
 		<c:if test="${attrMap.style eq 'left' and !attrMap.withoutLabel }">
 			${label}
