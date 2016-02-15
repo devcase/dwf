@@ -1,29 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.3.1.RELEASE</version>
-		<relativePath />
+		<groupId>br.com.devcase.dwf</groupId>
+		<artifactId>dwf</artifactId>
+		<version>2.3.0-SNAPSHOT</version>
 	</parent>
-	<groupId>br.com.devcase.dwf</groupId>
 	<artifactId>dwf-parent</artifactId>
-	<version>2.3.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<properties>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.version>4.2.4.RELEASE</spring.version>
-		<spring-security.version>4.0.3.RELEASE</spring-security.version>
-		<spring-boot.version>1.3.1.RELEASE</spring-boot.version>
-		<tomcat.version>8.0.30</tomcat.version>
-		<dwf.version>2.3.0-SNAPSHOT</dwf.version>
-		<java.version>1.8</java.version>
-		<jackson.version>2.6.1</jackson.version>
-		<aws-java-sdk.version>1.10.19</aws-java-sdk.version>
-		<json-path.version>2.0.0</json-path.version>
-	</properties>
 
 	<build>
 		<pluginManagement>
@@ -157,71 +141,7 @@
 		</resources>
 	</build>
 
-	<!-- see configuration instructions (settings.xml): https://github.com/spring-projects/aws-maven -->
-	<distributionManagement>
-		<repository>
-			<id>devcase-sp-repo</id>
-			<name>Devcase Repository S3 Bucket</name>
-			<url>s3://devcase-sp-repo/release</url>
-		</repository>
-		<snapshotRepository>
-			<id>devcase-sp-repo-snapshots</id>
-			<name>Devcase Repository S3 Bucket</name>
-			<url>s3://devcase-sp-repo/snapshot</url>
-		</snapshotRepository>
-	</distributionManagement>
-	<repositories>
-		<repository>
-			<id>central</id>
-			<name>Maven Repository Switchboard</name>
-			<url>http://repo1.maven.org/maven2</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>devcase-sp-repo</id>
-			<name>Devcase Repository S3 Bucket</name>
-			<url>http://devcase-sp-repo.s3.amazonaws.com/release</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>devcase-sp-repo-snapshots</id>
-			<name>Devcase Repository S3 Bucket</name>
-			<url>http://devcase-sp-repo.s3.amazonaws.com/snapshot</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>central</id>
-			<name>Maven Repository Switchboard</name>
-			<url>http://repo1.maven.org/maven2</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-		<pluginRepository>
-			<id>devcase-sp-repo</id>
-			<name>Devcase Repository S3 Bucket</name>
-			<url>http://devcase-sp-repo.s3.amazonaws.com/release</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-		<pluginRepository>
-			<id>devcase-sp-repo-snapshots</id>
-			<name>Devcase Repository S3 Bucket</name>
-			<url>http://devcase-sp-repo.s3.amazonaws.com/snapshot</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -268,66 +188,6 @@
 		</dependency>
 		
 	</dependencies>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>br.com.devcase.dwf</groupId>
-				<artifactId>dwf-data</artifactId>
-				<version>${dwf.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>br.com.devcase.dwf</groupId>
-				<artifactId>dwf-web-view</artifactId>
-				<version>${dwf.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>br.com.devcase.dwf</groupId>
-				<artifactId>dwf-web-rest</artifactId>
-				<version>${dwf.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>br.com.devcase.dwf</groupId>
-				<artifactId>dwf-crud</artifactId>
-				<version>${dwf.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>br.com.devcase.dwf</groupId>
-				<artifactId>dwf-commons</artifactId>
-				<version>${dwf.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>br.com.devcase.dwf</groupId>
-				<artifactId>dwf-whitelabel-views</artifactId>
-				<version>${dwf.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-codec</groupId>
-				<artifactId>commons-codec</artifactId>
-				<version>1.8</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-test</artifactId>
-				<version>${spring.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>httpclient</artifactId>
-				<version>4.5</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>httpmime</artifactId>
-				<version>4.5</version>
-			</dependency>
-			<dependency>
-				<groupId>joda-time</groupId>
-				<artifactId>joda-time</artifactId>
-				<version>2.8.2</version>
-			</dependency>
-			
-		</dependencies>
-	</dependencyManagement>
 	<modules>
 		<module>dwf-sample</module>
 		<module>dwf-sample-integration-test</module>

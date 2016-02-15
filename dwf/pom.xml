@@ -1,6 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>br.com.devcase.dwf</groupId>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.3.1.RELEASE</version>
+		<relativePath />
+	</parent>
+	
 	<artifactId>dwf</artifactId>
 	<version>2.3.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
@@ -25,12 +32,16 @@
 		<spring-security.version>4.0.3.RELEASE</spring-security.version>
 		<spring-boot.version>1.3.1.RELEASE</spring-boot.version>
 		<tomcat.version>8.0.30</tomcat.version>
+		<undertow.version>1.3.17.Final</undertow.version>
 		<dwf.version>2.3.0-SNAPSHOT</dwf.version>
 		<java.version>1.8</java.version>
 		<jackson.version>2.6.1</jackson.version>
 		<aws-java-sdk.version>1.10.19</aws-java-sdk.version>
 		<json-path.version>2.0.0</json-path.version>
+		<aws-java-sdk.version>1.10.19</aws-java-sdk.version>
+		<json-path.version>2.0.0</json-path.version>
 	</properties>
+	
 	<!-- see configuration instructions (settings.xml): https://github.com/spring-projects/aws-maven -->
 	<distributionManagement>
 		<repository>
@@ -44,6 +55,66 @@
 			<url>s3://devcase-sp-repo/snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
+	<repositories>
+		<repository>
+			<id>central</id>
+			<name>Maven Repository Switchboard</name>
+			<url>http://repo1.maven.org/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>devcase-sp-repo</id>
+			<name>Devcase Repository S3 Bucket</name>
+			<url>http://devcase-sp-repo.s3.amazonaws.com/release</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>devcase-sp-repo-snapshots</id>
+			<name>Devcase Repository S3 Bucket</name>
+			<url>http://devcase-sp-repo.s3.amazonaws.com/snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>jboss</id>
+			<name>JBoss</name>
+			<url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>central</id>
+			<name>Maven Repository Switchboard</name>
+			<url>http://repo1.maven.org/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>devcase-sp-repo</id>
+			<name>Devcase Repository S3 Bucket</name>
+			<url>http://devcase-sp-repo.s3.amazonaws.com/release</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>devcase-sp-repo-snapshots</id>
+			<name>Devcase Repository S3 Bucket</name>
+			<url>http://devcase-sp-repo.s3.amazonaws.com/snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>	
 	<build>
 		<plugins>
 			<plugin>
@@ -201,6 +272,7 @@
 				<artifactId>dwf-web-rest</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			
 			<!-- SPRING -->
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -238,6 +310,11 @@
 				<version>${spring.version}</version>
 				<scope>import</scope>
 				<type>pom</type>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-test</artifactId>
+				<version>${spring.version}</version>
 			</dependency>
 
 			<!-- SPRING-SECURITY -->
@@ -286,6 +363,11 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-tomcat</artifactId>
+				<version>${spring-boot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-undertow</artifactId>
 				<version>${spring-boot.version}</version>
 			</dependency>
 			<dependency>
@@ -347,6 +429,23 @@
 				<artifactId>tomcat-embed-core</artifactId>
 				<version>${tomcat.version}</version>
 			</dependency>
+			<!-- UNDERTOW -->
+			<dependency>
+				<groupId>io.undertow</groupId>
+				<artifactId>undertow-core</artifactId>
+				<version>${undertow.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.undertow</groupId>
+				<artifactId>undertow-servlet</artifactId>
+				<version>${undertow.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.undertow</groupId>
+				<artifactId>undertow-websockets-jsr</artifactId>
+				<version>${undertow.version}</version>
+			</dependency>
+
 
 			<!-- ETC -->
 			<dependency>
@@ -354,7 +453,6 @@
 				<artifactId>hsqldb</artifactId>
 				<version>2.3.2</version>
 			</dependency>
-
 
 			<dependency>
 				<groupId>org.jsoup</groupId>
@@ -461,6 +559,26 @@
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
 				<version>4.5</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpmime</artifactId>
+				<version>4.5</version>
+			</dependency>
+			<dependency>
+				<groupId>joda-time</groupId>
+				<artifactId>joda-time</artifactId>
+				<version>2.8.2</version>
+			</dependency>		
+			<dependency>
+				<groupId>org.jboss.metadata</groupId>
+				<artifactId>jboss-metadata-common</artifactId>
+				<version>8.0.0.Final</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.metadata</groupId>
+				<artifactId>jboss-metadata-web</artifactId>
+				<version>8.0.0.Final</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

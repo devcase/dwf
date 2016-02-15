@@ -28,26 +28,15 @@
 			<artifactId>spring-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-el-api</artifactId>
-			<scope>provided</scope>
+			<groupId>org.jboss.spec.javax.servlet.jsp</groupId>
+			<artifactId>jboss-jsp-api_2.3_spec</artifactId>
+			<version>1.0.1.Final</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-jsp-api</artifactId>
-			<scope>provided</scope>
+			<groupId>io.undertow.jastow</groupId>
+			<artifactId>jastow</artifactId>
+			<version>2.0.0.Final</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-servlet-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.tomcat.embed</groupId>
-			<artifactId>tomcat-embed-jasper</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
@@ -118,6 +107,13 @@
             <version>1.8.3</version>
             <optional>true</optional>
         </dependency>
-        
+		<dependency>
+			<groupId>org.jboss.metadata</groupId>
+			<artifactId>jboss-metadata-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.metadata</groupId>
+			<artifactId>jboss-metadata-web</artifactId>
+		</dependency>        
 	</dependencies>
 </project>
