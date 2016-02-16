@@ -33,7 +33,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator;
@@ -134,7 +134,8 @@ public class DwfDataAutoConfiguration  {
 	public LocalSessionFactoryBean sessionFactory(DwfNamingStrategy dwfNamingStrategy) {
 		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
 		sessionFactory.setPackagesToScan( new String [] {"dwf.activitylog.domain", "dwf.user.domain", entityPackage});
-		sessionFactory.setNamingStrategy(dwfNamingStrategy);
+//		sessionFactory.setNamingStrategy(dwfNamingStrategy);
+		sessionFactory.setPhysicalNamingStrategy(dwfNamingStrategy);
 		sessionFactory.setDataSource(dataSource);
 		if(hibernateProperties != null) {
 			Properties p = new Properties();
