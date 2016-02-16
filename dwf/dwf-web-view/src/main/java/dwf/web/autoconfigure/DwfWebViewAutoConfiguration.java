@@ -61,7 +61,6 @@ import dwf.web.taglib.TldLocator;
 import io.undertow.jsp.HackInstanceManager;
 
 @Configuration
-@ComponentScan(basePackages = {"dwf.web"})
 @ConditionalOnWebApplication
 @EnableWebMvc
 @PropertySource("classpath:/dwf-web-view-default.properties")

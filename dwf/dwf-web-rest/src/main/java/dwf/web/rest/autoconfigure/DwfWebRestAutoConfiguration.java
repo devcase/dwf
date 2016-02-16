@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.orm.hibernate4.support.OpenSessionInViewInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -18,6 +19,7 @@ import dwf.web.upload.S3DownloadEndpoint;
 
 @Configuration
 @ComponentScan(basePackages = {"dwf.web"})
+@PropertySource("classpath:/dwf-web-rest-default.properties")
 public class DwfWebRestAutoConfiguration {
 
 	@ConditionalOnWebApplication
