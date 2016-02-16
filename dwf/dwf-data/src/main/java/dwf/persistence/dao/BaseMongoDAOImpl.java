@@ -43,7 +43,6 @@ import org.jongo.Oid;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 
 import dwf.activitylog.domain.UpdatedProperty;
 import dwf.activitylog.service.ActivityLogService;
@@ -150,7 +149,10 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 			for (int i = 1; i < mongoAggregatePipeline.size(); i++) {
 				aggr.and(new BasicDBObject(mongoAggregatePipeline.get(i)).toString());
 			}
-			return aggr.as(resultClass);
+			Aggregate.ResultsIterator<T> resultsIterator = aggr.as(resultClass);
+			List<T> resultsList = new ArrayList<T>();
+			resultsIterator.forEach(p -> resultsList.add(p));
+			return resultsList;
 		}
 		return null;
 	}
