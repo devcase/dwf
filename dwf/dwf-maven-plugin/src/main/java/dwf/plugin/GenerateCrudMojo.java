@@ -2,7 +2,6 @@ package dwf.plugin;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Set;
@@ -75,7 +74,7 @@ public class GenerateCrudMojo extends AbstractMojo {
 			}
 
 		} catch (Throwable ex) {
-			ex.printStackTrace();
+			throw new MojoExecutionException("Erro na geração do CRUD", ex);
 		}
 	}
 
