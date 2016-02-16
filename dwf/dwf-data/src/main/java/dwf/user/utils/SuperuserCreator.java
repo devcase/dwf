@@ -30,6 +30,6 @@ public class SuperuserCreator {
 	public void loadData() {
 		Assert.hasText(defaultUserEmail);
 		if(StringUtils.isBlank(defaultUserPassword)) defaultUserPassword = defaultUserEmail;
-		baseUserDAO.findOrSaveNew(new BaseUser(defaultUserEmail, passwordEncoder.encode(defaultUserPassword), null, BaseUserRole.SUPERUSER));
+		baseUserDAO.findOrSaveNew(new BaseUser(defaultUserEmail, passwordEncoder.encode(defaultUserPassword), null, BaseUserRole.SUPERUSER, BaseUserRole.BACKOFFICE_ADMIN));
 	}
 }
