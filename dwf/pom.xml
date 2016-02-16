@@ -31,18 +31,6 @@
 		<aws-java-sdk.version>1.10.15</aws-java-sdk.version>
 	</properties>
 	<!-- see configuration instructions (settings.xml): https://github.com/spring-projects/aws-maven -->
-	<distributionManagement>
-		<repository>
-			<id>devcase-sp-repo</id>
-			<name>Devcase Repository S3 Bucket</name>
-			<url>s3://devcase-sp-repo/release</url>
-		</repository>
-		<snapshotRepository>
-			<id>devcase-sp-repo-snapshots</id>
-			<name>Devcase Repository S3 Bucket</name>
-			<url>s3://devcase-sp-repo/snapshot</url>
-		</snapshotRepository>
-	</distributionManagement>
 	<build>
 		<plugins>
 			<plugin>
@@ -68,13 +56,6 @@
 				</executions>
 			</plugin>
 		</plugins>
-		<extensions>
-			<extension>
-				<groupId>org.springframework.build</groupId>
-				<artifactId>aws-maven</artifactId>
-				<version>5.0.0.RELEASE</version>
-			</extension>
-		</extensions>
 		<pluginManagement>
 			<plugins>
 				<plugin><!-- generates servlets java from jsps and a Configuration file 
