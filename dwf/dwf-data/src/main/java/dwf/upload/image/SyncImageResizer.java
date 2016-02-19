@@ -20,16 +20,10 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 
-import net.coobird.thumbnailator.util.exif.ExifFilterUtils;
-import net.coobird.thumbnailator.util.exif.ExifUtils;
-import net.coobird.thumbnailator.util.exif.Orientation;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Mode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +33,15 @@ import org.springframework.transaction.annotation.Transactional;
 import dwf.persistence.annotations.Image;
 import dwf.persistence.dao.DAO;
 import dwf.upload.UploadManager;
+import net.coobird.thumbnailator.util.exif.ExifFilterUtils;
+import net.coobird.thumbnailator.util.exif.ExifUtils;
+import net.coobird.thumbnailator.util.exif.Orientation;
 
 @Transactional
 public class SyncImageResizer implements ImageResizer {
 	private Log log = LogFactory.getLog(getClass());
-	@Autowired
-	private SessionFactory sessionFactory;
+//	@Autowired
+//	private SessionFactory sessionFactory;
 	@Autowired
 	private ApplicationContext applicationContext;
 	@Autowired
@@ -53,9 +50,9 @@ public class SyncImageResizer implements ImageResizer {
 
 	@Override
 	public void resizeImage(Serializable id, String entityName, String property) throws IOException {
-		Session session = sessionFactory.getCurrentSession();
+//		Session session = sessionFactory.getCurrentSession();
 		DAO<?> dao = (DAO<?>) applicationContext.getBean(entityName + "DAO");
-		Object connectedEntity = dao.findById(id);
+		Object connectedEntity = dao.retrieveCopy(id);
 		Class<?> entityClass = dao.getEntityClass();
 		
 		PropertyDescriptor pd = org.springframework.beans.BeanUtils.getPropertyDescriptor(entityClass, property);
@@ -176,11 +173,10 @@ public class SyncImageResizer implements ImageResizer {
 				String uploadKey = uploadManager.saveFile(saveImageAsTempFile(croppedImg, outputContentType), outputContentType, propertyName + fileSuffix, entityName + "/" + id);
 				//Atualiza a entidade
 				BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
+				dao.setProperty(id, propertyName, uploadKey);
 			}
 			
 			uploadManager.deleteFile(originalImageKey);
-			session.update(connectedEntity);
-			session.flush();
 		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			throw new RuntimeException(e);
 		} finally {

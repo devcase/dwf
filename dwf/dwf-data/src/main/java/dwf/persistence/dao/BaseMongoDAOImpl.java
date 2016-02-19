@@ -50,12 +50,16 @@ import dwf.persistence.annotations.ConditionalGroup;
 import dwf.persistence.annotations.EntityStateValidator;
 import dwf.persistence.annotations.FillWithCurrentUser;
 import dwf.persistence.annotations.HideActivityLogValues;
+import dwf.persistence.annotations.IgnoreActivityLog;
+import dwf.persistence.annotations.Image;
 import dwf.persistence.annotations.MongoEntity;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.utils.NotSyncPropertyDescriptor;
 import dwf.persistence.validation.ValidationGroups;
+import dwf.upload.UploadManager;
+import dwf.upload.image.ImageResizer;
 import dwf.user.DwfUserUtils;
 import dwf.utils.ParsedMap;
 import dwf.utils.SearchstringUtils;
@@ -70,7 +74,12 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 	protected Validator beanValidator;
 	@Autowired
 	private Jongo jongo;
-	
+	@Autowired(required = false)
+	private UploadManager uploadManager;
+	@Autowired(required = false)
+	private ImageResizer imageResizer;
+
+
 
 	protected final Class<D> clazz;
 	protected final String entityFullName;
@@ -220,6 +229,9 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 	}
 
 	private String mongoQueryBuilder(ParsedMap filter, boolean allowDisabled) {
+		if(filter == null) {
+			filter = new SimpleParsedMap();
+		}
 		BasicDBObject obj = new BasicDBObject();
 		
 		if (filter.containsKey("searchstring")){
@@ -559,8 +571,48 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 	public D updateUpload(Serializable id,
 			InputStream inputStream, String contentType,
 			String originalFilename, String propertyName) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		D connectedEntity = findById(id);
+		// get the UpdateGroup for the property
+		PropertyDescriptor pd = entityProperties.get(propertyName);
+		if (pd != null) {
+			try {
+				String oldValue = (String) BeanUtils.getProperty(connectedEntity, propertyName);
+
+				String uploadKey = uploadManager.saveFile(inputStream, contentType, originalFilename, entityName + "/" + id);
+				if (oldValue != null && !oldValue.equals(uploadKey)) {
+					uploadManager.deleteFile(oldValue);
+				}
+				BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
+				getCollection().update(new ObjectId(id.toString())).with("{$set: {" + propertyName + ": #}}", uploadKey);
+				
+				Image imageAnnotation = pd.getReadMethod().getAnnotation(Image.class);
+				if (imageAnnotation != null) {
+
+					for (String thumbnailProperty : imageAnnotation.thumbnail()) {
+						//Apaga o thumbnail original
+						String oldThumbValue = (String) BeanUtils.getProperty(connectedEntity, thumbnailProperty);
+						if(!StringUtils.isBlank(oldThumbValue)) {
+							uploadManager.deleteFile(oldThumbValue);
+						}
+						
+						//define thumbnails temporariamente para a imagem original
+						BeanUtils.setProperty(connectedEntity, thumbnailProperty, uploadKey);
+						
+						getCollection().update(new ObjectId(id.toString())).with("{$set: {" + thumbnailProperty + ": #}}", uploadKey);
+					}
+
+//					sessionFactory.getCurrentSession().update(connectedEntity);
+//					sessionFactory.getCurrentSession().flush();
+					imageResizer.resizeImage(id, entityName, propertyName);
+				}
+			} catch (IOException e) {
+				throw e;
+			} catch (Exception e) {
+				// Error copying the property
+				throw new RuntimeException(e);
+			}
+		}
+		return connectedEntity;
 	}
 
 	@Override
@@ -717,6 +769,26 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 			Class<?>... groups) throws ValidationException {
 		return updateByAnnotation(entity, false, groups);
 	}
+
+	@Override
+	public void setProperty(Serializable id, String propertyName, String stringValue) {
+		try {
+			D entity = findById(id);
+			String oldValue = (String) BeanUtils.getProperty(entity, propertyName);
+			getCollection().update(new ObjectId(id.toString())).with("{$set: {" + propertyName + ": #}}", stringValue);
+			
+			PropertyDescriptor property = entityProperties.get(propertyName);
+			
+			if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
+				boolean hiddenValues = property.getReadMethod().getAnnotation(HideActivityLogValues.class) != null;
+				activityLogService.logEntityPropertyUpdate(entity, new UpdatedProperty(propertyName, oldValue, stringValue, hiddenValues));
+			}
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+	
+	
 
 	
 }

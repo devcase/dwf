@@ -62,4 +62,6 @@ public interface DAO<D extends BaseEntity<?>> {
 	
 	D findByNaturalId(D instance);
 	D findOrSaveNew(D instance);
+	
+	void setProperty(Serializable id, String propertyName, String stringValue);
 }

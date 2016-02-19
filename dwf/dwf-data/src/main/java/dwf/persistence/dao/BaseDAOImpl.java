@@ -917,4 +917,28 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		return existent != null ? existent : saveNew(instance);
 	}
 
+
+	@Override
+	public void setProperty(Serializable id, String propertyName, String stringValue) {
+		D connectedEntity = findById(id);
+		try {
+			D entity = findById(id);
+			String oldValue = (String) BeanUtils.getProperty(entity, propertyName);
+			BeanUtils.setProperty(connectedEntity, propertyName, stringValue);
+			sessionFactory.getCurrentSession().update(connectedEntity);
+			sessionFactory.getCurrentSession().flush();
+			
+			PropertyDescriptor property = entityProperties.get(propertyName);
+			if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
+				boolean hiddenValues = property.getReadMethod().getAnnotation(HideActivityLogValues.class) == null;
+				activityLogService.logEntityPropertyUpdate(entity, new UpdatedProperty(propertyName, oldValue, stringValue, hiddenValues));
+			}
+
+		} catch (Exception e) {
+			// Error copying the property
+			throw new RuntimeException(e);
+		}
+	}
+
+	
 }
