@@ -222,7 +222,9 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	@Override
 	public D findById(Serializable id) {
 		D e = (D) getSession().byId(clazz).load(id);
-		getSession().setReadOnly(e, true);
+		if(e != null) {
+			getSession().setReadOnly(e, true);
+		}
 		return e;
 	}
 
