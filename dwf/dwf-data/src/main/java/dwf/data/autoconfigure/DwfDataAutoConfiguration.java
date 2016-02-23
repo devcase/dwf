@@ -20,10 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.boot.bind.RelaxedDataBinder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -164,24 +166,17 @@ public class DwfDataAutoConfiguration  {
 	
 	@Configuration
 	@ConditionalOnClass(Jongo.class)
-	@ConditionalOnProperty(prefix="mongodb", name="uri")
-	@ConfigurationProperties("mongodb")
-	static class MongoConfig {
+	@ConditionalOnBean(MongoClient.class)
+	static class JongoAutoConfiguration {
+		@Autowired
+		private MongoProperties properties;
+		@Autowired
+		private MongoClient mongoClient; 
 		
-		private String uri;
-		
-		public String getUri() {
-			return uri;
-		}
-		public void setUri(String uri) {
-			this.uri = uri;
-		}
-
 		@Bean
 		@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 		public Jongo jongo() throws UnknownHostException {
-			MongoClientURI mongoUri = new MongoClientURI(uri);
-			DB db = new MongoClient(mongoUri).getDB(mongoUri.getDatabase());
+			DB db = mongoClient.getDB(properties.getDatabase());
 			return new Jongo(db,  MongoIdModule.getMapperBuilder().build());
 		}
 	}
