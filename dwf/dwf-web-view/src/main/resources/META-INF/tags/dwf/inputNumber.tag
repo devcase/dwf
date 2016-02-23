@@ -5,7 +5,7 @@
 <%@ tag dynamic-attributes="attrMap"%>
 
 <dwf:formGroup parentAttrMap="${attrMap}">
-	<input type="text" value='<fmt:formatNumber value="${value}" groupingUsed="false"  maxFractionDigits="6"/>' name="${name}"
+	<input type="text" value='<fmt:formatNumber value="${value}" groupingUsed="false"  maxFractionDigits="7"/>' name="${name}"
 		<c:if test="${!empty attrMap.pattern}">pattern="${attrMap.pattern}"</c:if>
 		<c:if test="${attrMap.required}">required="required"</c:if>
 		<c:if test="${!empty attrMap.maxlength}">maxlength="${attrMap.maxlength}"</c:if>
