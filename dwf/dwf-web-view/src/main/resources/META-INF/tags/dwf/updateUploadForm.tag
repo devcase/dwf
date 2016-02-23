@@ -15,13 +15,16 @@
 <dwf:simpleLabel textOnly="true" property="${attrMap.property}" labelKey="${attrMap.labelKey }" var="title"/>
 <dwf:form formaction="${formaction}" enctype="multipart/form-data" parentAttrMap="${attrMap}" title="${title }">
 	<c:if test="${!empty uploadKey and (attrMap.showImage ne false)}">
-		<dwf:formGroup label="none">
-			<dwf:remoteUrl uploadKey="${uploadKey}" var="url" />
-			<img src="${url}?ts=${timestamp}" class="img-responsive"/>
-		</dwf:formGroup>
 	</c:if>
 	<input type="hidden" name="propertyName" value="${attrMap.property}"/>
 	<dwf:formGroup labelKey="label.file">
 		<input type="file" name="file" class="btn btn-default"  accept="image/*"/>
 	</dwf:formGroup>
+	<div class="row">
+		<div class="col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4 col-lg-offset-5 col-lg-2">
+			<dwf:remoteUrl uploadKey="${uploadKey}" var="url" />
+			<img src="${url}?ts=${timestamp}" class="img-responsive img-thumbnail"/>
+		</div>
+	</div>
+	
 </dwf:form>
