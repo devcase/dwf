@@ -221,7 +221,9 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	@SuppressWarnings("unchecked")
 	@Override
 	public D findById(Serializable id) {
-		return (D) getSession().get(clazz, id);
+		D e = (D) getSession().byId(clazz).load(id);
+		getSession().setReadOnly(e, true);
+		return e;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -413,7 +415,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	}
 
 	public final List<?> findByPage(String hql, int offset, int fetchSize, Map<String, Object> params) {
-		Query query = getSession().createQuery(hql);
+		Query query = getSession().createQuery(hql).setReadOnly(true);
 		for (Entry<String, Object> entry : params.entrySet()) {
 			Object value = entry.getValue();
 			if (value != null && value.getClass().isArray()) {
@@ -431,7 +433,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	}
 
 	public final int count(String hql, Map<String, Object> params) {
-		Query query = getSession().createQuery(hql);
+		Query query = getSession().createQuery(hql).setReadOnly(true);
 		for (Entry<String, Object> entry : params.entrySet()) {
 			Object value = entry.getValue();
 			if (value != null && value.getClass().isArray()) {
@@ -897,7 +899,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			return null;
 		Object[] propertyValues = classMetadata.getPropertyValues(instance);
 		String[] propertyNames = classMetadata.getPropertyNames();
-		NaturalIdLoadAccess<D> natIdLoadAcc = null;
+		NaturalIdLoadAccess natIdLoadAcc = null;
 
 		for (int naturalIdIdx : natIds) {
 			if (propertyValues[naturalIdIdx] != null) {
@@ -906,7 +908,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 				natIdLoadAcc = natIdLoadAcc.using(propertyNames[naturalIdIdx], propertyValues[naturalIdIdx]);
 			}
 		}
-		return natIdLoadAcc == null ? null : natIdLoadAcc.load();
+		return natIdLoadAcc == null ? null : (D) natIdLoadAcc.load();
 	}
 
 	@Override

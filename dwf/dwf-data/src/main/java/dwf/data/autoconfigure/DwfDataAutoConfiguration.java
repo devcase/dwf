@@ -35,7 +35,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.LocaleContextMessageInterpolator;
@@ -44,7 +44,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 
 import dwf.asynchronous.AsyncImporterListener;
 import dwf.persistence.export.Importer;
@@ -134,18 +133,18 @@ public class DwfDataAutoConfiguration  {
 	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 	@DependsOn("flyway") //sessionFactory é criado após o bean flyway
 	public LocalSessionFactoryBean sessionFactory(DwfNamingStrategy dwfNamingStrategy) {
-		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-		sessionFactory.setPackagesToScan( new String [] {"dwf.activitylog.domain", "dwf.user.domain", entityPackage});
-//		sessionFactory.setNamingStrategy(dwfNamingStrategy);
-		sessionFactory.setPhysicalNamingStrategy(dwfNamingStrategy);
-		sessionFactory.setDataSource(dataSource);
+		LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
+		sessionFactoryBean.setPackagesToScan( new String [] {"dwf.activitylog.domain", "dwf.user.domain", entityPackage});
+		sessionFactoryBean.setNamingStrategy(dwfNamingStrategy);
+//		sessionFactoryBean.setPhysicalNamingStrategy(dwfNamingStrategy);
+		sessionFactoryBean.setDataSource(dataSource);
 		if(hibernateProperties != null) {
 			Properties p = new Properties();
 			p.putAll(hibernateProperties);
-			sessionFactory.setHibernateProperties(p);
+			sessionFactoryBean.setHibernateProperties(p);
 		}
 		
-		return sessionFactory;
+		return sessionFactoryBean;
 	}
 	
 	/**
