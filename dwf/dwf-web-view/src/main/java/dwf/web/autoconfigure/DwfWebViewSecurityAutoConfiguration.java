@@ -121,6 +121,8 @@ public class DwfWebViewSecurityAutoConfiguration {
 		private String[] ignoreCsrfPatterns = new String[0];
 		@Value("${dwf.security.web.tokenbasedrememberme.key}")
 		private String rememberMeTokenKey;
+		@Value("${dwf.security.web.frameoption.disable:false}")
+		private boolean frameoptionDisable;
 		
 
 		@Override
@@ -156,6 +158,10 @@ public class DwfWebViewSecurityAutoConfiguration {
 			
 			if(ignoreCsrfPatterns != null && ignoreCsrfPatterns.length > 0) {
 				http.csrf().ignoringAntMatchers(ignoreCsrfPatterns);
+			}
+			
+			if(frameoptionDisable) {
+				http.headers().frameOptions().disable();
 			}
 			
 		}
