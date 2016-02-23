@@ -1,10 +1,10 @@
 package dwf.persistence.embeddable;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Embeddable;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.util.NumberUtils;
 
 @Embeddable
@@ -62,7 +62,7 @@ public class GeoPosition implements Serializable {
 	public boolean equals(Object obj) {
 		if(obj == null) return false;
 		else if(obj instanceof GeoPosition) {
-			return ObjectUtils.equals(lat, ((GeoPosition) obj).getLat()) && ObjectUtils.equals(lon, ((GeoPosition) obj).getLon());
+			return Objects.equals(lat, ((GeoPosition) obj).getLat()) && Objects.equals(lon, ((GeoPosition) obj).getLon());
 		} else {
 			return false;
 		}
