@@ -897,7 +897,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			return null;
 		Object[] propertyValues = classMetadata.getPropertyValues(instance);
 		String[] propertyNames = classMetadata.getPropertyNames();
-		NaturalIdLoadAccess natIdLoadAcc = null;
+		NaturalIdLoadAccess<D> natIdLoadAcc = null;
 
 		for (int naturalIdIdx : natIds) {
 			if (propertyValues[naturalIdIdx] != null) {
@@ -906,7 +906,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 				natIdLoadAcc = natIdLoadAcc.using(propertyNames[naturalIdIdx], propertyValues[naturalIdIdx]);
 			}
 		}
-		return natIdLoadAcc == null ? null : (D) natIdLoadAcc.load();
+		return natIdLoadAcc == null ? null : natIdLoadAcc.load();
 	}
 
 	@Override
