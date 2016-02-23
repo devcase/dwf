@@ -32,7 +32,7 @@ public abstract class BaseExporter<D extends BaseEntity<?>> implements Exporter<
 		DAO<D> dao = (DAO<D>) applicationContext.getBean(entityName + "DAO", DAO.class);
 		
 		List<D> results = dao.findByFilter(filter);
-		ExcelBuilder builder = new ExcelBuilder(entityName, 0);
+		ExcelBuilder builder = new ExcelBuilder(entityName);
 		buildHeader(builder);
 		for (D asobj : results) {
 			D domain = asobj;

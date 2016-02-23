@@ -36,6 +36,9 @@ public class ExcelBuilder {
 	private int currentColumnNumber;
 	private Row currentRow;
 	
+	public ExcelBuilder(String sheetName) {
+		this(sheetName, 25);
+	}
 	public ExcelBuilder(String sheetName, int defaultColumnWidth) {
 		super();
 		
@@ -44,11 +47,14 @@ public class ExcelBuilder {
 		createHelper = workbook.getCreationHelper();
 		dataFormat = workbook.createDataFormat();
 		/** Formatação */
-		if(defaultColumnWidth > 0)
+		if(defaultColumnWidth > 0) {
 			principalSheet.setDefaultColumnWidth(defaultColumnWidth);
+		}
 
 		this.defaultStyle = workbook.createCellStyle();
 		defaultStyle.setWrapText(true);
+		defaultStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+		defaultStyle.setShrinkToFit(true);
 
 		Font titleFont = workbook.createFont();
 		titleFont.setFontHeightInPoints((short) 10);
@@ -58,16 +64,21 @@ public class ExcelBuilder {
 		this.titleStyle = workbook.createCellStyle();
 		titleStyle.cloneStyleFrom(defaultStyle);
 		titleStyle.setFont(titleFont);
+		titleStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+		titleStyle.setShrinkToFit(true);
 
 		this.hlinkStyle = workbook.createCellStyle();
 	    Font hlink_font = workbook.createFont();
 	    hlink_font.setUnderline(Font.U_SINGLE);
 	    hlink_font.setColor(IndexedColors.BLUE.getIndex());
 	    hlinkStyle.setFont(hlink_font);
+	    hlinkStyle.setWrapText(false);
+	    hlinkStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP);
 	    
 	    dateCellStyle = workbook.createCellStyle();
 	    dateCellStyle.cloneStyleFrom(defaultStyle);
 	    dateCellStyle.setDataFormat(dataFormat.getFormat("[$-416]dd/mm/yyyy hh:mm"));
+	    dateCellStyle.setVerticalAlignment(CellStyle.VERTICAL_TOP); 
 		
 	    this.currentRowNumber = 0;
 		// cria a 1a. linha
@@ -88,7 +99,6 @@ public class ExcelBuilder {
 
 	public ExcelBuilder column(Object object) {
 		Cell cell = currentRow.createCell(currentColumnNumber++);
-		
 		if(object == null) {
 			cell.setCellType(Cell.CELL_TYPE_BLANK);
 			cell.setCellStyle(this.currentStyle);
