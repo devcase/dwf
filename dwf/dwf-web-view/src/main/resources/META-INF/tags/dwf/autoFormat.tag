@@ -12,7 +12,11 @@
 	} else if (value instanceof CharSequence) {
 		getJspContext().setAttribute("format", "string");
 	} else if (value instanceof Number) {
-		getJspContext().setAttribute("format", "number");
+		if(value instanceof Integer || value instanceof Long) {
+			getJspContext().setAttribute("format", "integer");
+		} else {
+			getJspContext().setAttribute("format", "number");
+		}
 	} else if (value instanceof Date || value instanceof Calendar) {
 		long timeinmillis = value instanceof Date ? ((Date) value).getTime() : ((Calendar) value).getTimeInMillis();
 		long dateinmillis = value instanceof Date ? DateUtils.truncate((Date) value, Calendar.DATE).getTime() : DateUtils.truncate((Calendar) value, Calendar.DATE).getTimeInMillis();
@@ -73,6 +77,7 @@
 	test="${format eq 'datetime'}"><fmt:formatDate value="${value}" type="date"  pattern="${datePatternJava}" /> <fmt:formatDate value="${value}" type="time" timeStyle="SHORT" /></c:when><c:when
 	test="${format eq 'timezone'}">${value.ID}</c:when><c:when 
 	test="${format eq 'number'}"><fmt:formatNumber value="${value}" maxFractionDigits="6"/></c:when><c:when 
+	test="${format eq 'integer'}"><fmt:formatNumber value="${value}" groupingUsed="false"/></c:when><c:when 
 	test="${format eq 'collection'}"><c:forEach items="${value}" var="item" varStatus="loopStatus">${loopStatus.count > 1 ? ', ' : ''}<dwf:autoFormat value="${item}"/></c:forEach></c:when><c:when 
 	test="${format eq 'price'}"><spring:message code="currency.symbol.${value.currencyCode}" text=""/> <fmt:formatNumber value="${value.value}" maxFractionDigits="2" minFractionDigits="2"/> </c:when><c:when 
 	test="${format eq 'enum'}"><spring:message code="${enumClassName}.${value}" text="${enumClassName}.${value}"/></c:when><c:otherwise

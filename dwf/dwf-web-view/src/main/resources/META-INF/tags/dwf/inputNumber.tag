@@ -3,8 +3,9 @@
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
+
 <dwf:formGroup parentAttrMap="${attrMap}">
-	<input type="text" value="<dwf:autoFormat value='${value}'/>" name="${name}"
+	<input type="text" value='<fmt:formatNumber value="${value}" groupingUsed="false"  maxFractionDigits="6"/>' name="${name}"
 		<c:if test="${!empty attrMap.pattern}">pattern="${attrMap.pattern}"</c:if>
 		<c:if test="${attrMap.required}">required="required"</c:if>
 		<c:if test="${!empty attrMap.maxlength}">maxlength="${attrMap.maxlength}"</c:if>
