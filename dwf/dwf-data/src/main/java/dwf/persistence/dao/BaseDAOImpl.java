@@ -521,10 +521,13 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			log.warn("Passed entity is connected - evicting it from the Session and retrieving a new instance");
 			evict(entity);
 			retrievedEntity = find(entity);
+			
 		}
 		if (retrievedEntity == null) {
 			throw new IllegalArgumentException("Id must be not-null");
 		}
+		getSession().refresh(retrievedEntity);
+		getSession().setReadOnly(retrievedEntity, false);
 
 		if (groups != null) {
 			for (Class<?> validGrpClazz : groups) {
@@ -663,9 +666,13 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			activityLogService.logEntityUpdate(entity, loggedUpdatedProperties, groups);
 		}
 		retrievedEntity.setUpdateTime(new Date());
-		getSession().update(retrievedEntity);
-		return retrievedEntity;
-
+		try {
+			getSession().update(retrievedEntity);
+			getSession().flush();
+			return retrievedEntity;
+		} finally {
+			getSession().setReadOnly(retrievedEntity, true);
+		}
 	}
 
 	@Override
@@ -805,6 +812,9 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	@Transactional(rollbackFor = ValidationException.class)
 	public D updateUpload(Serializable id, InputStream inputStream, final String contentType, String originalFilename, String propertyName) throws IOException {
 		D connectedEntity = findById(id);
+		getSession().refresh(connectedEntity);
+		getSession().setReadOnly(connectedEntity, false);
+
 		// get the UpdateGroup for the property
 		PropertyDescriptor pd = entityProperties.get(propertyName);
 		if (pd != null) {
@@ -833,6 +843,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 
 					sessionFactory.getCurrentSession().update(connectedEntity);
 					sessionFactory.getCurrentSession().flush();
+					getSession().setReadOnly(connectedEntity, true);
 					imageResizer.resizeImage(id, entityName, propertyName);
 				}
 			} catch (IOException e) {
@@ -910,7 +921,11 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 				natIdLoadAcc = natIdLoadAcc.using(propertyNames[naturalIdIdx], propertyValues[naturalIdIdx]);
 			}
 		}
-		return natIdLoadAcc == null ? null : (D) natIdLoadAcc.load();
+		D entity = natIdLoadAcc == null ? null : (D) natIdLoadAcc.load();
+		if(entity != null) {
+			getSession().setReadOnly(entity, true);
+		}
+		return entity;
 	}
 
 	@Override
@@ -926,8 +941,10 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	public void setProperty(Serializable id, String propertyName, String stringValue) {
 		D connectedEntity = findById(id);
 		try {
-			D entity = findById(id);
-			String oldValue = (String) BeanUtils.getProperty(entity, propertyName);
+			getSession().refresh(connectedEntity);
+			getSession().setReadOnly(connectedEntity, false);
+			
+			String oldValue = (String) BeanUtils.getProperty(connectedEntity, propertyName);
 			BeanUtils.setProperty(connectedEntity, propertyName, stringValue);
 			sessionFactory.getCurrentSession().update(connectedEntity);
 			sessionFactory.getCurrentSession().flush();
@@ -935,12 +952,14 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			PropertyDescriptor property = entityProperties.get(propertyName);
 			if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
 				boolean hiddenValues = property.getReadMethod().getAnnotation(HideActivityLogValues.class) == null;
-				activityLogService.logEntityPropertyUpdate(entity, new UpdatedProperty(propertyName, oldValue, stringValue, hiddenValues));
+				activityLogService.logEntityPropertyUpdate(connectedEntity, new UpdatedProperty(propertyName, oldValue, stringValue, hiddenValues));
 			}
 
 		} catch (Exception e) {
 			// Error copying the property
 			throw new RuntimeException(e);
+		} finally {
+			getSession().setReadOnly(connectedEntity, true);
 		}
 	}
 
