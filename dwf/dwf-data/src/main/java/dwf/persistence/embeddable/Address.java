@@ -1,6 +1,9 @@
 package dwf.persistence.embeddable;
 
 import javax.persistence.Embeddable;
+import javax.persistence.Transient;
+
+import org.apache.commons.lang3.StringUtils;
 
 @Embeddable
 public class Address {
@@ -60,5 +63,66 @@ public class Address {
 	}
 	public void setAdditionalInfo(String additionalInfo) {
 		this.additionalInfo = additionalInfo;
+	}
+	
+	@Transient
+	public String getFullAddress() {
+		StringBuilder sb = new StringBuilder();
+		if(StringUtils.isNotBlank(route)) {
+			sb.append(route);
+		}
+		if(StringUtils.isNotBlank(route)) {
+			sb.append(", ").append(streetNumber);
+		}
+		if(StringUtils.isNotBlank(additionalInfo)) {
+			sb.append(", ").append(additionalInfo);
+		}
+		if(StringUtils.isNotBlank(sublocality)) {
+			sb.append(", ").append(sublocality);
+		}
+		if(StringUtils.isNotBlank(city)) {
+			sb.append(" - ").append(city);
+		}
+		if(StringUtils.isNotBlank(state)) {
+			sb.append(" - ").append(state);
+		}
+		if(StringUtils.isNotBlank(countryCode)) {
+			sb.append(" - ").append(countryCode);
+		}
+		if(StringUtils.isNotBlank(postalCode)) {
+			sb.append(", ").append(postalCode);
+		}
+		return sb.toString();
+	}
+	
+	/**
+	 * For geocoding (ignore additional info)
+	 * @return
+	 */
+	@Transient
+	public String getStreetAddress() {
+		StringBuilder sb = new StringBuilder();
+		if(StringUtils.isNotBlank(route)) {
+			sb.append(route);
+		}
+		if(StringUtils.isNotBlank(route)) {
+			sb.append(", ").append(streetNumber);
+		}
+		if(StringUtils.isNotBlank(sublocality)) {
+			sb.append(", ").append(sublocality);
+		}
+		if(StringUtils.isNotBlank(city)) {
+			sb.append(" - ").append(city);
+		}
+		if(StringUtils.isNotBlank(state)) {
+			sb.append(" - ").append(state);
+		}
+		if(StringUtils.isNotBlank(countryCode)) {
+			sb.append(" - ").append(countryCode);
+		}
+		if(StringUtils.isNotBlank(postalCode)) {
+			sb.append(", ").append(postalCode);
+		}
+		return sb.toString();
 	}
 }

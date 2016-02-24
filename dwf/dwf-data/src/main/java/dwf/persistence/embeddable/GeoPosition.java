@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 
 import org.springframework.util.NumberUtils;
 
@@ -31,8 +32,8 @@ public class GeoPosition implements Serializable {
 		if(split.length != 2) {
 			throw new IllegalArgumentException("Invalid string for GeoPosition");
 		}
-		this.setLat(NumberUtils.parseNumber(split[0], Double.class));
-		this.setLon(NumberUtils.parseNumber(split[1], Double.class));
+		this.setLat(NumberUtils.parseNumber(split[0].trim(), Double.class));
+		this.setLon(NumberUtils.parseNumber(split[1].trim(), Double.class));
 	}
 
 	public GeoPosition(float lat, float lon) {
@@ -53,6 +54,10 @@ public class GeoPosition implements Serializable {
 	}
 	public void setLon(Double lon) {
 		this.lon = lon;
+	}
+	@Transient
+	public Double getLng() {
+		return getLon();
 	}
 	@Override
 	public String toString() {

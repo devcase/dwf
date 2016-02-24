@@ -24,6 +24,7 @@
 		<module>dwf-web-view-integration-test</module>
 		<module>dwf-parent</module>
 		<module>dwf-whitelabel-views</module>
+		<module>dwf-geocode</module>
 	</modules>
 	<properties>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -280,6 +281,11 @@
 			<dependency>
 				<groupId>br.com.devcase.dwf</groupId>
 				<artifactId>dwf-web-rest</artifactId>
+				<version>${dwf.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>br.com.devcase.dwf</groupId>
+				<artifactId>dwf-geocode</artifactId>
 				<version>${dwf.version}</version>
 			</dependency>
 			

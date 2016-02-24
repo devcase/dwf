@@ -76,7 +76,7 @@ Atributos:
 			<c:set scope="request" var="parentFormAttrMap" value="${null}"/>
 			
 			<c:if test="${attrMap.ommitbuttons ne true }">
-				<div class="text-${buttonAlign}">
+				<div class="text-${buttonAlign} form-buttons">
 					<c:if test="${attrMap.closemodalbutton eq true}"><%-- Close button, when in a modal (see modal.tag) --%>
 				 		<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="action.cancel"/></button>
 				 	</c:if>

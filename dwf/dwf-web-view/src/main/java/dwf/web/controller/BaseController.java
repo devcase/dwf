@@ -17,13 +17,14 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Path;
 import javax.validation.ValidationException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -31,13 +32,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
-import dwf.user.domain.BaseUser;
-import dwf.user.domain.LoggedUserDetails;
 import dwf.web.conversion.CustomPropertyEditorFactory;
 import dwf.web.message.UserMessage;
 import dwf.web.message.UserMessageType;
 
 public abstract class BaseController implements ApplicationContextAware {
+	private Log log = LogFactory.getLog(getClass());
 	protected static final String USER_MESSAGES_FLASH_MAP_KEY = "userMessagesList";
 	protected static final String VALIDATION_EXCEPTION_FLASH_MAP_KEY = "validationException";
 	protected static final String VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY = "violationsMap";
@@ -183,6 +183,9 @@ public abstract class BaseController implements ApplicationContextAware {
 		for (CustomPropertyEditorFactory customEditorFactory : editorFactories.values()) {
 			PropertyEditor customEditor = customEditorFactory.getPropertyEditor(request);
 			for (Class<?> targetClass : customEditorFactory.getTargetClasses()) {
+				if(log.isDebugEnabled()) {
+					log.debug("Registering Custom Editor " + customEditor);
+				}
 				binder.registerCustomEditor(targetClass, customEditor);
 			}
 		}

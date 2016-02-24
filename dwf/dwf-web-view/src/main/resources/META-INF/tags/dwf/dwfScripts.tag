@@ -3,6 +3,7 @@
 <%@tag import="org.springframework.context.i18n.LocaleContextHolder"%>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator"%>
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%-- 
  	Include script tags for DWF javascript and dependencies
  	Also include the scripts from a decorated page using sitemesh (FastAndDumbHTMLParser)
@@ -61,3 +62,12 @@ getJspContext().setAttribute("groupingSeparator", grouping);
 <script type="text/javascript" src="${appPath}/resources/js/dwf-autoreloadcontent.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-ajaxform.js"></script>
 <script src="https://www.google.com/recaptcha/api.js?hl=<dwf:locale format='language'/>" async defer></script>
+<c:if test="${!empty environment.getProperty('dwf.geocode.googlemaps.browserkey') }">
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=${environment.getProperty('dwf.geocode.googlemaps.browserkey')}&callback=triggerGooglemapsapiready"></script>
+	<script type="text/javascript">
+		
+		function triggerGooglemapsapiready() {
+			$(document).trigger("googlemapsapiready");
+		}
+	</script>
+</c:if>

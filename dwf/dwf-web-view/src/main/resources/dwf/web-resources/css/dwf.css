@@ -278,3 +278,7 @@ td.dwf-inputdayofweektime-inputtd>label {
 .form-group.has-error .btn-group label.active {
 	color: #fff;
 }
+
+.form-buttons {
+	margin-top:15px;
+}
