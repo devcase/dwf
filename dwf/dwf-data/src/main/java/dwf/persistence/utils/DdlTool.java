@@ -15,6 +15,7 @@ import org.hibernate.engine.jdbc.dialect.spi.DatabaseMetaDataDialectResolutionIn
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.hibernate.tool.hbm2ddl.SchemaUpdateScript;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ public class DdlTool {
 //	private static Log log = LogFactory.getLog(DdlTool.class);
 
 	@Autowired
+	@Qualifier("dwfDataSource")
 	private DataSource dataSource;
 	@Autowired
 	private LocalSessionFactoryBean sessionFactoryBean;
