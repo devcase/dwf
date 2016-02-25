@@ -208,16 +208,20 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 
 	@Override
 	public int countByFilter(ParsedMap filter) {
-		
 		return (int) getCollection().count(mongoQueryBuilder(filter));
-		
 	}
 	
-	private String mongoQueryBuilder(ParsedMap filter) {
+	private final String mongoQueryBuilder(ParsedMap filter) {
 		return mongoQueryBuilder(filter, false);
 	}
 
-	private String mongoQueryBuilder(ParsedMap filter, boolean allowDisabled) {
+	/**
+	 * Transforma os parâmetros de filter em uma query mongo
+	 * @param filter
+	 * @param allowDisabled
+	 * @return
+	 */
+	protected String mongoQueryBuilder(ParsedMap filter, boolean allowDisabled) {
 		BasicDBObject obj = new BasicDBObject();
 		
 		if (filter.containsKey("searchstring")){
