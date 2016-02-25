@@ -23,6 +23,7 @@ public class DwfWebRestSecurityAutoConfiguration {
 	@AutoConfigureOrder(SecurityProperties.ACCESS_OVERRIDE_ORDER + 1)
 	@EnableWebSecurity
 	@ConditionalOnMissingClass(value="dwf.web.autoconfigure.DwfWebViewSecurityAutoConfiguration.DwfWebViewSecurityConfig")
+	@ConditionalOnMissingBean(value=WebSecurityConfigurerAdapter.class)
 	static class DwfWebSecurityConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {

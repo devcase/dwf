@@ -15,24 +15,27 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.boot.bind.RelaxedDataBinder;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
@@ -62,8 +65,6 @@ import dwf.upload.image.SyncImageResizer;
 @ConfigurationProperties(prefix = "dwf.data")
 @ConditionalOnProperty(prefix="dwf.data", name="entityPackage")
 public class DwfDataAutoConfiguration  {
-	@Autowired
-	private DataSource dataSource;
 	
 	/**
 	 * configuravel a partir de dwf.data.hibernateproperties
@@ -114,6 +115,36 @@ public class DwfDataAutoConfiguration  {
 			return validator;
 		}
 	}
+
+	@Configuration
+	@ConditionalOnProperty(prefix="dwf.datasource", name="url")
+	public static class DwfDataSourceConfiguration {
+
+		@Bean(name="dwfDataSource")
+		@ConfigurationProperties(prefix = "dwf.datasource")
+		@Primary
+		public DataSource dwfDataSource() {
+		    return DataSourceBuilder.create().build();
+		}
+	}
+
+	/**
+	 * Configurado via spring.datasource
+	 * @author hirata
+	 *
+	 */
+	@Configuration
+	@ConditionalOnMissingBean(name="dwfDataSource")
+	@ConditionalOnProperty(prefix="spring.datasource", name="url")
+	public static class SpringDataSourceConfiguration {
+		@Bean(name="dwfDataSource")
+		@ConfigurationProperties(prefix = "spring.datasource")
+		@Primary
+		public DataSource dwfDataSource() {
+		    return DataSourceBuilder.create().build();
+		}
+	}
+	
 	
 	/**
 	 * Enables Spring-driven Method Validation (http://docs.spring.io/spring-framework/docs/current/spring-framework-reference/html/validation.html#validation-beanvalidation)
@@ -132,7 +163,7 @@ public class DwfDataAutoConfiguration  {
 	@Bean
 	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 	@DependsOn("flyway") //sessionFactory é criado após o bean flyway
-	public LocalSessionFactoryBean sessionFactory(DwfNamingStrategy dwfNamingStrategy) {
+	public LocalSessionFactoryBean sessionFactory(DwfNamingStrategy dwfNamingStrategy, @Qualifier("dwfDataSource") DataSource dataSource) {
 		LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
 		sessionFactoryBean.setPackagesToScan( new String [] {"dwf.activitylog.domain", "dwf.user.domain", entityPackage});
 		sessionFactoryBean.setNamingStrategy(dwfNamingStrategy);
@@ -352,39 +383,44 @@ public class DwfDataAutoConfiguration  {
 			return new SyncImageResizer();
 		}
 	}
-	
-	@Configuration
-	@ConfigurationProperties(prefix = "spring.datasource")
-	@EnableConfigurationProperties
-	protected static class DataSourcePoolConfiguration {
-		
-		private Map<String, String> properties;
-		public Map<String, String> getProperties() {
-			return properties;
-		}
-		public void setProperties(Map<String, String> properties) {
-			this.properties = properties;
-		}
 
-
-		@Bean
-		public BeanPostProcessor dataSourcePostProcessor() {
-			return new BeanPostProcessor() {
-				
-				@Override
-				public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-					if( properties!=null && bean instanceof DataSource) {
-						MutablePropertyValues pv = new MutablePropertyValues(properties);
-						new RelaxedDataBinder(bean).bind(pv);
-					}
-					return bean;
-				}
-				
-				@Override
-				public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-					return bean;
-				}
-			};
-		}
-	}
+//	/**
+//	 * Permite mais configurações no datasource - mas não funciona direito com múltiplos datasources
+//	 * @author hirata
+//	 *
+//	 */
+//	@Configuration
+//	@ConfigurationProperties(prefix = "spring.datasource")
+//	@EnableConfigurationProperties
+//	protected static class DataSourcePoolConfiguration {
+//		
+//		private Map<String, String> properties;
+//		public Map<String, String> getProperties() {
+//			return properties;
+//		}
+//		public void setProperties(Map<String, String> properties) {
+//			this.properties = properties;
+//		}
+//
+//
+//		@Bean
+//		public BeanPostProcessor dataSourcePostProcessor() {
+//			return new BeanPostProcessor() {
+//				
+//				@Override
+//				public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+//					if( properties!=null && bean instanceof DataSource) {
+//						MutablePropertyValues pv = new MutablePropertyValues(properties);
+//						new RelaxedDataBinder(bean).bind(pv);
+//					}
+//					return bean;
+//				}
+//				
+//				@Override
+//				public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+//					return bean;
+//				}
+//			};
+//		}
+//	}
 }
