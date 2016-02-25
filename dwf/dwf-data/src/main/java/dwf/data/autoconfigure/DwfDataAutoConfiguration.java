@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.sql.DataSource;
-import javax.sql.XADataSource;
 
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import org.hibernate.validator.resourceloading.AggregateResourceBundleLocator;
@@ -16,26 +15,21 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.bind.RelaxedDataBinder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
@@ -133,21 +127,19 @@ public class DwfDataAutoConfiguration  {
 	}
 
 	/**
-	 * Se existe datasource autoconfigurado do spring,
+	 * Configurado via spring.datasource
 	 * @author hirata
 	 *
 	 */
 	@Configuration
-	@ConditionalOnBean(name="dataSource")
 	@ConditionalOnMissingBean(name="dwfDataSource")
+	@ConditionalOnProperty(prefix="spring.datasource", name="url")
 	public static class SpringDataSourceConfiguration {
-		@Autowired
-		@Qualifier("dataSource")
-		private DataSource dataSource;
-		
 		@Bean(name="dwfDataSource")
+		@ConfigurationProperties(prefix = "spring.datasource")
+		@Primary
 		public DataSource dwfDataSource() {
-			return dataSource;
+		    return DataSourceBuilder.create().build();
 		}
 	}
 	
@@ -169,6 +161,7 @@ public class DwfDataAutoConfiguration  {
 	@Bean
 	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 	@DependsOn("flyway") //sessionFactory é criado após o bean flyway
+	
 	public LocalSessionFactoryBean sessionFactory(DwfNamingStrategy dwfNamingStrategy, @Qualifier("dwfDataSource") DataSource dataSource) {
 		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
 		sessionFactory.setPackagesToScan( new String [] {"dwf.activitylog.domain", "dwf.user.domain", entityPackage});
