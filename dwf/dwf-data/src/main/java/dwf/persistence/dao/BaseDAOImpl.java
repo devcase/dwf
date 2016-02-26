@@ -221,7 +221,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	@SuppressWarnings("unchecked")
 	@Override
 	public D findById(Serializable id) {
-		D e = (D) getSession().byId(clazz).load(id);
+		D e = (D) getSession().get(clazz, id);
 		if(e != null) {
 			getSession().setReadOnly(e, true);
 		}

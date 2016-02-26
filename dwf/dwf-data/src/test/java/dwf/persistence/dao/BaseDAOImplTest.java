@@ -28,7 +28,7 @@ import dwf.persistence.dao.TestClasses.Entidade;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class TestBaseDAOImpl {
+public class BaseDAOImplTest {
 	
 	@Mock
 	protected SessionFactory sessionFactory;
@@ -126,6 +126,7 @@ public class TestBaseDAOImpl {
 		dNova.setId(123L);
 		dNova.setTexto1("    valor novo    ");
 		dNova.setTexto2("    valor imutável ");
+		dNova.setValor1(0);
 		dNova.setValor2(4);
 		dNova.setListaTextos1(new ArrayList<String>());
 		dNova.getListaTextos1().add("item1");

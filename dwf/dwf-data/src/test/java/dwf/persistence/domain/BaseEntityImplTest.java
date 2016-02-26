@@ -7,7 +7,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TestBaseEntityImpl {
+public class BaseEntityImplTest {
 	
 	@Test
 	public void testRemoveAccents() {

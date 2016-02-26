@@ -2,6 +2,8 @@ package dwf.persistence.dao;
 
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import dwf.persistence.annotations.UpdatableProperty;
@@ -44,7 +46,7 @@ public interface TestClasses {
 		public void setTexto2(String texto2) {
 			this.texto2 = texto2;
 		}
-		@NotEmpty(groups=AtualizarValor1.class)
+		@NotNull(groups=AtualizarValor1.class)
 		@UpdatableProperty(groups=AtualizarValor1.class)
 		public Integer getValor1() {
 			return valor1;
