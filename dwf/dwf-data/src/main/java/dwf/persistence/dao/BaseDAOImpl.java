@@ -468,6 +468,8 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		entity.setCreationTime(new Date());
 		getSession().persist(entity);
 		activityLogService.log(entity, ActivityLogService.OPERATION_CREATE);
+		getSession().flush();
+		getSession().setReadOnly(entity, true);
 		return entity;
 	}
 
@@ -680,8 +682,15 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	public void delete(D entity, String comment) {
 		D connectedEntity = findById(entity.getId());
 		if (connectedEntity.isEnabled()) {
-			activityLogService.log(entity, ActivityLogService.OPERATION_DELETE, comment);
-			connectedEntity.setEnabled(false);
+			try {
+				getSession().refresh(connectedEntity);
+				getSession().setReadOnly(connectedEntity, false);
+				activityLogService.log(entity, ActivityLogService.OPERATION_DELETE, comment);
+				connectedEntity.setEnabled(false);
+				getSession().flush();
+			} finally {
+				getSession().setReadOnly(connectedEntity, true);
+			}
 		}
 		//delete em cascata
 		for (NotSyncPropertyDescriptor pd : this.cascadeDeleteProperties) {
@@ -690,13 +699,28 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 				value = PropertyUtils.getSimpleProperty(entity, pd.getName());
 				if(value != null) {
 					if(value instanceof BaseEntity<?> && ((BaseEntity<?>) value).isEnabled()) {
-						activityLogService.log((BaseEntity<?>) value, ActivityLogService.OPERATION_CASCADE_DELETE, comment);
-						((BaseEntity<?>) value).setEnabled(false);
+						BaseEntity<?> cascadeEntity = (BaseEntity<?>) value;
+						try {
+							activityLogService.log(cascadeEntity, ActivityLogService.OPERATION_CASCADE_DELETE, comment);
+							getSession().refresh(cascadeEntity);
+							getSession().setReadOnly(cascadeEntity, false);
+							cascadeEntity.setEnabled(false);
+						} finally {
+							getSession().setReadOnly(cascadeEntity, true);
+						}
+						
 					} else if (value instanceof Collection) {
 						for (Object obj : (Collection<?>) value) {
 							if(obj instanceof BaseEntity<?> && ((BaseEntity<?>) obj).isEnabled()) {
-								activityLogService.log((BaseEntity<?>) obj, ActivityLogService.OPERATION_CASCADE_DELETE, comment);
-								((BaseEntity<?>) obj).setEnabled(false);
+								BaseEntity<?> cascadeEntity = (BaseEntity<?>) obj;
+								try {
+									activityLogService.log(cascadeEntity, ActivityLogService.OPERATION_CASCADE_DELETE, comment);
+									getSession().refresh(cascadeEntity);
+									getSession().setReadOnly(cascadeEntity, false);
+									cascadeEntity.setEnabled(false);
+								} finally {
+									getSession().setReadOnly(cascadeEntity, true);
+								}
 							}
 						}
 					}
@@ -712,8 +736,15 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	public D restore(D entity, String comment) {
 		D connectedEntity = findById(entity.getId());
 		if (!connectedEntity.isEnabled()) {
-			activityLogService.log(entity, "restore", comment);
-			connectedEntity.setEnabled(true);
+			try {
+				getSession().refresh(connectedEntity);
+				getSession().setReadOnly(connectedEntity, false);
+				activityLogService.log(connectedEntity, "restore", comment);
+				connectedEntity.setEnabled(true);
+			} finally {
+				getSession().setReadOnly(connectedEntity, true);
+			}
+
 		}
 		return connectedEntity;
 	}
