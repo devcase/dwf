@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 
 public class DwfNamingStrategy implements NamingStrategy {
-	@Value("${dwf.data.tablePrefix:dwf}")
+	@Value("${dwf.data.tablePrefix:}")
 	private String tablePrefix;
 	
 	public String getTablePrefix() {
@@ -28,21 +28,21 @@ public class DwfNamingStrategy implements NamingStrategy {
 	 * underscores
 	 */
 	public String classToTableName(String className) {
-		return tablePrefix + addUnderscores( StringHelper.unqualify(className) );
+		return tablePrefix + normalizeName( StringHelper.unqualify(className) );
 	}
 	/**
 	 * Return the full property path with underscore seperators, mixed
 	 * case converted to underscores
 	 */
 	public String propertyToColumnName(String propertyName) {
-		
-		return columnName( StringHelper.unqualify(propertyName) );
+		if(propertyName.contains(".collection&&element")) propertyName = propertyName.replace(".collection&&element", "");
+		return columnName( propertyName );
 	}
 	/**
 	 * Convert mixed case to underscores
 	 */
 	public String tableName(String tableName) {
-		return addUnderscores(tableName);
+		return normalizeName(tableName);
 	}
 	/**
 	 * Convert mixed case to underscores
@@ -54,28 +54,35 @@ public class DwfNamingStrategy implements NamingStrategy {
 		if("order".equalsIgnoreCase(columnName)) { //order Ã© palavra reservada no postgres
 			return "order_";
 		}
-		return addUnderscores(columnName);
+		return normalizeName(columnName);
 	}
 
-	protected static String addUnderscores(String name) {
-		StringBuilder buf = new StringBuilder( name.replace('.', '_') );
-		for (int i=1; i<buf.length()-1; i++) {
-			if (
-				Character.isLowerCase( buf.charAt(i-1) ) &&
-				Character.isUpperCase( buf.charAt(i) ) &&
-				Character.isLowerCase( buf.charAt(i+1) )
-			) {
-				buf.insert(i++, '_');
+	protected static String normalizeName(String name) {
+		StringBuilder buf = new StringBuilder( name );
+		for (int i=0; i < buf.length(); i++) {
+			char currentChar = buf.charAt(i);
+			if(currentChar == '_') { 
+			} else if(currentChar == '.') {
+				buf.setCharAt(i, '_');
+			} else if (Character.isAlphabetic( currentChar )) {
+				buf.setCharAt(i, Character.toLowerCase(currentChar));
+			} else if(!Character.isLetterOrDigit(currentChar)) {
+				buf.deleteCharAt(i);
 			}
 		}
-		return buf.toString().toLowerCase();
+		return buf.toString();
 	}
 
 	public String collectionTableName(
 			String ownerEntity, String ownerEntityTable, String associatedEntity, String associatedEntityTable,
 			String propertyName
 	) {
-		return "cz_" + tableName( ownerEntityTable + "_x_" + propertyToColumnName(propertyName) );
+		String ret =new StringBuffer(tablePrefix)
+				.append(ownerEntityTable != null ? ownerEntityTable : StringHelper.unqualify(ownerEntity))
+				.append("_")
+				.append(propertyName != null ? StringHelper.unqualify( propertyName ) : associatedEntityTable).toString();
+		return normalizeName(ret);
+
 	}
 
 	/**
@@ -91,16 +98,17 @@ public class DwfNamingStrategy implements NamingStrategy {
 	public String foreignKeyColumnName(
 			String propertyName, String propertyEntityName, String propertyTableName, String referencedColumnName
 	) {
-		String header = propertyName != null ? StringHelper.unqualify( propertyName ) : propertyTableName;
-		if (header == null) throw new AssertionFailure("NamingStrategy not properly filled");
-		return columnName( header ); //+ "_" + referencedColumnName not used for backward compatibility
+		String prefix = propertyName != null ? propertyName : StringHelper.unqualify(propertyEntityName);
+		return columnName( prefix + "_" + referencedColumnName ); //+ "_" + referencedColumnName not used for backward compatibility
 	}
 
 	/**
 	 * Return the column name or the unqualified property name
 	 */
 	public String logicalColumnName(String columnName, String propertyName) {
-		return StringHelper.isNotEmpty( columnName ) ? columnName : StringHelper.unqualify( propertyName );
+		String ret =StringHelper.isNotEmpty( columnName ) ? columnName : propertyName;
+		if(ret.contains(".collection&&element")) ret = ret.replace(".collection&&element", "");
+		return columnName(ret);
 	}
 
 	/**
@@ -115,21 +123,21 @@ public class DwfNamingStrategy implements NamingStrategy {
 			return tableName;
 		}
 		else {
-			//use of a stringbuffer to workaround a JDK bug
-			return new StringBuffer(ownerEntityTable).append("_")
+			String ret =new StringBuffer(ownerEntityTable)
 					.append(
-						associatedEntityTable != null ?
-						associatedEntityTable :
-						StringHelper.unqualify( propertyName )
-					).toString();
+							associatedEntityTable != null ?
+							associatedEntityTable :
+							StringHelper.unqualify( propertyName )
+						).toString();
+			return normalizeName(ret);
 		}
 	}
 	/**
 	 * Return the column name if explicit or the concatenation of the property name and the referenced column
 	 */
 	public String logicalCollectionColumnName(String columnName, String propertyName, String referencedColumn) {
-		return StringHelper.isNotEmpty( columnName ) ?
+		return columnName(StringHelper.isNotEmpty( columnName ) ?
 				columnName :
-				StringHelper.unqualify( propertyName ) + "_" + referencedColumn;
+				StringHelper.unqualify( propertyName ) + "_" + referencedColumn);
 	}
 }

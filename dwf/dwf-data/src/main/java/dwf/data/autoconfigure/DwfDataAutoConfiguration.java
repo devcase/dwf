@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import org.hibernate.validator.resourceloading.AggregateResourceBundleLocator;
 import org.jongo.Jongo;
@@ -21,15 +22,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.mongo.MongoProperties;
-import org.springframework.boot.bind.RelaxedDataBinder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
+import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -51,6 +49,7 @@ import com.mongodb.MongoClient;
 import dwf.asynchronous.AsyncImporterListener;
 import dwf.persistence.export.Importer;
 import dwf.persistence.utils.DwfNamingStrategy;
+import dwf.persistence.utils.LegacyDwfNamingStrategy;
 import dwf.persistence.utils.MongoIdModule;
 import dwf.upload.FileSystemUploadManager;
 import dwf.upload.S3UploadManager;
@@ -155,18 +154,32 @@ public class DwfDataAutoConfiguration  {
 		return new MethodValidationPostProcessor();
 	}
 	
-	@Bean
-	public DwfNamingStrategy dwfNamingStrategy(){
-		return new DwfNamingStrategy();
+	@Configuration
+	@ConditionalOnProperty(name="dwf.data.namingStrategy", havingValue="legacy", matchIfMissing=true)
+	public static class LegacyNamingStrategyConfig {
+		@Bean
+		public NamingStrategy legacyDwfNamingStrategy(){
+			return new LegacyDwfNamingStrategy();
+		}
 	}
+	
+	@Configuration
+	@ConditionalOnProperty(name="dwf.data.namingStrategy", havingValue="default")
+	public static class DefaultNamingStrategyConfig {
+		@Bean
+		public NamingStrategy dwfNamingStrategy(){
+			return new DwfNamingStrategy();
+		}
+	}
+	
 	
 	@Bean
 	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 	@DependsOn("flyway") //sessionFactory é criado após o bean flyway
-	public LocalSessionFactoryBean sessionFactory(DwfNamingStrategy dwfNamingStrategy, @Qualifier("dwfDataSource") DataSource dataSource) {
+	public LocalSessionFactoryBean sessionFactory(NamingStrategy namingStrategy, @Qualifier("dwfDataSource") DataSource dataSource) {
 		LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
 		sessionFactoryBean.setPackagesToScan( new String [] {"dwf.activitylog.domain", "dwf.user.domain", entityPackage});
-		sessionFactoryBean.setNamingStrategy(dwfNamingStrategy);
+		sessionFactoryBean.setNamingStrategy(namingStrategy);
 //		sessionFactoryBean.setPhysicalNamingStrategy(dwfNamingStrategy);
 		sessionFactoryBean.setDataSource(dataSource);
 		if(hibernateProperties != null) {

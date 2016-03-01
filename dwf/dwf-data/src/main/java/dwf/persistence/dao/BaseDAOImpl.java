@@ -223,6 +223,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	public D findById(Serializable id) {
 		D e = (D) getSession().get(clazz, id);
 		if(e != null) {
+			getSession().refresh(e);
 			getSession().setReadOnly(e, true);
 		}
 		return e;
@@ -515,16 +516,14 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	@Override
 	@Transactional(rollbackFor = ValidationException.class)
 	public D updateByAnnotation(D entity, boolean ignoreNulls, Class<?>... groups) throws ValidationException {
+		if(getSession().contains(entity)) {
+			log.debug("Passed entity is connected - evicting it from the Session and retrieving a new instance");
+			evict(entity);
+		}
 		prepareEntity(entity);
 		validate(entity, groups);
-
+		
 		D retrievedEntity = find(entity);
-		if(entity == retrievedEntity) {
-			log.warn("Passed entity is connected - evicting it from the Session and retrieving a new instance");
-			evict(entity);
-			retrievedEntity = find(entity);
-			
-		}
 		if (retrievedEntity == null) {
 			throw new IllegalArgumentException("Id must be not-null");
 		}
@@ -955,6 +954,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		D entity = natIdLoadAcc == null ? null : (D) natIdLoadAcc.load();
 		if(entity != null) {
 			getSession().setReadOnly(entity, true);
+			getSession().refresh(entity);
 		}
 		return entity;
 	}

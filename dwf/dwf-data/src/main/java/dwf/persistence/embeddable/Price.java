@@ -36,7 +36,6 @@ public class Price implements Serializable {
 
 
 
-	@Column(name="price_value")
 	@JsonView(View.Summary.class)
 	public Double getValue() {
 		return value;
@@ -47,7 +46,7 @@ public class Price implements Serializable {
 		this.value = value;
 	}
 
-	@Column(name="price_currency_code", length=3)
+	@Column(length=3)
 	@JsonView(View.Summary.class)
 	public String getCurrencyCode() {
 		return currencyCode;
