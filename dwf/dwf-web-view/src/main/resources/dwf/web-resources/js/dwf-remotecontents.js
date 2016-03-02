@@ -1,12 +1,15 @@
 /**
  * Loads by ajax a remote content and replace the contents
- *  <div dwf-url="url" dwf-toggle="remotecontents" >Click here</div>
+ *  <div dwf-url="url" dwf-toggle="remotecontents" ></div>
+ *  
+ *  <div dwf-url="url" dwf-toggle="remotecontents" dwf-replace="true"></div>
  */
 
 $(document).on('dwf-postupdate', function (evt) {
 	$(evt.target).find('[dwf-toggle~="remotecontents"][dwf-url][dwf-remotecontents-loaded!="true"]').each(function() {
 		var href    = $(this).attr('dwf-url');
 	    var $target = $(this); //strip for ie7
+	    var replace = $(this).attr("dwf-replace") == "true";
 	    evt.preventDefault();
 	    
 	    $target.css({'position': 'relative'});
@@ -15,14 +18,18 @@ $(document).on('dwf-postupdate', function (evt) {
 	    $.ajax({
 	    	url: href,
 	    	success: function(data) {
-	    		$target.fadeOut({
-					always: function() {
-			    		$target.html(data);
-			    	    $target.fadeIn();
-			    		$target.attr('dwf-remotecontents-loaded', 'true');
-			    		$target.trigger('dwf-postupdate');
-					}
-	    		});
+				if(replace) {
+					$target.replaceWith(data);
+				} else {
+		    		$target.fadeOut({
+						always: function() {
+				    		$target.html(data);
+				    	    $target.fadeIn();
+				    		$target.attr('dwf-remotecontents-loaded', 'true');
+				    		$target.trigger('dwf-postupdate');
+						}
+		    		});
+				}
 	    	},
 	    });
 	});
