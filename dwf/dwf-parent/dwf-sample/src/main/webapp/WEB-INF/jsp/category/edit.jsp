@@ -4,9 +4,10 @@
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <html>
 <head>
-<meta name="decorator" content="${!empty param.decorator ? param.decorator : 'crud' }" />
+<meta name="decorator" content="default"/>
 </head>
 <body>
+	<dwf:navCrudBar/>
 	<dwf:editForm>
 		<dwf:inputText property="name" required="true" />
 		<dwf:inputBooleanCheckbox property="adminOnly"/>

@@ -5,10 +5,11 @@
 <dwf:resolveEL el="${entityName}" var="entity" />
 <html>
 <head>
-<meta name="decorator" content="${!empty param.decorator ? param.decorator : 'crud' }" />
+<meta name="decorator" content="default"/>
 <title>${category}</title>
 </head>
 <body>
+	<dwf:navCrudBar/>
 	<dwf:viewPanel>
 		<dwf:outputText property="name" >
 			<br/><a href="#" data-toggle="modal" data-target="#translateName" class="btn btn-default btn-xs"><i class="fa fa-language"></i> traduzir</a>

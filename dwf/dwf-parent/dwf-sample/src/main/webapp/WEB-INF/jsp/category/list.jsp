@@ -5,9 +5,10 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <html>
 <head>
-<meta name="decorator" content="${!empty param.decorator ? param.decorator : 'crud' }" />
+<meta name="decorator" content="${!empty param.decorator ? param.decorator : 'default' }" />
 </head>
 <body>
+<dwf:navCrudBar/>
 <dwf:dataGrid columns="name,enabled" var="entity"/>	
 </body>
 </html>

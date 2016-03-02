@@ -9,6 +9,7 @@ import java.util.concurrent.Callable;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +31,8 @@ import dwf.web.AjaxHashKeyManager;
 public class AjaxController extends BaseController {
 	@Autowired
 	private AjaxHashKeyManager ajaxHashKeyManager;
+	@Autowired
+	private ApplicationContext applicationContext;
 
 	@RequestMapping(value="/tokenInput/{hashkey}", produces="text/plain;charset=UTF-8")
 	public Callable<String> tokenInput (@PathVariable final int hashkey, final String q) {
@@ -40,7 +43,7 @@ public class AjaxController extends BaseController {
 				String json = "";
 				AjaxHashKeyManager.EntityFilter entityFilter = ajaxHashKeyManager.getEntityFilter(hashkey);
 				if (entityFilter == null) return "";				
-				DAO dao = (DAO) getApplicationContext().getBean(entityFilter.getEntityName() + "DAO");
+				DAO dao = (DAO) applicationContext.getBean(entityFilter.getEntityName() + "DAO");
 				ParsedMap filter;
 				if (StringUtils.isEmpty(entityFilter.getFilter())) {
 					filter = new SimpleParsedMap();

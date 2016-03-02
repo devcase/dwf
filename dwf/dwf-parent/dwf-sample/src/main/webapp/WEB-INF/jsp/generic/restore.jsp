@@ -7,10 +7,11 @@
 
 <html>
 	<head>
-		<meta name="decorator" content="crud"/>	
+		<meta name="decorator" content="default" />
 		<title><spring:message code="label.restoreForm.header" />: ${entity}</title>
 	</head>
 	<body>
+		<dwf:navCrudBar/>
 		<dwf:restoreForm/>
 	</body>
 </html>

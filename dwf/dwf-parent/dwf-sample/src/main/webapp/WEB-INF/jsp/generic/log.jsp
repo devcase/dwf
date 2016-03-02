@@ -7,11 +7,12 @@
 <fmt:setBundle basename="labels" var="labelsBundle" />
 <html>
 <head>
-	<meta name="decorator" content="crud" />
+	<meta name="decorator" content="default" />
 	<title><dwf:resolveEL el="${entityName}" var="name"></dwf:resolveEL> ${name}</title>
 </head>
 <body>
 	<h1><spring:message code="label.log"/></h1>
+	<dwf:navCrudBar/>
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<c:forEach items="${logList}" var="activityLog">

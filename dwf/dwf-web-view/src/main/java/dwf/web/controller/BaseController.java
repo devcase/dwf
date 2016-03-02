@@ -22,13 +22,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
@@ -36,7 +36,7 @@ import dwf.web.conversion.CustomPropertyEditorFactory;
 import dwf.web.message.UserMessage;
 import dwf.web.message.UserMessageType;
 
-public abstract class BaseController implements ApplicationContextAware {
+public abstract class BaseController  {
 	private Log log = LogFactory.getLog(getClass());
 	protected static final String USER_MESSAGES_FLASH_MAP_KEY = "userMessagesList";
 	protected static final String VALIDATION_EXCEPTION_FLASH_MAP_KEY = "validationException";
@@ -49,7 +49,6 @@ public abstract class BaseController implements ApplicationContextAware {
 	protected HttpServletResponse response;
 	@Autowired
 	protected HttpServletRequest request;
-	protected ApplicationContext applicationContext;
 	@Autowired
 	protected MessageSource messageSource;
 
@@ -157,14 +156,6 @@ public abstract class BaseController implements ApplicationContextAware {
 		redirectAttributes.addFlashAttribute(BACK_TO_URL_FLASH_MAP_KEY, path);
 	}
 
-	public ApplicationContext getApplicationContext() {
-		return applicationContext;
-	}
-
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
-	
 	@InitBinder
 	public void bindingPreparation(WebDataBinder binder, HttpServletRequest request) {
 		binder.setAutoGrowCollectionLimit(336); //for dwf:inputDayOfWeekTimeSchedule
@@ -179,6 +170,7 @@ public abstract class BaseController implements ApplicationContextAware {
 		binder.registerCustomEditor(int.class, new CustomNumberEditor(Integer.class, df, true));
 		binder.registerCustomEditor(String.class, new StringTrimmerEditor(true)); //string vazias viram nulll
 
+		WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(request.getServletContext());
 		Map<String, CustomPropertyEditorFactory> editorFactories = applicationContext.getBeansOfType(CustomPropertyEditorFactory.class);
 		for (CustomPropertyEditorFactory customEditorFactory : editorFactories.values()) {
 			PropertyEditor customEditor = customEditorFactory.getPropertyEditor(request);
@@ -192,7 +184,7 @@ public abstract class BaseController implements ApplicationContextAware {
 	}
 	
 	
-	protected String getMessage(String code, String... args) {
+	protected final String getMessage(String code, String... args) {
 		Locale locale = RequestContextUtils.getLocale(request);
 		return messageSource.getMessage(code, args, locale);
 	}

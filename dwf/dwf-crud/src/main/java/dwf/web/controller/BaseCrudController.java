@@ -3,6 +3,7 @@ package dwf.web.controller;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -35,7 +36,9 @@ import dwf.persistence.export.Exporter;
 import dwf.persistence.export.Importer;
 import dwf.user.domain.BaseUser;
 import dwf.user.domain.LoggedUserDetails;
+import dwf.utils.DelegatingParsedMap;
 import dwf.utils.ParsedMap;
+import dwf.utils.SingleValueParsedMap;
 import dwf.web.message.UserMessageType;
 
 public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializable> extends BaseController {
@@ -55,6 +58,8 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	private ActivityLogService activityLogService;
 	@Autowired(required=false)
 	private TranslationManager translationManager;
+	@Autowired
+	private ApplicationContext applicationContext;
 	
 	private Importer<D> importer;
 	private Exporter<D> exporter;
@@ -62,6 +67,50 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 
 	protected final Class<D> clazz;
 	protected final String entityName;
+	
+	/**
+	 * Em casos de MultiTenancy, adicionar filtro para todas as consultas
+	 * @return
+	 */
+	protected ParsedMap baseFilter() {
+		return null;
+	}
+	
+	/**
+	 * Em casos de MultiTenancy, modificar a entidade antes de saveNew, update, create, etc
+	 * @param domain
+	 */
+	protected void prepareForSaveOrUpdate(D entidade) {
+		
+	}
+	
+	/**
+	 * Unifica o filtro recebido com baseFilter - para ser usado nas listas
+	 * @param filter
+	 * @return
+	 */
+	protected final ParsedMap includeBaseFilter(ParsedMap filter) {
+		ParsedMap baseFilter = baseFilter();
+		if(baseFilter == null) {
+			return filter;
+		} else {
+			return new DelegatingParsedMap(baseFilter, filter);
+		}
+	}
+	
+	/**
+	 * Unifica o filtro recebido com baseFilter - para ser usado nas listas
+	 * @param filter
+	 * @return
+	 */
+	protected final ParsedMap baseFilterWithId(ID id) {
+		ParsedMap baseFilter = baseFilter();
+		if(baseFilter == null) {
+			return new SingleValueParsedMap("id", id);
+		} else {
+			return new DelegatingParsedMap(baseFilter, new SingleValueParsedMap("id", id));
+		}
+	}
 
 	public BaseCrudController(Class<D> clazz) {
 		super();
@@ -80,6 +129,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	@PostConstruct
 	public void initDependencies() {
 		this.dao = applicationContext.getBean(entityName + "DAO", DAO.class);
+		
 		//busca importador
 		try{
 			this.importer = applicationContext.getBean(entityName + "Importer", Importer.class);
@@ -128,7 +178,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 */
 	@RequestMapping(value = { "/{id}", "/view/{id}" }, method = RequestMethod.GET)
 	public String view(@PathVariable ID id) {
-		D entity = getDAO().findById(id);
+		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
 		if (entity == null) {
 			addUserMessage("crud.view.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -148,7 +198,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 */
 	@RequestMapping(value = "/edit/{id}")
 	public String edit(@PathVariable ID id) {
-		D entity = getDAO().findById(id);
+		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -163,7 +213,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 */
 	@RequestMapping(value = { "/restore/{id}" }, method = RequestMethod.GET)
 	public String restore(@PathVariable ID id) {
-		D entity = getDAO().findById(id);
+		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -199,7 +249,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 */
 	@RequestMapping(value = { "/restore/{id}" }, method = RequestMethod.POST)
 	public String restore(@RequestParam(value = "comments", required = true) String comments, @PathVariable ID id) {
-		D entity = getDAO().findById(id);
+		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -213,7 +263,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 */
 	@RequestMapping(value = { "/delete/{id}" }, method = RequestMethod.GET)
 	public String delete(@PathVariable ID id) {
-		D entity = getDAO().findById(id);
+		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -228,7 +278,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 */
 	@RequestMapping(value = { "/delete/{id}" }, method = RequestMethod.POST)
 	public String delete(@RequestParam(value = "comments", required = true) String comments, @PathVariable ID id) {
-		D entity = getDAO().findById(id);
+		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -250,16 +300,17 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 		return new Callable<String>() {
 			@Override
 			public String call() throws Exception {
-				int count = getDAO().countByFilter(filter);
+				ParsedMap realFilter = includeBaseFilter(filter);
+				int count = getDAO().countByFilter(realFilter);
 				int pages = fetchSize > 0 ? (count / fetchSize) + (count % fetchSize != 0 ? 1 : 0) : 0;
 				int p = Math.min(pages - 1, pageNumber);
-				List<?> list = getDAO().findByFilter(filter, p * fetchSize, fetchSize);
+				List<?> list = getDAO().findByFilter(realFilter, p * fetchSize, fetchSize);
 				model.addAttribute("list", list);
 				model.addAttribute("count", count);
 				model.addAttribute("pageNumber", p);
 				model.addAttribute("pageCount", pages);
 				model.addAttribute("fetchSize", fetchSize);
-				model.addAttribute("filter", filter);
+				model.addAttribute("filter", realFilter);
 				setupNavCrud(OPERATION_LIST, null);
 				return "/" + entityName + "/list";
 			}
@@ -269,7 +320,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 
 	@RequestMapping(value = { "/log/{id}" }, method = RequestMethod.GET)
 	public String log(@PathVariable ID id) {
-		D entity = getDAO().findById(id);
+		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -290,6 +341,12 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 					return "/" + entityName + "/view";
 				}
 				
+				D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
+				if (entity == null) {
+					addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
+					return "redirect:/" + entityName + "/";
+				}
+
 				try {
 					getDAO().updateUpload(id, file.getInputStream(), file.getContentType(), file.getOriginalFilename(), propertyName);
 					return "redirect:/" + entityName + "/" + id;
@@ -308,10 +365,16 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 		return new Callable<String>() {
 			public String call() throws Exception {
 				try {
+					prepareForSaveOrUpdate(form);
 					if (form.getId() == null) {
 						getDAO().saveNew(form);
 						addUserMessage("crud.save.new.success", UserMessageType.SUCCESS);
 					} else {
+						D entity = getDAO().findFirstByFilter(baseFilterWithId(form.getId()));
+						if (entity == null) {
+							addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
+							return "redirect:/" + entityName + "/";
+						}
 						getDAO().updateByAnnotation(form);
 						addUserMessage("crud.save.update.success", UserMessageType.SUCCESS);
 					}
@@ -347,17 +410,23 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 			String contentDisposition = String
 					.format("attachment; filename=export_%s.xlsx", entityName);
 			response.setHeader("Content-disposition", contentDisposition);
-			exporter.exportAsExcel(response.getOutputStream(), filter);
+			exporter.exportAsExcel(response.getOutputStream(), includeBaseFilter(filter));
 		} catch (IOException e) {
 			log.info("Error exporting entities", e);
 		}
 	}
 	
 	@RequestMapping(value="/translate/{id}/{property}")
-	public String translate(@PathVariable Long id, @RequestParam List<String> language, @PathVariable String property, @RequestParam List<String> text) {
+	public String translate(@PathVariable ID id, @RequestParam List<String> language, @PathVariable String property, @RequestParam List<String> text) {
 		try {
+			D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
+			if (entity == null) {
+				addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
+				return "redirect:/" + entityName + "/";
+			}
+
 			BaseMultilangEntity<?> d = (BaseMultilangEntity<?>) clazz.newInstance();
-			d.setId(id);
+			d.setId((Long) id);
 			
 			for (int i = 0; i < text.size(); i++) {
 				String t = text.get(i);
@@ -378,11 +447,18 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 * @return
 	 */
 	protected String saveByGroup(final D form, final Class<?>... groups) {
+		prepareForSaveOrUpdate(form);
 		try {
 			if (form.getId() == null) {
 				getDAO().saveNew(form);
 				addUserMessage("crud.save.new.success", UserMessageType.SUCCESS);
 			} else {
+				D entity = getDAO().findFirstByFilter(baseFilterWithId(form.getId()));
+				if (entity == null) {
+					addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
+					return "redirect:/" + entityName + "/";
+				}
+
 				getDAO().updateByAnnotation(form, groups);
 				addUserMessage("crud.save.update.success", UserMessageType.SUCCESS);
 			}
@@ -409,14 +485,6 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	public Exporter<D> getExporter() {
 		return exporter;
 	}
-
-
-
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
-	
 
 	
 	protected BaseUser getCurrentBaseUser() {

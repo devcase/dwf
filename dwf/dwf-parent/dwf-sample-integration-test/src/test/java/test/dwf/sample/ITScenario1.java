@@ -27,10 +27,13 @@ public class ITScenario1 {
 	static final String TEST_USER_1_PASSWORD =  "sample@devcase.com.br";
 	static final String TEST_USER_2_EMAIL =  "user@devcase.com.br";
 	static final String TEST_USER_2_PASSWORD =  "user@devcase.com.br";
+	static final String TEST_USER_3_EMAIL =  "admin2@devcase.com.br";
+	static final String TEST_USER_3_PASSWORD =  "admin2@devcase.com.br";
 
 	@PostConstruct
 	public void loadData() {
 		BaseUser adminUser = baseUserDAO.findOrSaveNew(new BaseUser(TEST_USER_1_EMAIL, passwordEncoder.encode(TEST_USER_1_PASSWORD), null, BaseUserRole.BACKOFFICE_ADMIN));
+		BaseUser adminUser2 = baseUserDAO.findOrSaveNew(new BaseUser(TEST_USER_3_EMAIL, passwordEncoder.encode(TEST_USER_3_PASSWORD), null, BaseUserRole.BACKOFFICE_ADMIN));
 		BaseUser userUser = baseUserDAO.findOrSaveNew(new BaseUser(TEST_USER_2_EMAIL, passwordEncoder.encode(TEST_USER_2_PASSWORD), null, BaseUserRole.BACKOFFICE_USER));
 		
 		

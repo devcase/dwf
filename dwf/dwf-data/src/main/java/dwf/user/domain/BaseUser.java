@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import javax.validation.groups.Default;
 
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.Email;
@@ -30,6 +31,8 @@ import dwf.serialization.View;
 @Entity
 @UniqueValue(field="email")
 public class BaseUser extends BaseEntity<Long> {
+	public static interface UpdateEmail {}
+	public static interface UpdateEmailName {}
 
 	private static final long serialVersionUID = 3161746215465593657L;
 	
@@ -39,6 +42,8 @@ public class BaseUser extends BaseEntity<Long> {
 	private Date expirationDate;
 	private boolean verified;
 	private List<String> roles;
+	private String firstName;
+	private String lastName;
 
 	public BaseUser() {}
 	
@@ -53,6 +58,7 @@ public class BaseUser extends BaseEntity<Long> {
 	@Email
 	@Lowercase
 	@NaturalId(mutable=true)
+	@UpdatableProperty(groups={Default.class, UpdateEmail.class, UpdateEmailName.class})
 	public String getEmail() {
 		return email;
 	}
@@ -111,6 +117,26 @@ public class BaseUser extends BaseEntity<Long> {
 	@JsonIgnore
 	public boolean isExpired() {
 		return expirationDate != null && expirationDate.getTime() < System.currentTimeMillis();
+	}
+
+	@Column(length=200)
+	@UpdatableProperty(groups={Default.class, UpdateEmailName.class})
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	@Column(length=200)
+	@UpdatableProperty(groups={Default.class, UpdateEmailName.class})
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 	
 }

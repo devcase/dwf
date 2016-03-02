@@ -2,13 +2,14 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
-<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <html>
 <head>
-<meta name="decorator" content="${!empty param.decorator ? param.decorator : 'default' }" />
+<meta name="decorator" content="default" />
 </head>
 <body>
-	<dwf:navCrudBar />
-	<dwf:dataGrid columns="email,roles,enabled" var="entity" />
+	<dwf:navCrudBar/>
+	<dwf:editForm>
+		<dwf:inputText property="content" required="true" />
+	</dwf:editForm>
 </body>
 </html>

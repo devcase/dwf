@@ -8,7 +8,7 @@
 <meta name="decorator" content="${!empty param.decorator ? param.decorator : 'default' }" />
 </head>
 <body>
-	<dwf:navCrudBar />
-	<dwf:dataGrid columns="email,roles,enabled" var="entity" />
+<dwf:navCrudBar/>
+<dwf:dataGrid columns="content,enabled" var="entity"/>	
 </body>
 </html>

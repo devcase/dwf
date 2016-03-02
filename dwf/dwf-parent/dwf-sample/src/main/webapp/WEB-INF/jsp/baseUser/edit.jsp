@@ -4,15 +4,15 @@
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf" %>
 <html>
 	<head>
-		<meta name="decorator" content="crud"/>
+		<meta name="decorator" content="default"/>
 	</head>
 	<body>
+		<dwf:navCrudBar/>
 		<dwf:editForm>
 			<dwf:inputText property="email" required="true"/>
-			<dwf:inputDate property="expirationDate"/>
-			<dwf:inputBooleanCheckbox property="verified"/>
-			<dwf:inputTextCheckboxList property="roles" items="ROLE_BACKOFFICE_ADMIN,ROLE_BACKOFFICE_USER"/>
+			<dwf:inputText property="firstName" />
+			<dwf:inputText property="lastName" />
+			<dwf:inputTextCheckboxList property="roles" items="ROLE_SUPERUSER, ROLE_BACKOFFICE_ADMIN"/>
 		</dwf:editForm>
 	</body>
-	
 </html>

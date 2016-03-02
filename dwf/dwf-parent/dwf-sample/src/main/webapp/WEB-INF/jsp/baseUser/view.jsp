@@ -5,21 +5,22 @@
 <dwf:resolveEL el="${entityName}" var="entity" />
 <html>
 <head>
-<meta name="decorator" content="crud" />
+<meta name="decorator" content="default" />
 <title>${service}</title>
 </head>
 <body>
+	<dwf:navCrudBar/>
+
 	<dwf:viewPanel>
   		<dwf:outputText property="email"/>
-  		<dwf:outputText property="expirationDate"/>
+  		<dwf:outputText property="firstName"/>
+  		<dwf:outputText property="lastName"/>
   		<dwf:outputText property="roles"/>
-  		<dwf:outputText property="verified"/>
  	</dwf:viewPanel>
  	
  	<dwf:editForm formaction="${appPath}/baseUser/changePassword" labelKey="action.changepassword">
  		<dwf:inputPassword name="password" required="true"/>
  		<dwf:inputPassword name="confirmPassword" required="true"/>
  	</dwf:editForm>
- 	
 </body>
 </html>
