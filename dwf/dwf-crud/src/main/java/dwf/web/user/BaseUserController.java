@@ -39,12 +39,8 @@ public class BaseUserController extends BaseCrudController<BaseUser, Long> {
 		}
 		
 		if(bindingResult.hasErrors()) {
-			model.addAttribute(BindingResult.MODEL_KEY_PREFIX + "form", bindingResult);
-			BaseUser entity = getDAO().findById(form.getId());
-			model.addAttribute(entityName, entity);
-			model.addAttribute("entity", entity);
-			setupNavCrud(OPERATION_VIEW, entity);
-			return "/baseUser/view";
+			addUserMessage("message.confirmPassword.error", UserMessageType.DANGER);
+			return "redirect:/baseUser/view/" + form.getId();
 		}
 		BaseUser b = new BaseUser();
 		b.setId(form.getId());

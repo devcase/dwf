@@ -54,6 +54,11 @@ public class BaseUser extends BaseEntity<Long> {
 		this.roles = roles != null ? Arrays.asList(roles) : Collections.emptyList();
 	}
 	
+	public BaseUser(String email) {
+		super();
+		this.email = email;
+	}
+
 	@NotEmpty
 	@Email
 	@Lowercase

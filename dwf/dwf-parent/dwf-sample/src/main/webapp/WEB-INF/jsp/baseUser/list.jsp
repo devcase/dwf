@@ -9,6 +9,6 @@
 </head>
 <body>
 	<dwf:navCrudBar />
-	<dwf:dataGrid columns="email,roles,enabled" var="entity" />
+	<dwf:dataGrid columns="email,firstName,lastName,roles,enabled" var="entity" />
 </body>
 </html>
