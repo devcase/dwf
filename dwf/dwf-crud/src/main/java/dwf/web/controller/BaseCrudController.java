@@ -178,7 +178,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 */
 	@RequestMapping(value = { "/{id}", "/view/{id}" }, method = RequestMethod.GET)
 	public String view(@PathVariable ID id) {
-		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
+		D entity = findById(id);
 		if (entity == null) {
 			addUserMessage("crud.view.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -198,7 +198,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 */
 	@RequestMapping(value = "/edit/{id}")
 	public String edit(@PathVariable ID id) {
-		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
+		D entity = findById(id);
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -213,7 +213,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 */
 	@RequestMapping(value = { "/restore/{id}" }, method = RequestMethod.GET)
 	public String restore(@PathVariable ID id) {
-		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
+		D entity = findById(id);
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -249,7 +249,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 */
 	@RequestMapping(value = { "/restore/{id}" }, method = RequestMethod.POST)
 	public String restore(@RequestParam(value = "comments", required = true) String comments, @PathVariable ID id) {
-		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
+		D entity = findById(id);
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -263,7 +263,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 */
 	@RequestMapping(value = { "/delete/{id}" }, method = RequestMethod.GET)
 	public String delete(@PathVariable ID id) {
-		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
+		D entity = findById(id);
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -278,7 +278,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	 */
 	@RequestMapping(value = { "/delete/{id}" }, method = RequestMethod.POST)
 	public String delete(@RequestParam(value = "comments", required = true) String comments, @PathVariable ID id) {
-		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
+		D entity = findById(id);
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -320,7 +320,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 
 	@RequestMapping(value = { "/log/{id}" }, method = RequestMethod.GET)
 	public String log(@PathVariable ID id) {
-		D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
+		D entity = findById(id);
 		if (entity == null) {
 			addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 			return "redirect:/" + entityName + "/";
@@ -341,7 +341,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 					return "/" + entityName + "/view";
 				}
 				
-				D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
+				D entity = findById(id);
 				if (entity == null) {
 					addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 					return "redirect:/" + entityName + "/";
@@ -370,7 +370,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 						getDAO().saveNew(form);
 						addUserMessage("crud.save.new.success", UserMessageType.SUCCESS);
 					} else {
-						D entity = getDAO().findFirstByFilter(baseFilterWithId(form.getId()));
+						D entity = findById(form.getId());
 						if (entity == null) {
 							addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 							return "redirect:/" + entityName + "/";
@@ -419,7 +419,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	@RequestMapping(value="/translate/{id}/{property}")
 	public String translate(@PathVariable ID id, @RequestParam List<String> language, @PathVariable String property, @RequestParam List<String> text) {
 		try {
-			D entity = getDAO().findFirstByFilter(baseFilterWithId(id));
+			D entity = findById(id);
 			if (entity == null) {
 				addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 				return "redirect:/" + entityName + "/";
@@ -453,7 +453,7 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 				getDAO().saveNew(form);
 				addUserMessage("crud.save.new.success", UserMessageType.SUCCESS);
 			} else {
-				D entity = getDAO().findFirstByFilter(baseFilterWithId(form.getId()));
+				D entity = findById(form.getId());
 				if (entity == null) {
 					addUserMessage("crud.edit.notfound", UserMessageType.DANGER);
 					return "redirect:/" + entityName + "/";
@@ -492,6 +492,10 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 		if(currentUser instanceof LoggedUserDetails) {
 			return ((LoggedUserDetails) currentUser).getBaseUser();
 		} return null;
+	}
+	
+	protected D findById(ID id) {
+		return getDAO().findFirstByFilter(baseFilterWithId(id));
 	}
 
 	/**
