@@ -3,12 +3,12 @@ package dwf.web.controller;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +38,7 @@ import dwf.user.domain.BaseUser;
 import dwf.user.domain.LoggedUserDetails;
 import dwf.utils.DelegatingParsedMap;
 import dwf.utils.ParsedMap;
+import dwf.utils.SimpleParsedMap;
 import dwf.utils.SingleValueParsedMap;
 import dwf.web.message.UserMessageType;
 
@@ -106,9 +107,9 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	protected final ParsedMap baseFilterWithId(ID id) {
 		ParsedMap baseFilter = baseFilter();
 		if(baseFilter == null) {
-			return new SingleValueParsedMap("id", id);
+			return new SimpleParsedMap("id", id, "includeDisabled", true);
 		} else {
-			return new DelegatingParsedMap(baseFilter, new SingleValueParsedMap("id", id));
+			return new DelegatingParsedMap(baseFilter, new SimpleParsedMap("id", id, "includeDisabled", true));
 		}
 	}
 

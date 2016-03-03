@@ -59,9 +59,9 @@ public class BaseUser extends BaseEntity<Long> {
 		this.email = email;
 	}
 
-	@NotEmpty
-	@Email
-	@Lowercase
+	@NotEmpty(groups={Default.class, UpdateEmail.class, UpdateEmailName.class})
+	@Email(groups={Default.class, UpdateEmail.class, UpdateEmailName.class})
+	@Lowercase(groups={Default.class, UpdateEmail.class, UpdateEmailName.class})
 	@NaturalId(mutable=true)
 	@UpdatableProperty(groups={Default.class, UpdateEmail.class, UpdateEmailName.class})
 	public String getEmail() {

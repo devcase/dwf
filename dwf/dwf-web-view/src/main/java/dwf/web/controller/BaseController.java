@@ -24,6 +24,7 @@ import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.context.MessageSource;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -128,6 +129,12 @@ public abstract class BaseController  {
 
 		redirectAttributes.addFlashAttribute(VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY, violationsMap);
 		request.setAttribute(VIOLATIONS_MAP_EXCEPTION_FLASH_MAP_KEY, violationsMap);
+	}
+	
+	protected void showBindingResultWithErrors(BindingResult bindingResult) {
+		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.form", bindingResult);
+		request.setAttribute("org.springframework.validation.BindingResult.form", bindingResult);
+		
 	}
 	
 	/**
