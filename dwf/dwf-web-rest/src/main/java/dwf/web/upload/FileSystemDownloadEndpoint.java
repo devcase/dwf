@@ -1,5 +1,6 @@
 package dwf.web.upload;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -36,13 +37,8 @@ public class FileSystemDownloadEndpoint implements InitializingBean, DownloadEnd
 	public void afterPropertiesSet() throws Exception {
 		resourceHttpRequestHandler = new ResourceHttpRequestHandler();
 		resourceHttpRequestHandler.setApplicationContext(applicationContext);
-		
-		//FileSystemResource fsResource = new FileSystemResource(rootDir); <- não funciona
-		String fileDir = fileUploadManager.getDirectory().trim();
-		if(!fileDir.endsWith("/") && !fileDir.endsWith("\\")) {
-			fileDir = fileDir + "/";
-		}
-		FileSystemResource fsResource = new FileSystemResource(fileDir);
+		String rootDir = fileUploadManager.getRootDir().getCanonicalPath() + "/";
+		FileSystemResource fsResource = new FileSystemResource(rootDir);
 		resourceHttpRequestHandler.setLocations(Collections.singletonList((Resource) fsResource));
 		resourceHttpRequestHandler.afterPropertiesSet();
 	}

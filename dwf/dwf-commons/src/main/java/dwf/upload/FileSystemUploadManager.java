@@ -35,8 +35,7 @@ public class FileSystemUploadManager implements InitializingBean, UploadManager 
 	 */
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		
-		File rootDir = new File(getDirectory());
+		File rootDir = getRootDir();
 		if(!rootDir.exists()) {
 			rootDir.mkdir();
 		} else if(!rootDir.isDirectory()) {
@@ -70,9 +69,13 @@ public class FileSystemUploadManager implements InitializingBean, UploadManager 
 		
 		return (folderName.startsWith("/") ? "" : "/")   + folderName + (folderName.endsWith("/") ? "" : "/") + fileName;
 	}
+	
+	public File getRootDir() {
+		return new File(getDirectory().endsWith("/") ? getDirectory() : getDirectory() + "/");
+	}
 
 	protected File getFileDestination(String fileName, String folderName) throws IOException {
-		File rootDir = new File(getDirectory().endsWith("/") ? getDirectory() : getDirectory() + "/");
+		File rootDir = getRootDir();
 		if(!rootDir.exists()) {
 			rootDir.mkdir();
 		} else if(!rootDir.isDirectory()) {
@@ -92,6 +95,7 @@ public class FileSystemUploadManager implements InitializingBean, UploadManager 
 		if(savedFile.exists()) {
 			savedFile.delete();
 		}
+		
 		return savedFile;
 	}
 
@@ -109,7 +113,7 @@ public class FileSystemUploadManager implements InitializingBean, UploadManager 
 	 */
 	@Override
 	public void deleteFile(String uploadKey) {
-		File rootDir = new File(getDirectory().endsWith("/") ? getDirectory() : getDirectory() + "/");
+		File rootDir = getRootDir();
 		File deletedFile = new File(rootDir, uploadKey);
 		if(deletedFile.exists()) {
 			deletedFile.delete();
@@ -119,7 +123,7 @@ public class FileSystemUploadManager implements InitializingBean, UploadManager 
 	@Override
 	public InputStream openInputStream(String uploadKey) {
 		try {
-			return new FileInputStream(new File(directory + uploadKey));
+			return new FileInputStream(new File(getRootDir(), uploadKey));
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
 		}
