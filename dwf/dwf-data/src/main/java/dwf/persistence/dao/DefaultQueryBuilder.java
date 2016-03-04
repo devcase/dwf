@@ -29,19 +29,8 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	public String createQuery(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params) {
 
 		StringBuilder query = new StringBuilder();
-		if(returnType.isCount()) {
-			query.append("select count(s2.id) ");
-			query.append(" from ").append(dao.getEntityFullName()).append(" s2 where s2.id in (");
-			appendSelectIdsCommand(filter, returnType, params, query, "s");
-		} else {
-			//faz um wrap no select customizável
-			query.append("select ");
-			returnType.appendSelectList(query, "s2");
-			query.append(" from ").append(dao.getEntityFullName()).append(" s2 where s2.id in (");
-			appendSelectIdsCommand(filter, returnType, params, query, "s");
-		}
-
-		
+		String domainAlias = returnType.prependSelect(query, dao.getEntityFullName(), params, filter);
+		appendSelectIdsCommand(filter, returnType, params, query, "s");
 
 		appendJoins(filter, returnType, params, query, "s");
 
@@ -52,7 +41,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 		
 		query.append(") ");
 		if(!returnType.isCount()) {
-			appendOrderBy(filter, returnType, params, query, "s2");
+			appendOrderBy(filter, returnType, params, query, domainAlias);
 		}
 		
 		return query.toString();		
@@ -79,7 +68,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 				query.append(" ").append(filter.getString("orderByDirection").toLowerCase().equals("desc") ? " DESC " : " ASC ");
 			}
 		} else {
-			appendDefaultOrderBy(filter, returnType, params, query, "s2");
+			appendDefaultOrderBy(filter, returnType, params, query, domainAlias);
 		}
 		
 	}

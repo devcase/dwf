@@ -1,16 +1,10 @@
 package dwf.persistence.dao;
 
+import java.util.Map;
+
+import dwf.utils.ParsedMap;
+
 public interface QueryReturnType<T> {
-	static final QueryReturnType<Integer> COUNT = new QueryReturnType<Integer>() {
-		@Override
-		public boolean isCount() {
-			return true;
-		}
-		
-		@Override
-		public void appendSelectList(StringBuilder queryBuilder, String domainAlias) {
-		}
-	};
 	
 	static class Factory {
 		@SuppressWarnings("unchecked")
@@ -18,16 +12,30 @@ public interface QueryReturnType<T> {
 			return (QueryReturnType<T>) DOMAIN;
 		}
 	}
-	
+
+	static final QueryReturnType<Integer> COUNT = new QueryReturnType<Integer>() {
+		@Override
+		public boolean isCount() {
+			return true;
+		}
+
+		@Override
+		public String prependSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter) {
+			query.append("select count(s2.id) from ").append(entityName).append(" s2 where s2.id in (");
+			return "s2";
+		}
+	};
+
 	static final QueryReturnType<?> DOMAIN = new QueryReturnType<Object>() {
 		@Override
 		public boolean isCount() {
 			return false;
 		}
-		
+
 		@Override
-		public void appendSelectList(StringBuilder queryBuilder, String domainAlias) {
-			queryBuilder.append(domainAlias);
+		public String prependSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter) {
+			query.append("select s2 from ").append(entityName).append(" s2 where s2.id in (");
+			return "s2";
 		}
 	};
 	
@@ -38,12 +46,14 @@ public interface QueryReturnType<T> {
 		}
 		
 		@Override
-		public void appendSelectList(StringBuilder queryBuilder, String domainAlias) {
-			queryBuilder.append(domainAlias).append(".id");
+		public String prependSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter) {
+			query.append("select s2.id from ").append(entityName).append(" s2 where s2.id in (");
+			return "s2";
 		}
+
 	};
 
 	
 	boolean isCount();
-	void appendSelectList(StringBuilder queryBuilder, String domainAlias);
+	String prependSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter);
 }
