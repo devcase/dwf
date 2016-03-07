@@ -1,3 +1,6 @@
+<%@tag import="java.util.Collection"%>
+<%@tag import="java.util.Arrays"%>
+<%@tag import="java.util.Collections"%>
 <%@tag import="dwf.utils.SimpleParsedMap"%>
 <%@tag import="dwf.persistence.interfaces.HasIcon"%>
 <%@tag import="java.util.List"%>
@@ -29,11 +32,25 @@ if(filter == null) {
 Class targetEntityClass = dao.getEntityClass();
 getJspContext().setAttribute("hasIcon", HasIcon.class.isAssignableFrom(targetEntityClass));
 %>
+<c:set var="selectedIds" value="${attrMap.selectedIds}"/>
+<%
+Object rawselectedids = getJspContext().getAttribute("selectedIds");
+if(rawselectedids == null) {
+	getJspContext().setAttribute("selectedIds", Collections.EMPTY_LIST);
+} else if(rawselectedids instanceof Collection) {
+	//do nothing
+} else if(rawselectedids instanceof Long[]) {
+	getJspContext().setAttribute("selectedIds", Arrays.asList((Long[])rawselectedids));
+} else if(rawselectedids instanceof Object[]) {
+	getJspContext().setAttribute("selectedIds", Arrays.asList((Object[])rawselectedids));
+} 
+%>
 <dwf:formGroup parentAttrMap="${attrMap}">
 	<div class="btn-group" >
 		<c:forEach items="${targetEntityList}" var="targetEntity" varStatus="loopStatus">
+			<c:set var="checked" value="${value.contains(targetEntity) || selectedIds.contains(targetEntity.id)}"/>
 			<label class= "btn btn-borderless">
-				<input type="checkbox" name="${name}[].id" value="${targetEntity.id }" ${value.contains(targetEntity) ? 'checked="checked"' : '' }>
+				<input type="checkbox" name="${name}[].id" value="${targetEntity.id }" ${checked ? 'checked="checked"' : '' }>
 					<c:if test="${hasIcon and !empty targetEntity.xsIconImage and !attrMap.noIcons}"><img src="<dwf:remoteUrl uploadKey="${targetEntity.xsIconImage}" />" style="width: 1em; height: 1em;"/></c:if>
 					<dwf:autoFormat value="${targetEntity}"/></input>
 			</label>

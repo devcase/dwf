@@ -30,11 +30,13 @@ Atributos:
 		<c:set var="name" value="${attrMap.property}"/>
 	</c:when>
 </c:choose>
-<c:if test="${!attrMap.ignoreParams and !empty pageContext.request.getParameterValues(name.concat('[]')) }">
-	<c:set var="value" value="${pageContext.request.getParameterValues(name.concat('[]')) }"/>
-</c:if>
-<c:if test="${!attrMap.ignoreParams and !empty param[name]}"><%-- usa o parâmetro do request no lugar da propriedade--%>
-	<c:set var="value" value="${param[name]}"/>
+<c:if test="${!attrMap.ignoreParams}">
+	<c:if test="${!empty pageContext.request.getParameterValues(name.concat('[]')) }">
+		<c:set var="value" value="${pageContext.request.getParameterValues(name.concat('[]')) }"/>
+	</c:if>
+	<c:if test="${!empty param[name]}"><%-- usa o parâmetro do request no lugar da propriedade--%>
+		<c:set var="value" value="${param[name]}"/>
+	</c:if>
 </c:if>
 <c:if test="${!empty attrMap.value}">
 	<c:set var="value" value="${attrMap.value}"/>
@@ -55,11 +57,13 @@ Atributos:
 <c:if test="${attrMap.withoutLabel || label eq 'none'}">
 	<c:set var="controlStyleClasses" value="${controlStyleClasses} col-sm-offset-${labelWidth}"/>
 </c:if>
-<%-- formulário com layout vertical --%>
+<%-- formulário com layout vertical /inline --%>
 <c:if test="${formlayout eq 'vertical'}">
 	<c:set var="labelStyleClasses" value=""/>
 	<c:set var="controlStyleClasses" value=""/>
-	
+</c:if>
+<c:if test="${formlayout eq 'inline' || formlayout eq 'vertical'}">
+	<c:set var="ommitControlDiv" value="true"/>
 </c:if>
 
 

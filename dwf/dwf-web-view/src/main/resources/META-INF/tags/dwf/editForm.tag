@@ -60,13 +60,14 @@ Atributos:
 		<div class="panel-body">
 </c:if>
 <c:set var="originalformlayout" value="${formlayout}"/>
-<c:set var="formlayout" value="${attrMap.formlayout eq 'vertical' ? 'vertical' : 'horizontal' }" scope="request"/>
+<c:set var="formlayout" value="${empty attrMap.formlayout ? 'horizontal' : attrMap.formlayout}" scope="request"/>
 
-		<form class="${formlayout eq 'horizontal' ? 'form-horizontal' : ''} validate dwf-progressbaronsubmit" method="POST" action="${formaction}" role="form" <c:if test="${!empty attrMap.formId}">id="${attrMap.formId}"</c:if>
+		<form class="${formlayout eq 'horizontal' ? 'form-horizontal' : formlayout eq 'inline' ? 'form-inline' : ''} validate dwf-progressbaronsubmit" method="${empty attrMap.method ? 'POST' : attrMap.method}" action="${formaction}" role="form" <c:if test="${!empty attrMap.formId}">id="${attrMap.formId}"</c:if>
 			<c:if test="${!empty attrMap.enctype}">enctype="${attrMap.enctype}"</c:if>>
 			
-
-			<sec:csrfInput />
+			<c:if test="${attrMap.method ne 'GET' }">
+				<sec:csrfInput />
+			</c:if>
 			<c:if test="${!empty entity }">
 				<input type="hidden" name="id" value="${entity.id}"/>
 			</c:if>

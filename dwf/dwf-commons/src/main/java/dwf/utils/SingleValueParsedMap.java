@@ -36,6 +36,11 @@ public class SingleValueParsedMap implements ParsedMap {
 		return null;
 	}
 	@Override
+	public Long[] getLongArray(String key) {
+		return new Long[] { getLong(key) };
+	}
+
+	@Override
 	public Date getDate(String key) {
 		if(this.key.equals(key)) return (Date) value;
 		return null;

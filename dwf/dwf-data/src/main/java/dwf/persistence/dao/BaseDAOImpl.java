@@ -407,6 +407,10 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 				return null;
 			}
 
+			@Override
+			public Long[] getLongArray(String key) {
+				return null;
+			}
 		});
 	}
 

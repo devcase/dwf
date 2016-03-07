@@ -7,12 +7,15 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import dwf.persistence.annotations.DefaultOrderBy;
 import dwf.utils.ParsedMap;
 import dwf.utils.SearchstringUtils;
 
 public class DefaultQueryBuilder implements QueryBuilder {
+	private Logger logger= LoggerFactory.getLogger(DefaultQueryBuilder.class);
 	protected BaseDAOImpl<?> dao;
 	protected Class<?> clazz;
 	
@@ -44,7 +47,11 @@ public class DefaultQueryBuilder implements QueryBuilder {
 			appendOrderBy(filter, returnType, params, query, domainAlias);
 		}
 		
-		return query.toString();		
+		String ret = query.toString();
+		if(logger.isDebugEnabled()) {
+			logger.debug(ret);
+		}
+		return ret;		
 	}
 	
 	protected void appendSelectIdsCommand(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params, StringBuilder query, String domainAlias) {
@@ -100,6 +107,23 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	 * @param query
 	 */
 	protected void appendJoins(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params, StringBuilder query, String domainAlias) {
+		for ( PropertyDescriptor pDescriptor : dao.getPropertyList()) {
+			if(join(filter, pDescriptor)) {
+				String pName = pDescriptor.getName();
+				query.append(" join ").append(domainAlias).append(".").append(pName).append(" ").append(pName);
+			}
+		}
+	}
+	
+	private boolean join(ParsedMap filter, PropertyDescriptor pDescriptor) {
+		//join automático de coleções, se veio no filtro
+		if(Collection.class.isAssignableFrom(pDescriptor.getPropertyType())) {
+			String pName = pDescriptor.getName();
+			if(filter.containsKey(pName) || filter.containsKey(pName + "[0].id") || filter.containsKey(pName + "[].id") || filter.containsKey(pName+ ".id")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -112,38 +136,56 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	protected void appendConditions(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params, StringBuilder query, String domainAlias) {
 		for ( PropertyDescriptor pDescriptor : dao.getPropertyList()) {
 			String pName = pDescriptor.getName();
+			String ref = pName;
+			if(!join(filter, pDescriptor)) {
+				ref = domainAlias.concat(".").concat(pName);
+			}
+
+			
 			if(filter.containsKey(pName)) {
 				
 				Object value = filter.get(pName, pDescriptor.getPropertyType());
 				if(value != null && (value.getClass().isArray()) && Array.getLength(value) > 0) {
 					//chegou array no filtro
-					query.append(" and ").append(domainAlias).append(".").append(pName).append(" in (:").append(pName).append(") ");
+					query.append(" and ").append(ref).append(" in (:").append(pName).append(") ");
 				} else if(value != null && (value instanceof Collection<?>)) {
 					//chegou collection no filtro
-					query.append(" and ").append(domainAlias).append(".").append(pName).append(" in (:").append(pName).append(") ");
+					query.append(" and ").append(ref).append(" in (:").append(pName).append(") ");
 				} else {
 					if(Collection.class.isAssignableFrom(pDescriptor.getPropertyType())) {
 						//propriedade na entidade é collection
-						query.append(" and :").append(pName).append(" member of ").append(domainAlias).append(".").append(pName);
+						query.append(" and :").append(pName).append(" member of ").append(ref);
 					} else {
-						query.append(" and ").append(domainAlias).append(".").append(pName).append(" = :").append(pName);
+						query.append(" and ").append(ref).append(" = :").append(pName);
 					}
 				}
 				params.put(pName, value);
 			} else if(filter.containsKey(pName+ ".id")) {
 				Long value = filter.getLong(pName+ ".id"); //TODO - Só funciona com Long!
-				query.append(" and ").append(domainAlias).append(".").append(pName).append(".id = :").append(pName).append("Id ");
+				query.append(" and ").append(ref).append(".id = :").append(pName).append("Id ");
 				params.put(pName + "Id", value);
 			} else if(filter.containsKey(pName + "[0].id")){
 				Long value = filter.getLong(pName + "[0].id");
 				
 				query.append(" and (");
 				for(Integer i = 1; value != null; i++){
-					query.append(domainAlias).append(".").append(pName).append(".id = :").append(pName).append("Id" + i + " ");
+					query.append(ref).append(".id = :").append(pName).append("Id" + i + " ");
 					params.put(pName + "Id" + i, value);
 					value = filter.getLong(pName + "[" + i + "].id");
 					if(value != null)
 						query.append(" or ");
+				}
+				query.append(")");
+			} else if(filter.containsKey(pName + "[].id")){
+				Long[] values = filter.getLongArray(pName + "[].id");
+				query.append(" and (");
+				for (int j = 0; j < values.length; j++) {
+					Long value = values[j];
+					query.append(ref).append(".id = :").append(pName).append("Id" + j + " ");
+					params.put(pName + "Id" + j, value);
+					if((j+1) < values.length) {
+						query.append(" or ");
+					}
 				}
 				query.append(")");
 			}

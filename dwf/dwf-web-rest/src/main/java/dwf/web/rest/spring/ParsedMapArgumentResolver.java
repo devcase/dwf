@@ -142,6 +142,27 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 				return convertToLong(paramValue);
 			}
 		}
+		
+		
+
+		@Override
+		public Long[] getLongArray(String key) {
+			if(newObjectMap.containsKey(key)) {
+				return (Long[]) newObjectMap.get(key);
+			}
+			
+			if(keyPrefix != null) key = keyPrefix + key;
+			if(!requestMap.containsKey(key) || requestMap.get(key).length == 0 || StringUtils.isBlank(requestMap.get(key)[0])) {
+				return null;
+			} else {
+				String[] paramValue = requestMap.get(key);
+				Long[] ret = new Long[paramValue.length];
+				for (int i = 0; i < ret.length; i++) {
+					ret[i] = convertToLong(paramValue[i]);
+				}
+				return ret;
+			}
+		}
 
 		protected long convertToLong(String paramValue) {
 			try {

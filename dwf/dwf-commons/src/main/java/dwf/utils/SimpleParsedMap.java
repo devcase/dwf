@@ -1,6 +1,7 @@
 package dwf.utils;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,8 +87,24 @@ public class SimpleParsedMap implements ParsedMap {
 			throw new IllegalArgumentException("Passed key can't be parsed into a Long: " + value);
 		}
 	}
-	
-	
+
+	@Override
+	public Long[] getLongArray(String key) {
+		Object value = values.get(key);
+		if(value == null) return null;
+		else if(value instanceof Long[]) {
+			return (Long[]) value;
+		} else if (value instanceof Number) {
+			return new Long[] {((Number) value).longValue()};
+		} else if(value instanceof String) {
+			return new Long[] {Long.valueOf((String) value)};
+		} else if(value instanceof Collection) {
+			return ((Collection<Long>) value).toArray(new Long[0]);
+			//TODO - outras conversões
+		} else {
+			throw new IllegalArgumentException("Passed key can't be parsed into a Long: " + value);
+		}
+	}
 
 	@Override
 	public Date getDate(String key) {

@@ -8,6 +8,7 @@ public interface ParsedMap  {
 	Double getDouble(String key);
 	Boolean getBoolean(String key);
 	Long getLong(String key);
+	Long[] getLongArray(String key);
 	Date getDate(String key);
 
 	boolean containsKey(String key);

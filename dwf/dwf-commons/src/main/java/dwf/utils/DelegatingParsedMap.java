@@ -36,6 +36,12 @@ public class DelegatingParsedMap implements ParsedMap {
 		if(a.containsKey(key)) return a.getLong(key);
 		else return b.getLong(key);
 	}
+	
+	@Override
+	public Long[] getLongArray(String key) {
+		if(a.containsKey(key)) return a.getLongArray(key);
+		else return b.getLongArray(key);
+	}
 
 	@Override
 	public Date getDate(String key) {
