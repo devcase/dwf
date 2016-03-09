@@ -474,6 +474,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		getSession().persist(entity);
 		activityLogService.log(entity, ActivityLogService.OPERATION_CREATE);
 		getSession().flush();
+		getSession().refresh(entity);
 		getSession().setReadOnly(entity, true);
 		return entity;
 	}
