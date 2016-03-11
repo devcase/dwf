@@ -110,7 +110,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 		for ( PropertyDescriptor pDescriptor : dao.getPropertyList()) {
 			if(join(filter, pDescriptor)) {
 				String pName = pDescriptor.getName();
-				query.append(" join ").append(domainAlias).append(".").append(pName).append(" ").append(pName);
+				query.append(" join ").append(domainAlias).append(".").append(pName).append(" joined").append(pName);
 			}
 		}
 	}
@@ -137,7 +137,10 @@ public class DefaultQueryBuilder implements QueryBuilder {
 		for ( PropertyDescriptor pDescriptor : dao.getPropertyList()) {
 			String pName = pDescriptor.getName();
 			String ref = pName;
-			if(!join(filter, pDescriptor)) {
+			boolean join = join(filter, pDescriptor);
+			if(join) {
+				ref = "joined".concat(pName);
+			} else {
 				ref = domainAlias.concat(".").concat(pName);
 			}
 
@@ -152,7 +155,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 					//chegou collection no filtro
 					query.append(" and ").append(ref).append(" in (:").append(pName).append(") ");
 				} else {
-					if(Collection.class.isAssignableFrom(pDescriptor.getPropertyType())) {
+					if(Collection.class.isAssignableFrom(pDescriptor.getPropertyType()) && !join) {
 						//propriedade na entidade é collection
 						query.append(" and :").append(pName).append(" member of ").append(ref);
 					} else {
