@@ -97,9 +97,9 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 	 * Cache com os setters anotados com @FillWithCurrentUser
 	 */
 	protected final Map<NotSyncPropertyDescriptor, FillWithCurrentUser> filledWithUser;
-	private List<NotSyncPropertyDescriptor> propertyList;
-	private Set<String> propertyNames;
-	private final Set<String> readAndWritePropertyNames;
+	protected List<NotSyncPropertyDescriptor> propertyList;
+	protected Set<String> propertyNames;
+	protected final Set<String> readAndWritePropertyNames;
 	
 	protected MongoCollection mongoCollection;
 	
@@ -237,6 +237,10 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
                     filter = new SimpleParsedMap();
                 }
 		BasicDBObject obj = new BasicDBObject();
+		if (!allowDisabled) {
+			obj.append("enabled", true);
+		}
+		if (filter == null) return obj.toString();
 		
 		if (filter.containsKey("searchstring")){
 			// Se a busca é por searchstring, cria query com wildcards requisitados em searchwildcards
@@ -266,12 +270,6 @@ public class BaseMongoDAOImpl<D extends BaseEntity<String>> implements MongoDAO<
 			return mongoRegexQuery;
 			
 		} else {
-			
-			if (!allowDisabled) {
-				obj.append("enabled", true);
-			}
-			if (filter == null) return obj.toString();
-			
 			for (PropertyDescriptor pDescriptor : propertyList) {
 				String pName = pDescriptor.getName();
 				if(filter.containsKey(pName)) {
