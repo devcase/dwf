@@ -5,10 +5,10 @@ $(document).on('click', '[dwf-toggle~="paginator"]', function (evt) {
     var $this   = $(this);
     var href    = $this.attr('href');
     var $target = $($this.attr('dwf-target'));
-    if(!$target) {
+    if(!$target || $target.size() == 0) {
     	$target = $this.closest('table');
     }
-    if(!$target) return;
+    if(!$target  || $target.size() == 0) return;
     var $wrapper   = $target.wrap('<div class="autoreload-wrapper"></div>').parent();
     evt.preventDefault();
     
