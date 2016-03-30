@@ -7,6 +7,7 @@
 <%@ attribute name="columns" required="true" type="java.lang.String"%>
 <%@ attribute name="ordercolumns" required="false" type="java.lang.String"%>
 <%@ attribute name="var" required="true" rtexprvalue="false"%>
+<%@ attribute name="ommitsearchbox" required="false" rtexprvalue="true"%>
 <c:set var="ordercolumns" value="${empty ordercolumns ? columns : ordercolumns}"/>
 <%
 	//monta lista com colunas para ordenar
@@ -21,18 +22,18 @@
 	<div class="panel-body">
 		<div class="row">
 			<div class="col-sm-7">
-				<form class="form-inline" action="${appPath}/${entityName}/">
-					<div class="form-group">
-						<div class="input-group">
-							<div class="input-group-addon">
-								<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-							</div>
-							<input type="text" class="form-control" name="searchstring" placeholder="Pesquisar" value="${param.searchstring}">
-						</div><!-- /.input-group -->
-												
-						
-					</div>
-				</form>
+				<c:if test="${ommitsearchbox ne true}">
+					<form class="form-inline" action="${appPath}/${entityName}/">
+						<div class="form-group">
+							<div class="input-group">
+								<div class="input-group-addon">
+									<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+								</div>
+								<input type="text" class="form-control" name="searchstring" placeholder="Pesquisar" value="${param.searchstring}">
+							</div><!-- /.input-group -->
+						</div>
+					</form>
+				</c:if>
 			</div>
 			<div class="col-sm-5 text-right">
 				${count} resultado${count > 1 ? 's' : '' } encontrado${count > 1 ? 's' : '' } |
