@@ -20,7 +20,7 @@
 <div class="panel panel-default">
 	<div class="panel-body">
 		<div class="row">
-			<div class="col-sm-8">
+			<div class="col-sm-7">
 				<form class="form-inline" action="${appPath}/${entityName}/">
 					<div class="form-group">
 						<div class="input-group">
@@ -34,7 +34,8 @@
 					</div>
 				</form>
 			</div>
-			<div class="col-sm-4 text-right">
+			<div class="col-sm-5 text-right">
+				${count} resultado${count > 1 ? 's' : '' } encontrado${count > 1 ? 's' : '' } |
 				Itens por página:
 				<c:forTokens items="10,20,50,100" delims="," var="size" varStatus="loopResults">
 					<c:if test="${loopResults.count > 1}">|</c:if>
