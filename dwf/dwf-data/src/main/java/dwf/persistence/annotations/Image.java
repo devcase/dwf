@@ -22,4 +22,8 @@ public @interface Image {
 	String transparencyColor() default "#FFFFFF";
 	int maxHeight() default 0;
 	int maxWidth() default 0;
+	int fitMode() default FIT_CROP;
+	
+	public static final int FIT_INSIDE = 1;
+	public static final int FIT_CROP = 0;
 }
