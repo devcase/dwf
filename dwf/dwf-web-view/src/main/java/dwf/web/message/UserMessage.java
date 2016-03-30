@@ -9,11 +9,31 @@ public class UserMessage implements Serializable {
 	private static final long serialVersionUID = 164697474503480253L;
 	private String key;
 	private UserMessageType type;
+	private Object[] arguments;
 	public UserMessage(String key, UserMessageType type) {
 		super();
 		this.key = key;
 		this.type = type;
 	}
+	
+	public UserMessage(String key, UserMessageType type, Object[] arguments) {
+		super();
+		this.key = key;
+		this.type = type;
+		this.arguments = arguments;
+	}
+
+
+	public Object[] getArguments() {
+		return arguments;
+	}
+
+
+	public void setArguments(Object[] arguments) {
+		this.arguments = arguments;
+	}
+
+
 	public String getKey() {
 		return key;
 	}

@@ -8,7 +8,8 @@
 <c:if test="${!empty userMessagesList}">
 	<c:forEach items="${userMessagesList}" var="userMessage">
 		<div class="alert alert-${userMessage.type.lowerCase} alert-dismissable fade in">
-		<spring:message code="${userMessage.key}" /></div>
+		
+		<spring:message code="${userMessage.key}" arguments="${userMessage.arguments }"/></div>
 	</c:forEach>
 </c:if>
 

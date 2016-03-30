@@ -74,7 +74,7 @@ public abstract class BaseController  {
 	 * @param userMessageType
 	 * @param model
 	 */
-	protected void addUserMessage(String key, UserMessageType userMessageType) {
+	protected void addUserMessage(String key, UserMessageType userMessageType, Object... arguments) {
 		@SuppressWarnings("unchecked")
 		List<UserMessage> list = (List<UserMessage>) redirectAttributes.getFlashAttributes().get(USER_MESSAGES_FLASH_MAP_KEY);
 		if (list == null) {
@@ -82,7 +82,7 @@ public abstract class BaseController  {
 			redirectAttributes.addFlashAttribute(USER_MESSAGES_FLASH_MAP_KEY, list);
 		}
 		request.setAttribute(USER_MESSAGES_FLASH_MAP_KEY, list);
-		list.add(new UserMessage(key, userMessageType));
+		list.add(new UserMessage(key, userMessageType, arguments));
 	}
 	
 	/**
