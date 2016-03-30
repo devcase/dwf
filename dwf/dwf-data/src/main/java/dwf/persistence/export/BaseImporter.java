@@ -6,6 +6,8 @@ import java.io.InputStream;
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -17,6 +19,8 @@ import dwf.persistence.dao.DAO;
 import dwf.persistence.domain.BaseEntity;
 
 public abstract class BaseImporter<D extends BaseEntity<?>> implements Importer<D>, ApplicationContextAware {
+	private Log log = LogFactory.getLog(BaseImporter.class);
+	
 	private ApplicationContext applicationContext;
 	protected final Class<D> clazz;
 	protected final String entityFullName;
@@ -49,7 +53,7 @@ public abstract class BaseImporter<D extends BaseEntity<?>> implements Importer<
 						dao.importFromFile(domain);
 					}
 				} catch (Exception ex) {
-					ex.printStackTrace();
+					log.error("Erro ao importar arquivo excel, linha " + (rowNum + 1), ex);
 				}
 			}
 		}

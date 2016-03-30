@@ -1,5 +1,6 @@
 package dwf.asynchronous;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -29,32 +30,16 @@ public class AsyncImporterListener implements MessageListener{
 	
 	@Override
 	public void onMessage (Message msg) {
-				
 		Map<String, String> mapa = (Map<String, String>) rabbitTemplate.getMessageConverter().fromMessage(msg);
 		//Recupera o importador original, guardado dentro do ImporterWrapper (ver {@link dwf.data.autoconfigure.DwfDataAutoConfiguration.AsyncImporterConfiguration})
 		Importer importer = ((ImporterWrapper) ctx.getBean(mapa.get("entityName") + "Importer")).getWrappedImporter();
-		File tempFile=null;
 		try {
-			tempFile = File.createTempFile("temp", ".xlsx");
-			FileOutputStream fos = new FileOutputStream(tempFile);
-			fos.write(Base64.decodeBase64(mapa.get("fileString").getBytes()));
-			fos.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-			
-				
-		try {
-			importer.importFromExcel(new FileInputStream(tempFile));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			byte[] file = Base64.decodeBase64(mapa.get("fileString").getBytes());
+			ByteArrayInputStream is = new ByteArrayInputStream(file);
+			importer.importFromExcel(is);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		tempFile.delete();
 	}
 	
 	/**
