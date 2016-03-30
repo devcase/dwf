@@ -11,7 +11,7 @@
 			</c:when>
 			<c:otherwise><%-- LINK TO OTHER OPERATION --%>
 				<dwf:navCrudBarItem path="${appPath}/${entityName}/${navCrudItem.operation}/${navCrudItem.entity.id}"
-					active="${navCrudItem.operation eq navCrud.activeOperation}" icon="${navCrudItem.icon}" 
+					active="${navCrudItem.operation eq navCrud.activeOperation}" icon="glyphicon glyphicon-${navCrudItem.icon}" 
 					labelKey="${navCrudItem.labelKey}" badge="${navCrudItem.badge }"/>
 			</c:otherwise>
 		</c:choose>
