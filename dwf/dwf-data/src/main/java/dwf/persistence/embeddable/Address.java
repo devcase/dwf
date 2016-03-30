@@ -125,4 +125,10 @@ public class Address {
 		}
 		return sb.toString();
 	}
+	@Override
+	public String toString() {
+		return this.getFullAddress();
+	}
+	
+	
 }
