@@ -45,29 +45,33 @@ public abstract class BaseImporter<D extends BaseEntity<?>> implements Importer<
 		log.debug("Start loading excel file");
 		//read the source file
 		XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
-		log.debug("Excel file loading complete");
-		@SuppressWarnings("unchecked")
-		final DAO<D> dao = (DAO<D>) applicationContext.getBean(entityName + "DAO", DAO.class);
-		
-
-		int numberOfSheets =  workbook.getNumberOfSheets();
-		log.debug("Number of sheets from workbook: " + numberOfSheets);
-		for(int sheetIdx = 0; sheetIdx < numberOfSheets; sheetIdx++) {
-			Sheet sheet = workbook.getSheetAt(sheetIdx);
-			for(int rowNum = sheet.getFirstRowNum() + 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
-				if(log.isDebugEnabled() && (rowNum < 100 || (rowNum < 1000 && rowNum % 10 == 0) || (rowNum % 100 == 0))) {
-					log.debug("Reading rowNum " + rowNum);
-				}
-				try {
-					Row row = sheet.getRow(rowNum);
-					if(!ignoreLine(row)){ 
-						D domain = readLine(row);
-						dao.importFromFile(domain);
+		try {
+			log.debug("Excel file loading complete");
+			@SuppressWarnings("unchecked")
+			final DAO<D> dao = (DAO<D>) applicationContext.getBean(entityName + "DAO", DAO.class);
+			
+	
+			int numberOfSheets =  workbook.getNumberOfSheets();
+			log.debug("Number of sheets from workbook: " + numberOfSheets);
+			for(int sheetIdx = 0; sheetIdx < numberOfSheets; sheetIdx++) {
+				Sheet sheet = workbook.getSheetAt(sheetIdx);
+				for(int rowNum = sheet.getFirstRowNum() + 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
+					if(log.isDebugEnabled() && (rowNum < 100 || (rowNum < 1000 && rowNum % 10 == 0) || (rowNum % 100 == 0))) {
+						log.debug("Reading rowNum " + rowNum);
 					}
-				} catch (Exception ex) {
-					log.error("Erro ao importar arquivo excel, linha " + (rowNum + 1), ex);
+					try {
+						Row row = sheet.getRow(rowNum);
+						if(!ignoreLine(row)){ 
+							D domain = readLine(row);
+							dao.importFromFile(domain);
+						}
+					} catch (Exception ex) {
+						log.error("Erro ao importar arquivo excel, linha " + (rowNum + 1), ex);
+					}
 				}
 			}
+		} finally {
+			workbook.close();
 		}
 	}
 	
