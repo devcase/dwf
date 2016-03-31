@@ -12,19 +12,26 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import dwf.persistence.dao.DAO;
 import dwf.persistence.domain.BaseEntity;
 
-public abstract class BaseImporter<D extends BaseEntity<?>> implements Importer<D>, ApplicationContextAware {
+public abstract class BaseImporter<D extends BaseEntity<?>> implements Importer<D> {
 	private Log log = LogFactory.getLog(BaseImporter.class);
 	
+	@Autowired
 	private ApplicationContext applicationContext;
+	@Autowired
+	private SessionFactory sessionFactory;
 	protected final Class<D> clazz;
 	protected final String entityFullName;
 	protected final String entityName;
+	
+
 	
 	public BaseImporter(Class<D> clazz)  {
 		super();
@@ -41,16 +48,18 @@ public abstract class BaseImporter<D extends BaseEntity<?>> implements Importer<
 		XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
 		@SuppressWarnings("unchecked")
 		DAO<D> dao = (DAO<D>) applicationContext.getBean(entityName + "DAO", DAO.class);
+		Session session = sessionFactory.getCurrentSession();
 
 		int numberOfSheets =  workbook.getNumberOfSheets();
 		for(int sheetIdx = 0; sheetIdx < numberOfSheets; sheetIdx++) {
 			Sheet sheet = workbook.getSheetAt(sheetIdx);
 			for(int rowNum = sheet.getFirstRowNum() + 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
+//				session.clear();
 				try {
 					Row row = sheet.getRow(rowNum);
 					if(!ignoreLine(row)){ 
 						D domain = readLine(row);
-						dao.importFromFile(domain);
+						domain = dao.importFromFile(domain);
 					}
 				} catch (Exception ex) {
 					log.error("Erro ao importar arquivo excel, linha " + (rowNum + 1), ex);
@@ -65,15 +74,6 @@ public abstract class BaseImporter<D extends BaseEntity<?>> implements Importer<
 	}
 	
 	protected abstract D readLine(Row row) throws ValidationException;
-
-
-	
-	public ApplicationContext getApplicationContext() {
-		return applicationContext;
-	}
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
 
 	protected Long getValueAsLong(Row row, int cellNum) {
 		Cell c = row.getCell(cellNum);
