@@ -236,8 +236,12 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 
 	@RequestMapping(value = { "/import" }, method = RequestMethod.POST)
 	public String importFromExcel(final MultipartFile file) {
+		if(file.getSize() > Integer.MAX_VALUE) {
+			addUserMessage("message.upload.fileIsTooBig", UserMessageType.DANGER);
+			return String.format("redirect:/%s/list", entityName);
+		}
 		try {
-			importer.importFromExcel(file.getInputStream());
+			importer.importFromExcel(file.getInputStream(), (int)file.getSize());
 		} catch (IOException e) {
 			//TODO tratamento de erro!!!
 			e.printStackTrace();

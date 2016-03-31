@@ -501,6 +501,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			// entity
 			updateByAnnotation(entity, ValidationGroups.ImportFromFile.class);
 		}
+		getSession().clear(); //objetivo: reduzir o gasto de memória em caso de importação de muitos dados
 		return entity;
 	}
 
