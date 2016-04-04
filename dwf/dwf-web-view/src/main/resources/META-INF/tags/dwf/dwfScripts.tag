@@ -69,5 +69,14 @@ getJspContext().setAttribute("groupingSeparator", grouping);
 		function triggerGooglemapsapiready() {
 			$(document).trigger("googlemapsapiready");
 		}
+		
+		$(document).on(
+				'dwf-postupdate',
+				function(evt) {
+					if (typeof google != 'undefined'
+							&& typeof google.maps != 'undefined') {
+						$(this).trigger('googlemapsapiready');
+					}
+				});
 	</script>
 </c:if>
