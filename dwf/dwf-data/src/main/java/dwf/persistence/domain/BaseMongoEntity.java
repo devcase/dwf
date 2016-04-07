@@ -1,7 +1,8 @@
 package dwf.persistence.domain;
 
+import java.io.Serializable;
 
-public abstract class BaseMongoEntity extends BaseEntity<String> {
+public abstract class BaseMongoEntity<ID extends Serializable> extends BaseEntity<ID> {
 	
 	private String searchstring;
 	

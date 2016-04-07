@@ -65,7 +65,8 @@ import dwf.utils.ParsedMap;
 import dwf.utils.SearchstringUtils;
 import dwf.utils.SimpleParsedMap;
 
-public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Serializable> implements MongoDAO<D, ID> {
+@Deprecated
+public abstract class OldMongoDAOImpl<D extends BaseEntity<String>> implements OldMongoDAO<D> {
 	private final static Class<?>[] DEFAULT_VALIDATION_GROUP = { Default.class };
 
 	@Autowired
@@ -104,7 +105,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	protected MongoCollection mongoCollection;
 	
 	
-	public BaseMongoDAOImpl(Class<D> clazz) {
+	public OldMongoDAOImpl(Class<D> clazz) {
 		super();
 		this.clazz = clazz;
 		this.entityFullName = clazz.getName();
@@ -314,7 +315,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		entity.setCreationTime(new Date());
 		
 		// gerar um novo id
-		entity.setId(generateId());
+		entity.setId(ObjectId.get().toString());
 		
 		getCollection().insert(entity);
 		
@@ -363,11 +364,8 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 
 	@Override
 	public D find(D copyWithId) {
-		return getCollection().findOne(Oid.withOid(toOid(copyWithId.getId()))).as(clazz);
+		return getCollection().findOne(Oid.withOid(copyWithId.getId())).as(clazz);
 	}
-	
-	protected abstract String toOid(ID id);
-	protected abstract ID generateId();
 
 	@Override
 	public <T> T findFirstByFilter(ParsedMap filter,
