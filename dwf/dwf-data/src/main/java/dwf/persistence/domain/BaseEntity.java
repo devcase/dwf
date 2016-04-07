@@ -14,12 +14,12 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.jongo.marshall.jackson.oid.MongoId;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import dwf.persistence.annotations.MongoId;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.serialization.View;
 import dwf.utils.SearchstringUtils;
@@ -39,7 +39,8 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	private Date creationTime;
 	private Date updateTime;
 
-	@Id @MongoId
+	@Id 
+	@MongoId
 	@GeneratedValue(generator="baseEntityIdGenerator")
 	@GenericGenerator(name="baseEntityIdGenerator", strategy="dwf.persistence.domain.BaseEntityIdGenerator")
 	@NotEditableProperty()

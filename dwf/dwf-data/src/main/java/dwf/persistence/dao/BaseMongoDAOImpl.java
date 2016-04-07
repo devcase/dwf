@@ -179,16 +179,11 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	
 	@Override
 	public D findById(Serializable id) {
-		if (id instanceof String) {
-			return getCollection().findOne(mongoQueryBuilder(new SimpleParsedMap("id", (String) id), true).toString()).as(clazz);
-		}
-		else
-			throw new InvalidParameterException("id deve ser String");
+		return getCollection().findOne(mongoQueryBuilder(new SimpleParsedMap("id", id), true).toString()).as(clazz);
 	}
 
 	@Override
 	public List<D> findByFilter(ParsedMap filter) {
-				
 		MongoCursor<D> cursor = getCollection().find(mongoQueryBuilder(filter)).as(clazz);
 		List<D> list = IteratorUtils.toList(cursor);
 		try {
@@ -314,7 +309,9 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		entity.setCreationTime(new Date());
 		
 		// gerar um novo id
-		entity.setId(generateId());
+		if(entity.getId() != null) {
+			entity.setId(generateId());
+		}
 		
 		getCollection().insert(entity);
 		
@@ -322,6 +319,8 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 
 		return entity;
 	}
+	
+	protected abstract ID generateId();
 
 	@Override
 	public List<D> findByFilter(ParsedMap filter,
@@ -363,12 +362,9 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 
 	@Override
 	public D find(D copyWithId) {
-		return getCollection().findOne(Oid.withOid(toOid(copyWithId.getId()))).as(clazz);
+		return getCollection().findOne(mongoQueryBuilder(new SimpleParsedMap("id", copyWithId.getId()), true).toString()).as(clazz);
 	}
 	
-	protected abstract String toOid(ID id);
-	protected abstract ID generateId();
-
 	@Override
 	public <T> T findFirstByFilter(ParsedMap filter,
 			QueryReturnType<T> returnType) {
