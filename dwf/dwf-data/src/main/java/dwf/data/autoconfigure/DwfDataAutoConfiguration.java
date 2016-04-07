@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -207,22 +208,6 @@ public class DwfDataAutoConfiguration  {
 	}
 	
 	
-	@Configuration
-	@ConditionalOnClass(Jongo.class)
-	@ConditionalOnBean(MongoClient.class)
-	static class JongoAutoConfiguration {
-		@Autowired
-		private MongoProperties properties;
-		@Autowired
-		private MongoClient mongoClient; 
-		
-		@Bean
-		@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-		public Jongo jongo() throws UnknownHostException {
-			DB db = mongoClient.getDB(properties.getDatabase());
-			return new Jongo(db,  MongoIdModule.getMapperBuilder().build());
-		}
-	}
 	
 	/**
 	 * Substitui os beans que implementam dwf.persistence.export.Importer por 
