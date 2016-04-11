@@ -30,7 +30,6 @@
 			        <skip>true</skip>
 			      </configuration>
 			</plugin>
-		
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<executions>

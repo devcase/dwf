@@ -16,8 +16,6 @@ import org.springframework.context.annotation.Scope;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 
-import dwf.persistence.utils.MongoIdModule;
-
 @Configuration
 @ConditionalOnClass(Jongo.class)
 @ConditionalOnBean(MongoClient.class)
@@ -32,6 +30,6 @@ public class JongoAutoConfiguration {
 	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public Jongo jongo() throws UnknownHostException {
 		DB db = mongoClient.getDB(properties.getDatabase());
-		return new Jongo(db,  MongoIdModule.getMapperBuilder().build());
+		return new Jongo(db);
 	}
 }

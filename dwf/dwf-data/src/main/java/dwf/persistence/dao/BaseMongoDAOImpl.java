@@ -10,7 +10,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -33,17 +32,27 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.BsonDocument;
+import org.bson.RawBsonDocument;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.jongo.Aggregate;
 import org.jongo.Find;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
-import org.jongo.Oid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
 
+import de.undercouch.bson4jackson.BsonFactory;
 import dwf.activitylog.domain.UpdatedProperty;
 import dwf.activitylog.service.ActivityLogService;
 import dwf.persistence.annotations.ConditionalGroup;
@@ -69,11 +78,16 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	private final static Class<?>[] DEFAULT_VALIDATION_GROUP = { Default.class };
 
 	@Autowired
+	private MongoProperties properties;
+
+	@Autowired
 	protected ActivityLogService activityLogService;
 	@Autowired
 	protected Validator beanValidator;
 	@Autowired
 	private Jongo jongo;
+	@Autowired
+	private MongoClient mongoClient;
 	@Autowired(required = false)
 	private UploadManager uploadManager;
 	@Autowired(required = false)
@@ -165,7 +179,17 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		}
 		return null;
 	}
+	private MongoDatabase getMongoDatabase() {
+		return mongoClient.getDatabase(properties.getDatabase());
+	}
+	private com.mongodb.client.MongoCollection<BsonDocument> getMongoCollection() {
+		MongoEntity annotation = clazz.getAnnotation(MongoEntity.class);
+		if (annotation == null || annotation.collectionName().equals(""))
+			throw new Error("Entidades Mongo devem ter anotação MongoEntity com valor para collectionName!");
+		return getMongoDatabase().getCollection(annotation.collectionName(), BsonDocument.class);
+	}
 
+	@Deprecated
 	private MongoCollection getCollection() {
 		if (mongoCollection == null) {
 			MongoEntity annotation = clazz.getAnnotation(MongoEntity.class);
@@ -184,7 +208,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 
 	@Override
 	public List<D> findByFilter(ParsedMap filter) {
-		MongoCursor<D> cursor = getCollection().find(mongoQueryBuilder(filter)).as(clazz);
+		MongoCursor<D> cursor = getCollection().find(mongoQueryBuilder(filter).toString()).as(clazz);
 		List<D> list = IteratorUtils.toList(cursor);
 		try {
 			cursor.close();
@@ -197,7 +221,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 
 	@Override
 	public List<D> findAll() {
-		MongoCursor<D> cursor = getCollection().find(mongoQueryBuilder(null)).as(clazz);
+		MongoCursor<D> cursor = getCollection().find(mongoQueryBuilder(null).toString()).as(clazz);
 		List<D> list = IteratorUtils.toList(cursor);
 		try {
 			cursor.close();
@@ -209,15 +233,15 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 
 	@Override
 	public D findFirstByFilter(ParsedMap filter) {
-		return getCollection().findOne(mongoQueryBuilder(filter)).as(clazz);
+		return getCollection().findOne(mongoQueryBuilder(filter).toString()).as(clazz);
 	}
 
 	@Override
 	public int countByFilter(ParsedMap filter) {
-		return (int) getCollection().count(mongoQueryBuilder(filter));
+		return (int) getCollection().count(mongoQueryBuilder(filter).toString());
 	}
 	
-	private final String mongoQueryBuilder(ParsedMap filter) {
+	private final Bson mongoQueryBuilder(ParsedMap filter) {
 		return mongoQueryBuilder(filter, false);
 	}
 
@@ -227,7 +251,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	 * @param allowDisabled
 	 * @return
 	 */
-	protected String mongoQueryBuilder(ParsedMap filter, boolean allowDisabled) {
+	protected Bson mongoQueryBuilder(ParsedMap filter, boolean allowDisabled) {
                 if(filter == null) {
                     filter = new SimpleParsedMap();
                 }
@@ -235,7 +259,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		if (!allowDisabled) {
 			obj.append("enabled", true);
 		}
-		if (filter == null) return obj.toString();
+		if (filter == null) return obj;
 		
 		if (filter.containsKey("searchstring")){
 			// Se a busca é por searchstring, cria query com wildcards requisitados em searchwildcards
@@ -260,16 +284,18 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 			}
 			
 			String searchString = SearchstringUtils.prepareForSearch(filter.getString("searchstring"));
-			mongoRegexQuery = "{searchstring: {$regex:" + "'(?i)" + (wildCardStart ? "" : "^") + searchString + (wildCardEnd ? "" : "$") + "'}" + (allowDisabled ? "" : ", enabled:true") + "}";
-			
-			return mongoRegexQuery;
+			return Filters.regex("searchstring", "(?i)" + (wildCardStart ? "" : "^") + searchString + (wildCardEnd ? "" : "$"));
 			
 		} else {
 			for (PropertyDescriptor pDescriptor : propertyList) {
 				String pName = pDescriptor.getName();
 				if(filter.containsKey(pName)) {
-					if (pName.equals("id")) obj.append("_id", new BasicDBObject("$oid", filter.get(pName))); // se for id busca pelo ObjectId de key _id (padrão do Mongo)
-					else obj.append(pName, filter.get(pName));
+					if (pName.equals("id")) {
+						obj  = obj.append("_id", filter.get(pName));
+					}
+					else {
+						obj.append(pName, filter.get(pName));
+					}
 				} else if(filter.containsKey(pName+ ".id")) {
 					//Não funciona para collection, só objeto único embedded
 					obj.append(pName+".id", filter.get(pName+".id"));
@@ -294,9 +320,39 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 				} 
 			}
 			
-			return obj.toString();
+			return obj;
 		}
 		
+		
+	}
+	
+	public D saveOrReplace(D entity) {
+		prepareEntity(entity);
+		validate(entity, ValidationGroups.MergePersist.class);
+		validate(entity); // valida campos sem grupos definidos
+		entity.setUpdateTime(new Date());
+		entity.setCreationTime(new Date());
+		
+		// gerar um novo id
+		if(entity.getId() == null) {
+			entity.setId(generateId());
+		}
+		ObjectMapper mapper = new ObjectMapper();
+		String json;
+		try {
+			json = mapper.writeValueAsString(entity);
+		} catch (JsonProcessingException e) {
+			throw new IllegalStateException("Erro convertendo entidade em Json", e);
+		}
+		
+		//serializar a entidade em um BsonDocument
+		BsonDocument doc = BsonDocument.parse(json);
+		
+		getMongoCollection().replaceOne(mongoQueryBuilder(new SimpleParsedMap("id", entity.getId()), true), doc, new UpdateOptions().upsert(true));
+		
+		activityLogService.log(entity, ActivityLogService.OPERATION_CREATE);
+
+		return entity;
 		
 	}
 
@@ -309,7 +365,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		entity.setCreationTime(new Date());
 		
 		// gerar um novo id
-		if(entity.getId() != null) {
+		if(entity.getId() == null) {
 			entity.setId(generateId());
 		}
 		
@@ -320,6 +376,8 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		return entity;
 	}
 	
+	
+	
 	protected abstract ID generateId();
 
 	@Override
@@ -328,7 +386,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		
 		Find find;
 					
-		find = getCollection().find(mongoQueryBuilder(filter)).skip(offset>0?offset:0);
+		find = getCollection().find(mongoQueryBuilder(filter).toString()).skip(offset>0?offset:0);
 		if (fetchSize>0)
 			find = find.limit(fetchSize);
 		MongoCursor<D> cursor = find.as(clazz); 

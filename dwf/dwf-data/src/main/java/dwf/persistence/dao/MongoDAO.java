@@ -10,4 +10,5 @@ public interface MongoDAO<D extends BaseEntity<ID>, ID extends Serializable> ext
 	public D findFirstByMap(Map<String, Object> mongoMap);
 	public List<D> findByMap(Map<String, Object> mongoMap);
 	public <T> List<T> aggregateByListOfMap(List<Map<String, Object>> mongoAggregatePipeline, Class<T> resultClass);
+	public D saveOrReplace(D entity);
 }

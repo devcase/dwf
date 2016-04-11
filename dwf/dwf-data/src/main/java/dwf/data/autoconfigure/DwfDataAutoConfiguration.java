@@ -1,6 +1,5 @@
 package dwf.data.autoconfigure;
 
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
@@ -10,7 +9,6 @@ import javax.sql.DataSource;
 import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import org.hibernate.validator.resourceloading.AggregateResourceBundleLocator;
-import org.jongo.Jongo;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
@@ -21,14 +19,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -44,14 +39,10 @@ import org.springframework.validation.beanvalidation.LocaleContextMessageInterpo
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import com.mongodb.DB;
-import com.mongodb.MongoClient;
-
 import dwf.asynchronous.AsyncImporterListener;
 import dwf.persistence.export.Importer;
 import dwf.persistence.utils.DwfNamingStrategy;
 import dwf.persistence.utils.LegacyDwfNamingStrategy;
-import dwf.persistence.utils.MongoIdModule;
 import dwf.upload.FileSystemUploadManager;
 import dwf.upload.S3UploadManager;
 import dwf.upload.UploadManager;
