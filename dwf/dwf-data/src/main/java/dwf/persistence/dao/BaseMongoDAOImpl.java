@@ -396,7 +396,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 			entity.setId(generateId());
 		}
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.setConfig(mapper.getSerializationConfig().withView(View.Mongo.class));
+		mapper.setConfig(mapper.getSerializationConfig().withView(jsonView));
 		String json;
 		try {
 			json = mapper.writeValueAsString(entity);
@@ -427,7 +427,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		}
 		
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.setConfig(mapper.getSerializationConfig().withView(View.Mongo.class));
+		mapper.setConfig(mapper.getSerializationConfig().withView(jsonView));
 		String json;
 		try {
 			json = mapper.writeValueAsString(entity);
@@ -631,7 +631,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		activityLogService.logEntityUpdate(entity, updatedProperties, groups);
 
 //		getSession().update(retrievedEntity);
-		getCollection().save(retrievedEntity);
+		saveOrReplace(retrievedEntity);
 		return retrievedEntity;
 	}
 

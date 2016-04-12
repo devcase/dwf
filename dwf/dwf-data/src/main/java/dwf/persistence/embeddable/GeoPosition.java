@@ -9,9 +9,11 @@ import javax.persistence.Transient;
 import org.springframework.util.NumberUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 @Embeddable
 public class GeoPosition implements Serializable {
+	public static interface GeoPositionJsonView {}
 	/**
 	 * 
 	 */
@@ -44,13 +46,14 @@ public class GeoPosition implements Serializable {
 		this.lon = Double.valueOf((double) lon);
 	}
 	
-
+	@JsonView(GeoPositionJsonView.class)
 	public Double getLat() {
 		return lat;
 	}
 	public void setLat(Double lat) {
 		this.lat = lat;
 	}
+	@JsonView(GeoPositionJsonView.class)
 	public Double getLon() {
 		return lon;
 	}
