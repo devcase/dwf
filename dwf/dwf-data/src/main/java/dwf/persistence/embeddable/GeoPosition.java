@@ -8,6 +8,8 @@ import javax.persistence.Transient;
 
 import org.springframework.util.NumberUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Embeddable
 public class GeoPosition implements Serializable {
 	/**
@@ -56,6 +58,7 @@ public class GeoPosition implements Serializable {
 		this.lon = lon;
 	}
 	@Transient
+	@JsonIgnore
 	public Double getLng() {
 		return getLon();
 	}

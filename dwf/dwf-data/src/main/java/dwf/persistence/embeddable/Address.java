@@ -5,6 +5,8 @@ import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Embeddable
 public class Address {
 	private String streetNumber;
@@ -66,6 +68,7 @@ public class Address {
 	}
 	
 	@Transient
+	@JsonIgnore
 	public String getFullAddress() {
 		StringBuilder sb = new StringBuilder();
 		if(StringUtils.isNotBlank(route)) {
@@ -100,6 +103,7 @@ public class Address {
 	 * @return
 	 */
 	@Transient
+	@JsonIgnore
 	public String getStreetAddress() {
 		StringBuilder sb = new StringBuilder();
 		if(StringUtils.isNotBlank(route)) {

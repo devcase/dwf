@@ -36,7 +36,7 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 	
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return RequestParsedMap.class.isAssignableFrom(parameter.getParameterType()) || ParsedMap.class.isAssignableFrom(parameter.getParameterType());
+		return (!StandardFormatRequestParsedMap.class.isAssignableFrom(parameter.getParameterType())) && (RequestParsedMap.class.isAssignableFrom(parameter.getParameterType()) || ParsedMap.class.isAssignableFrom(parameter.getParameterType()));
 	}
 
 	@Override

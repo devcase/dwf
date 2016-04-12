@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.Transient;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -33,7 +34,6 @@ import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.BsonDocument;
-import org.bson.RawBsonDocument;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.jongo.Aggregate;
@@ -46,13 +46,14 @@ import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationConfig;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.UpdateOptions;
 
-import de.undercouch.bson4jackson.BsonFactory;
 import dwf.activitylog.domain.UpdatedProperty;
 import dwf.activitylog.service.ActivityLogService;
 import dwf.persistence.annotations.ConditionalGroup;
@@ -179,10 +180,10 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		}
 		return null;
 	}
-	private MongoDatabase getMongoDatabase() {
+	protected MongoDatabase getMongoDatabase() {
 		return mongoClient.getDatabase(properties.getDatabase());
 	}
-	private com.mongodb.client.MongoCollection<BsonDocument> getMongoCollection() {
+	protected com.mongodb.client.MongoCollection<BsonDocument> getMongoCollection() {
 		MongoEntity annotation = clazz.getAnnotation(MongoEntity.class);
 		if (annotation == null || annotation.collectionName().equals(""))
 			throw new Error("Entidades Mongo devem ter anotação MongoEntity com valor para collectionName!");
@@ -199,6 +200,19 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 			mongoCollection.ensureIndex(new BasicDBObject("enabled", 1).toString());
 		}
 		return mongoCollection;
+	}
+	
+	@PostConstruct
+	public void postConstruct() {
+		ensureIndexes(getMongoCollection());
+	}
+	
+	/**
+	 * Sobrescreva de acordo com a necessidade
+	 * @param mongoCollection
+	 */
+	protected void ensureIndexes(com.mongodb.client.MongoCollection<?> mongoCollection) {
+		mongoCollection.createIndex(new BasicDBObject("enabled", 1));
 	}
 	
 	@Override
@@ -240,8 +254,13 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	public int countByFilter(ParsedMap filter) {
 		return (int) getCollection().count(mongoQueryBuilder(filter).toString());
 	}
-	
-	private final Bson mongoQueryBuilder(ParsedMap filter) {
+
+	@Override
+	public void deleteByFilter(ParsedMap filter) {
+		getMongoCollection().deleteMany(mongoQueryBuilder(filter));
+	}
+
+	protected Bson mongoQueryBuilder(ParsedMap filter) {
 		return mongoQueryBuilder(filter, false);
 	}
 
@@ -299,6 +318,15 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 				} else if(filter.containsKey(pName+ ".id")) {
 					//Não funciona para collection, só objeto único embedded
 					obj.append(pName+".id", filter.get(pName+".id"));
+				} else if (filter.containsKey(pName+".lat") && filter.containsKey(pName+".lon") && filter.containsKey(pName+".radius")) {
+					//busca por geolocalização
+					
+					// para buscar pro geolocalização, o filtro tem que ter as duas propriedades:
+					// {propriedade}.center -> array de float ou double no formato [longitude, latitude]
+					// {propriedade}.radius -> int, raio da busca a ser feita
+					
+					BasicDBObject geometry = new BasicDBObject("type", "Point").append("coordinates", new double[] { filter.getDouble(pName+".lon"), filter.getDouble(pName+".lat")});
+					obj.append(pName, new BasicDBObject("$near", new BasicDBObject("$geometry", geometry).append("$maxDistance", filter.getDouble(pName+".radius"))));
 				} else if (filter.containsKey(pName+".center") && filter.containsKey(pName+".radius")) {
 					//busca por geolocalização
 					
@@ -319,7 +347,6 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 					obj.append(pName, new BasicDBObject("$gte", key));
 				} 
 			}
-			
 			return obj;
 		}
 		
@@ -338,6 +365,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 			entity.setId(generateId());
 		}
 		ObjectMapper mapper = new ObjectMapper();
+		mapper.setConfig(mapper.getSerializationConfig());
 		String json;
 		try {
 			json = mapper.writeValueAsString(entity);
@@ -404,8 +432,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	@Override
 	public <T> List<T> findByFilter(ParsedMap filter,
 			QueryReturnType<T> returnType, int pageNumber, int fetchSize) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new IllegalAccessError();
 	}
 
 	@Override
@@ -426,15 +453,13 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	@Override
 	public <T> T findFirstByFilter(ParsedMap filter,
 			QueryReturnType<T> returnType) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new IllegalAccessError();
 	}
 
 	@Override
 	public <T> T findFirstByFilter(QueryReturnType<T> returnType,
 			Object... params) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new IllegalAccessError();
 	}
 
 	@Override

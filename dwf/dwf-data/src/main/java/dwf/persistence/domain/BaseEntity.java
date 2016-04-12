@@ -44,7 +44,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	@GeneratedValue(generator="baseEntityIdGenerator")
 	@GenericGenerator(name="baseEntityIdGenerator", strategy="dwf.persistence.domain.BaseEntityIdGenerator")
 	@NotEditableProperty()
-	@JsonView(View.Summary.class)
+	@JsonView({View.RestDetails.class, View.RestList.class, View.Mongo.class, View.Summary.class})
 	public ID getId() {
 		return id;
 	}
@@ -100,7 +100,6 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	@Column(nullable=false, updatable=false)
 	@NotEditableProperty()
 	@JsonView(View.Summary.class)
-	
 	public Date getCreationTime() {
 		return creationTime;
 	}
@@ -130,6 +129,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	protected abstract String displayText();
 	
 	@Transient
+	@JsonIgnore
 	public final String getDisplayText(){
 		return displayText();
 	}
