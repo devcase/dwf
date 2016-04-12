@@ -68,6 +68,7 @@ import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.utils.NotSyncPropertyDescriptor;
 import dwf.persistence.validation.ValidationGroups;
+import dwf.serialization.View;
 import dwf.upload.UploadManager;
 import dwf.upload.image.ImageResizer;
 import dwf.user.DwfUserUtils;
@@ -97,6 +98,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 
 
 	protected final Class<D> clazz;
+	protected final Class<?> jsonView;
 	protected final String entityFullName;
 	protected final String entityName;
 
@@ -122,6 +124,35 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	public BaseMongoDAOImpl(Class<D> clazz) {
 		super();
 		this.clazz = clazz;
+		this.jsonView = View.Mongo.class;
+		this.entityFullName = clazz.getName();
+		this.entityName = StringUtils.uncapitalize(clazz.getSimpleName());
+
+		fieldsToTrim = new ArrayList<Field>();
+		updatableProperties = new HashMap<NotSyncPropertyDescriptor, UpdatableProperty>();
+		this.propertyList = new ArrayList<NotSyncPropertyDescriptor>();
+		this.propertyNames = new HashSet<String>();
+		this.readAndWritePropertyNames = new HashSet<String>();
+		this.filledWithUser = new HashMap<NotSyncPropertyDescriptor, FillWithCurrentUser>();
+		this.entityProperties = new HashMap<String, PropertyDescriptor>();
+		
+		try {
+			processClazzPropertiesRecursive(clazz);
+		} catch (IllegalAccessException | InvocationTargetException | IntrospectionException e) {
+			throw new RuntimeException("Couldn't create the DAO. Check the Entity configuration.", e);
+		}
+		
+	}
+	
+	/**
+	 * 
+	 * @param clazz
+	 * @param jsonview classe que vai ser respeitada na serialização para o Mongo
+	 */
+	public BaseMongoDAOImpl(Class<D> clazz, Class<?> jsonview) {
+		super();
+		this.clazz = clazz;
+		this.jsonView = jsonview;
 		this.entityFullName = clazz.getName();
 		this.entityName = StringUtils.uncapitalize(clazz.getSimpleName());
 
@@ -365,17 +396,15 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 			entity.setId(generateId());
 		}
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.setConfig(mapper.getSerializationConfig());
+		mapper.setConfig(mapper.getSerializationConfig().withView(View.Mongo.class));
 		String json;
 		try {
 			json = mapper.writeValueAsString(entity);
 		} catch (JsonProcessingException e) {
 			throw new IllegalStateException("Erro convertendo entidade em Json", e);
 		}
-		
 		//serializar a entidade em um BsonDocument
 		BsonDocument doc = BsonDocument.parse(json);
-		
 		getMongoCollection().replaceOne(mongoQueryBuilder(new SimpleParsedMap("id", entity.getId()), true), doc, new UpdateOptions().upsert(true));
 		
 		activityLogService.log(entity, ActivityLogService.OPERATION_CREATE);
@@ -397,12 +426,24 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 			entity.setId(generateId());
 		}
 		
-		getCollection().insert(entity);
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.setConfig(mapper.getSerializationConfig().withView(View.Mongo.class));
+		String json;
+		try {
+			json = mapper.writeValueAsString(entity);
+		} catch (JsonProcessingException e) {
+			throw new IllegalStateException("Erro convertendo entidade em Json", e);
+		}
+		//serializar a entidade em um BsonDocument
+		BsonDocument doc = BsonDocument.parse(json);
+		getMongoCollection().insertOne(doc);
 		
 		activityLogService.log(entity, ActivityLogService.OPERATION_CREATE);
 
 		return entity;
 	}
+	
+	
 	
 	
 	

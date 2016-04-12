@@ -9,6 +9,12 @@ public abstract  class LongIdMongoDAOImpl<D extends BaseEntity<Long>> extends Ba
 	public LongIdMongoDAOImpl(Class<D> clazz) {
 		super(clazz);
 	}
+	
+
+	public LongIdMongoDAOImpl(Class<D> clazz, Class<?> jsonview) {
+		super(clazz, jsonview);
+	}
+
 
 	@Override
 	protected Long generateId() {

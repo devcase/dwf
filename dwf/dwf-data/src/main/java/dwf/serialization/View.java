@@ -1,11 +1,11 @@
 package dwf.serialization;
 
 public interface View {
-	public static class Summary {}
-	public static class Detail extends Summary {}
+	public static interface Summary {}
+	public static interface Detail extends Summary {}
 	
-	public static class Private extends Detail {}
-	public static class Mongo {}
-	public static class RestList {}
-	public static class RestDetails {}
+	public static interface Private extends Detail {}
+	public static interface Mongo {}
+	public static interface RestList {}
+	public static interface RestDetails {}
 }
