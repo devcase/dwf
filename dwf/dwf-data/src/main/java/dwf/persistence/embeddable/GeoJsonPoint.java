@@ -1,6 +1,9 @@
 package dwf.persistence.embeddable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import dwf.serialization.View;
 
 public class GeoJsonPoint {
 	private final String type = "Point";
@@ -28,9 +31,11 @@ public class GeoJsonPoint {
 	public void setLon(double lon) {
 		coordinates[0] = lon;
 	}
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public String getType() {
 		return type;
 	}
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public double[] getCoordinates() {
 		return coordinates;
 	}

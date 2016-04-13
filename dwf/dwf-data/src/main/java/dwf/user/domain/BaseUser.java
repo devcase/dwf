@@ -36,7 +36,6 @@ public class BaseUser extends BaseEntity<Long> {
 
 	private static final long serialVersionUID = 3161746215465593657L;
 	
-	@JsonView(View.Summary.class)
 	private String email;
 	private String hashedpass;
 	private Date expirationDate;
@@ -64,6 +63,7 @@ public class BaseUser extends BaseEntity<Long> {
 	@Lowercase(groups={Default.class, UpdateEmail.class, UpdateEmailName.class})
 	@NaturalId(mutable=true)
 	@UpdatableProperty(groups={Default.class, UpdateEmail.class, UpdateEmailName.class})
+	@JsonView({View.Rest.class})
 	public String getEmail() {
 		return email;
 	}
@@ -126,6 +126,7 @@ public class BaseUser extends BaseEntity<Long> {
 
 	@Column(length=200)
 	@UpdatableProperty(groups={Default.class, UpdateEmailName.class})
+	@JsonView({View.Rest.class})
 	public String getFirstName() {
 		return firstName;
 	}
@@ -136,6 +137,7 @@ public class BaseUser extends BaseEntity<Long> {
 
 	@Column(length=200)
 	@UpdatableProperty(groups={Default.class, UpdateEmailName.class})
+	@JsonView({View.Rest.class})
 	public String getLastName() {
 		return lastName;
 	}

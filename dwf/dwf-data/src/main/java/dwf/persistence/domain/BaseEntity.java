@@ -46,7 +46,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	@GeneratedValue(generator="baseEntityIdGenerator")
 	@GenericGenerator(name="baseEntityIdGenerator", strategy="dwf.persistence.domain.BaseEntityIdGenerator")
 	@NotEditableProperty()
-	@JsonView({View.RestDetails.class, View.RestList.class, View.Mongo.class, View.Summary.class})
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public ID getId() {
 		return id;
 	}
