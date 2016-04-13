@@ -148,25 +148,34 @@ public class DefaultQueryBuilder implements QueryBuilder {
 			if(filter.containsKey(pName)) {
 				
 				Object value = filter.get(pName, pDescriptor.getPropertyType());
-				if(value != null && (value.getClass().isArray()) && Array.getLength(value) > 0) {
-					//chegou array no filtro
-					query.append(" and ").append(ref).append(" in (:").append(pName).append(") ");
-				} else if(value != null && (value instanceof Collection<?>)) {
-					//chegou collection no filtro
-					query.append(" and ").append(ref).append(" in (:").append(pName).append(") ");
+				if(value == null) {
+					query.append(" and ").append(ref).append(" is null ");
 				} else {
-					if(Collection.class.isAssignableFrom(pDescriptor.getPropertyType()) && !join) {
-						//propriedade na entidade é collection
-						query.append(" and :").append(pName).append(" member of ").append(ref);
+					if((value.getClass().isArray()) && Array.getLength(value) > 0) {
+						//chegou array no filtro
+						query.append(" and ").append(ref).append(" in (:").append(pName).append(") ");
+					} else if((value instanceof Collection<?>)) {
+						//chegou collection no filtro
+						query.append(" and ").append(ref).append(" in (:").append(pName).append(") ");
 					} else {
-						query.append(" and ").append(ref).append(" = :").append(pName);
+						if(Collection.class.isAssignableFrom(pDescriptor.getPropertyType()) && !join) {
+							//propriedade na entidade é collection
+							query.append(" and :").append(pName).append(" member of ").append(ref);
+						} else {
+							query.append(" and ").append(ref).append(" = :").append(pName);
+						}
 					}
+					params.put(pName, value);
 				}
-				params.put(pName, value);
 			} else if(filter.containsKey(pName+ ".id")) {
 				Long value = filter.getLong(pName+ ".id"); //TODO - Só funciona com Long!
-				query.append(" and ").append(ref).append(".id = :").append(pName).append("Id ");
-				params.put(pName + "Id", value);
+				if(value == null) {
+					query.append(" and ").append(ref).append(" is null ");
+				} else {
+					query.append(" and ").append(ref).append(".id = :").append(pName).append("Id ");
+					params.put(pName + "Id", value);
+				}
+
 			} else if(filter.containsKey(pName + "[0].id")){
 				Long value = filter.getLong(pName + "[0].id");
 				
