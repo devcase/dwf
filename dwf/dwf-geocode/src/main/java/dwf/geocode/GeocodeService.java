@@ -5,5 +5,5 @@ import dwf.persistence.embeddable.GeoPosition;
 
 public interface GeocodeService {
 	GeoPosition[] geocode(Address address);
-
+	GeoPosition[] geocode(String address);
 }

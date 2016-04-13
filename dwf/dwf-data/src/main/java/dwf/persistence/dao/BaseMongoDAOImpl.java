@@ -33,6 +33,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -77,6 +79,7 @@ import dwf.utils.SearchstringUtils;
 import dwf.utils.SimpleParsedMap;
 
 public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Serializable> implements MongoDAO<D, ID> {
+	private Log log = LogFactory.getLog(BaseMongoDAOImpl.class); 
 	private final static Class<?>[] DEFAULT_VALIDATION_GROUP = { Default.class };
 
 	@Autowired
@@ -377,6 +380,9 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 					if (key == null) key = filter.get(pName+".gte");
 					obj.append(pName, new BasicDBObject("$gte", key));
 				} 
+			}
+			if(log.isDebugEnabled()) {
+				log.debug("Query: " + obj.toString());
 			}
 			return obj;
 		}

@@ -21,11 +21,16 @@ public class GoogleMapsGeocodeServiceImpl implements GeocodeService {
 
 	@Override
 	public GeoPosition[] geocode(Address address) {
-		GeocodingApiRequest req = GeocodingApi.geocode(context, address.getStreetAddress());
+		return geocode(address.getStreetAddress());
+	}
+
+	@Override
+	public GeoPosition[] geocode(String address) {
+		GeocodingApiRequest req = GeocodingApi.geocode(context, address);
 		GeocodingResult[] result = req.awaitIgnoreError(); //síncrono
 		if(result == null || result.length == 0) {
 			//nenhum resultado
-			return null;
+			return new GeoPosition[0];
 		} else {
 			GeoPosition[] ret = new GeoPosition[result.length];
 			for (int i = 0; i < result.length; i++) {
@@ -35,4 +40,6 @@ public class GoogleMapsGeocodeServiceImpl implements GeocodeService {
 			return ret;
 		}
 	}
+	
+	
 }
