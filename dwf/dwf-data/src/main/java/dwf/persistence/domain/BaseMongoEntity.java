@@ -10,6 +10,7 @@ public abstract class BaseMongoEntity<ID extends Serializable> extends BaseEntit
 	
 	private String searchstring;
 	
+	
 	@JsonView(View.Mongo.class)
 	public String getSearchstring() {
 		searchstring = super.getAutocompleteText();

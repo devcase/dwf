@@ -19,6 +19,7 @@ import org.jongo.marshall.jackson.oid.MongoId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -46,6 +47,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	@GeneratedValue(generator="baseEntityIdGenerator")
 	@GenericGenerator(name="baseEntityIdGenerator", strategy="dwf.persistence.domain.BaseEntityIdGenerator")
 	@NotEditableProperty()
+	@JsonProperty("_id")
 	@JsonView({View.Rest.class, View.Mongo.class})
 	public ID getId() {
 		return id;

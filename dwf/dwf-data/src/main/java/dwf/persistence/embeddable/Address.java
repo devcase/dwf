@@ -8,9 +8,10 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import dwf.serialization.View;
+
 @Embeddable
 public class Address {
-	public static interface AddressJsonView{}
 	
 	private String streetNumber;
 	private String route;
@@ -20,56 +21,56 @@ public class Address {
 	private String countryCode;
 	private String postalCode;
 	private String additionalInfo;
-	@JsonView(AddressJsonView.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public String getStreetNumber() {
 		return streetNumber;
 	}
 	public void setStreetNumber(String streetNumber) {
 		this.streetNumber = streetNumber;
 	}
-	@JsonView(AddressJsonView.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public String getRoute() {
 		return route;
 	}
 	public void setRoute(String route) {
 		this.route = route;
 	}
-	@JsonView(AddressJsonView.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public String getSublocality() {
 		return sublocality;
 	}
 	public void setSublocality(String sublocality) {
 		this.sublocality = sublocality;
 	}
-	@JsonView(AddressJsonView.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public String getCity() {
 		return city;
 	}
 	public void setCity(String city) {
 		this.city = city;
 	}
-	@JsonView(AddressJsonView.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public String getState() {
 		return state;
 	}
 	public void setState(String state) {
 		this.state = state;
 	}
-	@JsonView(AddressJsonView.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public String getCountryCode() {
 		return countryCode;
 	}
 	public void setCountryCode(String countryCode) {
 		this.countryCode = countryCode;
 	}
-	@JsonView(AddressJsonView.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public String getPostalCode() {
 		return postalCode;
 	}
 	public void setPostalCode(String postalCode) {
 		this.postalCode = postalCode;
 	}
-	@JsonView(AddressJsonView.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public String getAdditionalInfo() {
 		return additionalInfo;
 	}
