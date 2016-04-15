@@ -744,8 +744,9 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			try {
 				getSession().refresh(connectedEntity);
 				getSession().setReadOnly(connectedEntity, false);
-				activityLogService.log(connectedEntity, "restore", comment);
 				connectedEntity.setEnabled(true);
+				activityLogService.log(connectedEntity, "restore", comment);
+				getSession().flush();
 			} finally {
 				getSession().setReadOnly(connectedEntity, true);
 			}
