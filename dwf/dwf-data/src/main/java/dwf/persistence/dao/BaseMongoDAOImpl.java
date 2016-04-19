@@ -339,13 +339,13 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 			for (PropertyDescriptor pDescriptor : propertyList) {
 				String pName = pDescriptor.getName();
 				if(filter.isMultipleValued(pName)) {
-					obj.append(pName, new BasicDBObject("$in", filter.get(pName)));
+					obj.append(pName, new BasicDBObject("$in", filter.get(pName, pDescriptor.getPropertyType())));
 				} else if(filter.containsKey(pName)) {
 					if (pName.equals("id")) {
-						obj  = obj.append("_id", filter.get(pName));
+						obj  = obj.append("_id", filter.get(pName, pDescriptor.getPropertyType()));
 					}
 					else {
-						obj.append(pName, filter.get(pName));
+						obj.append(pName, filter.get(pName, pDescriptor.getPropertyType()));
 					}
 				} else if(filter.containsKey(pName+ ".id")) {
 					//Não funciona para collection, só objeto único embedded

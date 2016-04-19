@@ -296,20 +296,24 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 				return newObjectMap.get(key);
 			}
 			if(keyPrefix != null) key = keyPrefix + key;
+			Class testClass = expectedClass;
+			if(expectedClass.isArray()) {
+				testClass = expectedClass.getComponentType();
+			}
 			if(requestMap.containsKey(key)) {
 				//check if it is a array or a single value
 				List<Object> convertedValues = new ArrayList<Object>();
 				for (String submittedValue : requestMap.get(key)) {
-					if(expectedClass == boolean.class) {
+					if(testClass == boolean.class) {
 						convertedValues.add(convertToBoolean(submittedValue));
-					} else if(Boolean.class.isAssignableFrom(expectedClass)) {
+					} else if(Boolean.class.isAssignableFrom(testClass)) {
 						convertedValues.add(convertToBoolean(submittedValue));
-					} else if(Long.class.isAssignableFrom(expectedClass)) {
+					} else if(Long.class.isAssignableFrom(testClass)) {
 						convertedValues.add(convertToLong(submittedValue));
-					} else if(Double.class.isAssignableFrom(expectedClass)) {
+					} else if(Double.class.isAssignableFrom(testClass)) {
 						convertedValues.add(convertToDouble(submittedValue));
-					} else if(expectedClass.isEnum()){
-						convertedValues.add(Enum.valueOf((Class<? extends Enum>) expectedClass, submittedValue));
+					} else if(testClass.isEnum()){
+						convertedValues.add(Enum.valueOf((Class<? extends Enum>) testClass, submittedValue));
 					} else {
 						convertedValues.add(submittedValue);
 					}
