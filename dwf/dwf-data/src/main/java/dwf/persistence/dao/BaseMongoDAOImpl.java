@@ -338,7 +338,9 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		} else {
 			for (PropertyDescriptor pDescriptor : propertyList) {
 				String pName = pDescriptor.getName();
-				if(filter.containsKey(pName)) {
+				if(filter.isMultipleValued(pName)) {
+					obj.append(pName, new BasicDBObject("$in", filter.get(pName)));
+				} else if(filter.containsKey(pName)) {
 					if (pName.equals("id")) {
 						obj  = obj.append("_id", filter.get(pName));
 					}
