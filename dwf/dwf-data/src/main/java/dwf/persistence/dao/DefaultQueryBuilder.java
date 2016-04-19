@@ -144,26 +144,19 @@ public class DefaultQueryBuilder implements QueryBuilder {
 				ref = domainAlias.concat(".").concat(pName);
 			}
 
-			
-			if(filter.containsKey(pName)) {
-				
+			if(filter.isMultipleValued(pName)) {
+				query.append(" and ").append(ref).append(" in (:").append(pName).append(") ");
+				params.put(pName, filter.get(pName, pDescriptor.getPropertyType()));
+			} else if(filter.containsKey(pName)) {
 				Object value = filter.get(pName, pDescriptor.getPropertyType());
 				if(value == null) {
 					query.append(" and ").append(ref).append(" is null ");
 				} else {
-					if((value.getClass().isArray()) && Array.getLength(value) > 0) {
-						//chegou array no filtro
-						query.append(" and ").append(ref).append(" in (:").append(pName).append(") ");
-					} else if((value instanceof Collection<?>)) {
-						//chegou collection no filtro
-						query.append(" and ").append(ref).append(" in (:").append(pName).append(") ");
+					if(Collection.class.isAssignableFrom(pDescriptor.getPropertyType()) && !join) {
+						//propriedade na entidade é collection
+						query.append(" and :").append(pName).append(" member of ").append(ref);
 					} else {
-						if(Collection.class.isAssignableFrom(pDescriptor.getPropertyType()) && !join) {
-							//propriedade na entidade é collection
-							query.append(" and :").append(pName).append(" member of ").append(ref);
-						} else {
-							query.append(" and ").append(ref).append(" = :").append(pName);
-						}
+						query.append(" and ").append(ref).append(" = :").append(pName);
 					}
 					params.put(pName, value);
 				}

@@ -3,6 +3,11 @@ package test.dwf.sample;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +32,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import dwf.sample.SampleApplication;
 import dwf.sample.persistence.dao.CategoryDAO;
 import dwf.sample.persistence.domain.Category;
+import dwf.web.rest.spring.ParsedMapArgumentResolver.RequestParsedMap;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles(profiles = { "test", "integration-test" })
@@ -40,6 +46,49 @@ public class CrudCategoryITCase {
 
 	TestRestTemplate template = new TestRestTemplate();
 
+	@Test
+	public void testCategoryDAO() throws Exception {
+		Category cat1 = new Category();
+		cat1.setName("Value 1");
+		cat1.setAdminOnly(false);
+		cat1 = categoryDAO.findOrSaveNew(cat1);
+		
+		Category cat2 = new Category();
+		cat2.setName("Value 2");
+		cat2.setAdminOnly(true);
+		cat2 = categoryDAO.findOrSaveNew(cat2);
+
+		Category cat3 = new Category();
+		cat3.setName("Value 3");
+		cat3.setAdminOnly(true);
+		cat3 = categoryDAO.findOrSaveNew(cat3);
+
+		List<Category> searchResults1 = categoryDAO.findByFilter("name", "Value 1");
+		Assert.assertTrue(searchResults1.contains(cat1));
+		Assert.assertTrue(!searchResults1.contains(cat3));
+		Assert.assertTrue(!searchResults1.contains(cat2));
+		List<Category> searchResults2 = categoryDAO.findByFilter("name", new String[] {"Value 1", "Value 2"});
+		Assert.assertTrue(searchResults2.contains(cat1));
+		Assert.assertTrue(!searchResults2.contains(cat3));
+		Assert.assertTrue(searchResults2.contains(cat2));
+
+		
+		Map<String, String[]> mockRequest3 = new HashMap<>();
+		mockRequest3.put("name", new String[] {"Value 1", "Value 2"});
+		List<Category> searchResults3 = categoryDAO.findByFilter(new RequestParsedMap(mockRequest3, "", Locale.US));
+		Assert.assertTrue(searchResults3.contains(cat1));
+		Assert.assertTrue(!searchResults3.contains(cat3));
+		Assert.assertTrue(searchResults3.contains(cat2));
+
+		Map<String, String[]> mockRequest4 = new HashMap<>();
+		mockRequest4.put("name", new String[] {"Value 1" });
+		List<Category> searchResults4 = categoryDAO.findByFilter(new RequestParsedMap(mockRequest4, "", Locale.US));
+		Assert.assertTrue(searchResults4.contains(cat1));
+		Assert.assertTrue(!searchResults4.contains(cat3));
+		Assert.assertTrue(!searchResults4.contains(cat2));
+
+	}
+	
 	@Test
 	public void testAcessoCategoria() throws Exception {
 		final int localPort = Integer.parseInt(wac.getEnvironment().getProperty("local.server.port"));

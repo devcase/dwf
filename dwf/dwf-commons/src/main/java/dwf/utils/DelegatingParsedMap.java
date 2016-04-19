@@ -71,4 +71,12 @@ public class DelegatingParsedMap implements ParsedMap {
 		if(a.containsKey(key)) return a.get(key, expectedClass);
 		else return b.get(key, expectedClass);
 	}
+
+	@Override
+	public boolean isMultipleValued(String key) {
+		boolean r = a.isMultipleValued(key);
+		return r ? r : b.isMultipleValued(key);
+	}
+	
+	
 }

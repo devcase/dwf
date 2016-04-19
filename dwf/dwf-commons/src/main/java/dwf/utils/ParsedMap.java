@@ -15,4 +15,5 @@ public interface ParsedMap  {
 	Object get(String key);
 	Object put(String key, Object value);
 	public <T> Object get(String key, Class<T> expectedClass);
+	boolean isMultipleValued(String key);
 }

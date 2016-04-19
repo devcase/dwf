@@ -1,5 +1,6 @@
 package dwf.web.rest.spring;
 
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -313,5 +314,27 @@ public class StandardFormatRequestParsedMap implements ParsedMap {
 		return queryStringBuilder.toString();
 	}
 	
+	@Override
+	public boolean isMultipleValued(String key) {
+		if(newObjectMap.containsKey(key)) {
+			Object value = newObjectMap.get(key);
+			if(value == null) {
+				return false;
+			} else {
+				if((value.getClass().isArray()) && Array.getLength(value) > 1) {
+					//chegou array no filtro
+					return true;
+				} else if((value instanceof Collection<?>) && ((Collection) value).size() > 1) {
+					//chegou collection no filtro
+					return true;
+				} else {
+					return false;
+				}
+			}
+		} else {
+			String[] reqParam = requestMap.get(key);
+			return reqParam != null && reqParam.length > 1;
+		}
+	}
 
 }

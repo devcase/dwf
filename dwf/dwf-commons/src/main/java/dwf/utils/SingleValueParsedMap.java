@@ -1,5 +1,7 @@
 package dwf.utils;
 
+import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.Date;
 
 import org.springframework.util.Assert;
@@ -77,5 +79,22 @@ public class SingleValueParsedMap implements ParsedMap {
 			return getString(key);
 		}
 		return get(key);
+	}
+	
+	@Override
+	public boolean isMultipleValued(String key) {
+		if(value == null) {
+			return false;
+		} else {
+			if((value.getClass().isArray()) && Array.getLength(value) > 1) {
+				//chegou array no filtro
+				return true;
+			} else if((value instanceof Collection<?>) && ((Collection) value).size() > 1) {
+				//chegou collection no filtro
+				return true;
+			} else {
+				return false;
+			}
+		}
 	}
 }

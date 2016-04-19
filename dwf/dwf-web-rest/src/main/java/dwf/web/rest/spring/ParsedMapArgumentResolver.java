@@ -1,5 +1,6 @@
 package dwf.web.rest.spring;
 
+import java.lang.reflect.Array;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -323,7 +324,29 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 			return null;
 		}
 
-		
+		@Override
+		public boolean isMultipleValued(String key) {
+			if(newObjectMap.containsKey(key)) {
+				Object value = newObjectMap.get(key);
+				if(value == null) {
+					return false;
+				} else {
+					if((value.getClass().isArray()) && Array.getLength(value) > 1) {
+						//chegou array no filtro
+						return true;
+					} else if((value instanceof Collection<?>) && ((Collection) value).size() > 1) {
+						//chegou collection no filtro
+						return true;
+					} else {
+						return false;
+					}
+				}
+			} else {
+				String[] reqParam = requestMap.get(key);
+				return reqParam != null && reqParam.length > 1;
+			}
+		}
+
 		public String getQueryString() {
 			StringBuilder queryStringBuilder = new StringBuilder();
 			for (Map.Entry<String, String[]> requestParam : requestMap.entrySet()) {

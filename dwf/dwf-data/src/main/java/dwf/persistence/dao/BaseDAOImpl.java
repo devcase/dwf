@@ -411,6 +411,13 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			public Long[] getLongArray(String key) {
 				return null;
 			}
+
+			@Override
+			public boolean isMultipleValued(String key) {
+				return false;
+			}
+			
+			
 		});
 	}
 
