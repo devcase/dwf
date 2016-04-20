@@ -80,6 +80,8 @@ public class SimpleParsedMap implements ParsedMap {
 		if(value == null) return null;
 		else if(value instanceof Long) {
 			return (Long) value;
+		} else if (value.getClass().isArray() && Long.class.isAssignableFrom(value.getClass().getComponentType())) {
+			return (Long) Array.get(value, 0);
 		} else if (value instanceof Number) {
 			return ((Number) value).longValue();
 		} else if(value instanceof String) {
@@ -152,7 +154,15 @@ public class SimpleParsedMap implements ParsedMap {
 	public <T> Object get(String key, Class<T> expectedClass) {
 		Object v = get(key);
 		if(v == null) return null;
-		else if (v.getClass().isArray()) return v;
+		if (v.getClass().isArray()) {
+			if(Array.getLength(v) == 1) {
+				v = Array.get(v, 0);
+			} else if (Array.getLength(v) == 0) {
+				return null;
+			} else {
+				return v;
+			}
+		}
 		if(Boolean.class.equals(expectedClass) || 
 				boolean.class.equals(expectedClass)) {
 			return getBoolean(key);
