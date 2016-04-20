@@ -10,6 +10,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -40,6 +41,7 @@ public abstract class BaseMultilangEntity<T extends Translation<?>> extends Base
 	}
 	
 	@Transient
+	@JsonIgnore
 	public Class<T> getTranslationClass() {
 		Class classefilha = getClass();
 		while(!BaseMultilangEntity.class.equals(classefilha.getSuperclass())) {
@@ -50,7 +52,7 @@ public abstract class BaseMultilangEntity<T extends Translation<?>> extends Base
 
 	@NotEmpty
 	@Column(length=400)
-	@JsonView(View.Summary.class)
+	@JsonView({View.Rest.class})
 	public String getName() {
 		return name;
 	}

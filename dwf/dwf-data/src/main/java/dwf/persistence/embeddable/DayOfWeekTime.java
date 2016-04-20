@@ -54,7 +54,7 @@ public class DayOfWeekTime implements Serializable{
 		this.dayOfWeek = weekday;
 	}
 
-	@JsonView(View.Summary.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	@Transient
 	public LocalTime getTime() {
 		return time;
@@ -63,7 +63,7 @@ public class DayOfWeekTime implements Serializable{
 		this.time = time;
 	}
 	
-	@JsonView(View.Summary.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public DayOfWeek getDayOfWeek() {
 		return dayOfWeek;
 	}
@@ -72,7 +72,7 @@ public class DayOfWeekTime implements Serializable{
 		this.dayOfWeek = dayOfWeek;
 	}
 
-	@JsonView(View.Summary.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public Long getSeconds() {
 		return seconds;
 	}
@@ -101,6 +101,7 @@ public class DayOfWeekTime implements Serializable{
 	}
 	
 	@Transient
+	@JsonIgnore
 	public String format(){
 		return dayOfWeek.toString().toLowerCase() + "-" + time.format(DateTimeFormatter.ofPattern("HH:mm"));
 	}

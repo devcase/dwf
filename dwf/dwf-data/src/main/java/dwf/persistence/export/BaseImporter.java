@@ -127,7 +127,9 @@ public abstract class BaseImporter<D extends BaseEntity<?>> implements Importer<
 		case Cell.CELL_TYPE_NUMERIC: 
 			return Double.valueOf((double)c.getNumericCellValue());
 		case Cell.CELL_TYPE_STRING:
-			return Double.valueOf(c.getStringCellValue());
+			String value = c.getStringCellValue();
+			if(StringUtils.isBlank(value)) return null;
+			return Double.valueOf(value);
 		case Cell.CELL_TYPE_FORMULA:
 			return Double.valueOf((long)c.getNumericCellValue());
 		default: throw new IllegalArgumentException("Not a numeric value");

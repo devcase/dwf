@@ -30,7 +30,7 @@ public class BaseRestController<T extends BaseEntity<?>> {
 	}
 	
 	@RequestMapping(method = {RequestMethod.POST, RequestMethod.GET})
-	@JsonView(View.Summary.class)
+	@JsonView(View.RestList.class)
 	public Callable<ResponseEntity<List<T>>> list(ParsedMap filter,
 			@RequestParam(defaultValue = "0") final int pageNumber,
 			@RequestParam(defaultValue = "10") final int fetchSize) {
@@ -47,7 +47,7 @@ public class BaseRestController<T extends BaseEntity<?>> {
 	}
 	
 	@RequestMapping(value = "{id}", method = RequestMethod.GET)
-	@JsonView(View.Detail.class)
+	@JsonView(View.RestDetails.class)
 	public Callable<ResponseEntity<T>> view(@PathVariable Long id) {
 		return new Callable<ResponseEntity<T>>() {
 			@Override

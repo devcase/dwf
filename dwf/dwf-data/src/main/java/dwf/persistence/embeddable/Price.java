@@ -36,7 +36,7 @@ public class Price implements Serializable {
 
 
 
-	@JsonView(View.Summary.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public Double getValue() {
 		return value;
 	}
@@ -47,7 +47,7 @@ public class Price implements Serializable {
 	}
 
 	@Column(length=3)
-	@JsonView(View.Summary.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public String getCurrencyCode() {
 		return currencyCode;
 	}

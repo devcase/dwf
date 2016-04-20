@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -19,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.Transient;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -33,26 +33,16 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.bson.BsonDocument;
-import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.jongo.Aggregate;
 import org.jongo.Find;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
+import org.jongo.Oid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.UpdateOptions;
 
 import dwf.activitylog.domain.UpdatedProperty;
 import dwf.activitylog.service.ActivityLogService;
@@ -68,7 +58,6 @@ import dwf.persistence.annotations.UpdatableProperty;
 import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.utils.NotSyncPropertyDescriptor;
 import dwf.persistence.validation.ValidationGroups;
-import dwf.serialization.View;
 import dwf.upload.UploadManager;
 import dwf.upload.image.ImageResizer;
 import dwf.user.DwfUserUtils;
@@ -76,12 +65,9 @@ import dwf.utils.ParsedMap;
 import dwf.utils.SearchstringUtils;
 import dwf.utils.SimpleParsedMap;
 
-public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Serializable> implements MongoDAO<D, ID> {
-	private Log log = LogFactory.getLog(BaseMongoDAOImpl.class); 
+@Deprecated
+public abstract class OldMongoDAOImpl<D extends BaseEntity<String>> implements OldMongoDAO<D> {
 	private final static Class<?>[] DEFAULT_VALIDATION_GROUP = { Default.class };
-
-	@Autowired
-	private MongoProperties properties;
 
 	@Autowired
 	protected ActivityLogService activityLogService;
@@ -89,8 +75,6 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	protected Validator beanValidator;
 	@Autowired
 	private Jongo jongo;
-	@Autowired
-	private MongoClient mongoClient;
 	@Autowired(required = false)
 	private UploadManager uploadManager;
 	@Autowired(required = false)
@@ -99,7 +83,6 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 
 
 	protected final Class<D> clazz;
-	protected final Class<?> jsonView;
 	protected final String entityFullName;
 	protected final String entityName;
 
@@ -122,38 +105,9 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	protected MongoCollection mongoCollection;
 	
 	
-	public BaseMongoDAOImpl(Class<D> clazz) {
+	public OldMongoDAOImpl(Class<D> clazz) {
 		super();
 		this.clazz = clazz;
-		this.jsonView = View.Mongo.class;
-		this.entityFullName = clazz.getName();
-		this.entityName = StringUtils.uncapitalize(clazz.getSimpleName());
-
-		fieldsToTrim = new ArrayList<Field>();
-		updatableProperties = new HashMap<NotSyncPropertyDescriptor, UpdatableProperty>();
-		this.propertyList = new ArrayList<NotSyncPropertyDescriptor>();
-		this.propertyNames = new HashSet<String>();
-		this.readAndWritePropertyNames = new HashSet<String>();
-		this.filledWithUser = new HashMap<NotSyncPropertyDescriptor, FillWithCurrentUser>();
-		this.entityProperties = new HashMap<String, PropertyDescriptor>();
-		
-		try {
-			processClazzPropertiesRecursive(clazz);
-		} catch (IllegalAccessException | InvocationTargetException | IntrospectionException e) {
-			throw new RuntimeException("Couldn't create the DAO. Check the Entity configuration.", e);
-		}
-		
-	}
-	
-	/**
-	 * 
-	 * @param clazz
-	 * @param jsonview classe que vai ser respeitada na serialização para o Mongo
-	 */
-	public BaseMongoDAOImpl(Class<D> clazz, Class<?> jsonview) {
-		super();
-		this.clazz = clazz;
-		this.jsonView = jsonview;
 		this.entityFullName = clazz.getName();
 		this.entityName = StringUtils.uncapitalize(clazz.getSimpleName());
 
@@ -175,14 +129,14 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	
 	@Override
 	public D findFirstByMap(Map<String, Object> mongoMap) {
-		return getJongoCollection().findOne(new BasicDBObject(mongoMap).toString()).as(clazz);
+		return getCollection().findOne(new BasicDBObject(mongoMap).toString()).as(clazz);
 	}
 
 
 
 	@Override
 	public List<D> findByMap(Map<String, Object> mongoMap) {
-		MongoCursor<D> cursor = getJongoCollection().find(new BasicDBObject(mongoMap).toString()).as(clazz);
+		MongoCursor<D> cursor = getCollection().find(new BasicDBObject(mongoMap).toString()).as(clazz);
 		List<D> list = IteratorUtils.toList(cursor);
 		try {
 			cursor.close();
@@ -201,7 +155,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		// REMEMBER: $match has to have '"enabled": true' if you don't want deleted/disabled entries
 		
 		if (mongoAggregatePipeline != null && mongoAggregatePipeline.size() > 0) {
-			Aggregate aggr = getJongoCollection().aggregate(new BasicDBObject(mongoAggregatePipeline.get(0)).toString());
+			Aggregate aggr = getCollection().aggregate(new BasicDBObject(mongoAggregatePipeline.get(0)).toString());
 			for (int i = 1; i < mongoAggregatePipeline.size(); i++) {
 				aggr.and(new BasicDBObject(mongoAggregatePipeline.get(i)).toString());
 			}
@@ -212,47 +166,31 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		}
 		return null;
 	}
-	protected MongoDatabase getMongoDatabase() {
-		return mongoClient.getDatabase(properties.getDatabase());
-	}
-	protected com.mongodb.client.MongoCollection<BsonDocument> getMongoCollection() {
-		MongoEntity annotation = clazz.getAnnotation(MongoEntity.class);
-		if (annotation == null || annotation.collectionName().equals(""))
-			throw new Error("Entidades Mongo devem ter anotação MongoEntity com valor para collectionName!");
-		return getMongoDatabase().getCollection(annotation.collectionName(), BsonDocument.class);
-	}
 
-	protected MongoCollection getJongoCollection() {
+	private MongoCollection getCollection() {
 		if (mongoCollection == null) {
 			MongoEntity annotation = clazz.getAnnotation(MongoEntity.class);
 			if (annotation == null || annotation.collectionName().equals(""))
 				throw new Error("Entidades Mongo devem ter anotação MongoEntity com valor para collectionName!");
 			mongoCollection = jongo.getCollection(annotation.collectionName());
+			mongoCollection.ensureIndex(new BasicDBObject("enabled", 1).toString());
 		}
 		return mongoCollection;
 	}
 	
-	@PostConstruct
-	public void postConstruct() {
-		ensureIndexes(getMongoCollection());
-	}
-	
-	/**
-	 * Sobrescreva de acordo com a necessidade
-	 * @param mongoCollection
-	 */
-	protected void ensureIndexes(com.mongodb.client.MongoCollection<?> mongoCollection) {
-		mongoCollection.createIndex(new BasicDBObject("enabled", 1));
-	}
-	
 	@Override
 	public D findById(Serializable id) {
-		return getJongoCollection().findOne(mongoQueryBuilder(new SimpleParsedMap("id", id), true).toString()).as(clazz);
+		if (id instanceof String) {
+			return getCollection().findOne(mongoQueryBuilder(new SimpleParsedMap("id", (String) id), true).toString()).as(clazz);
+		}
+		else
+			throw new InvalidParameterException("id deve ser String");
 	}
 
 	@Override
 	public List<D> findByFilter(ParsedMap filter) {
-		MongoCursor<D> cursor = getJongoCollection().find(mongoQueryBuilder(filter).toString()).as(clazz);
+				
+		MongoCursor<D> cursor = getCollection().find(mongoQueryBuilder(filter)).as(clazz);
 		List<D> list = IteratorUtils.toList(cursor);
 		try {
 			cursor.close();
@@ -265,7 +203,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 
 	@Override
 	public List<D> findAll() {
-		MongoCursor<D> cursor = getJongoCollection().find(mongoQueryBuilder(null).toString()).as(clazz);
+		MongoCursor<D> cursor = getCollection().find(mongoQueryBuilder(null)).as(clazz);
 		List<D> list = IteratorUtils.toList(cursor);
 		try {
 			cursor.close();
@@ -277,20 +215,15 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 
 	@Override
 	public D findFirstByFilter(ParsedMap filter) {
-		return getJongoCollection().findOne(mongoQueryBuilder(filter).toString()).as(clazz);
+		return getCollection().findOne(mongoQueryBuilder(filter)).as(clazz);
 	}
 
 	@Override
 	public int countByFilter(ParsedMap filter) {
-		return (int) getJongoCollection().count(mongoQueryBuilder(filter).toString());
+		return (int) getCollection().count(mongoQueryBuilder(filter));
 	}
-
-	@Override
-	public void deleteByFilter(ParsedMap filter) {
-		getMongoCollection().deleteMany(mongoQueryBuilder(filter));
-	}
-
-	protected Bson mongoQueryBuilder(ParsedMap filter) {
+	
+	private final String mongoQueryBuilder(ParsedMap filter) {
 		return mongoQueryBuilder(filter, false);
 	}
 
@@ -300,7 +233,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	 * @param allowDisabled
 	 * @return
 	 */
-	protected Bson mongoQueryBuilder(ParsedMap filter, boolean allowDisabled) {
+	protected String mongoQueryBuilder(ParsedMap filter, boolean allowDisabled) {
                 if(filter == null) {
                     filter = new SimpleParsedMap();
                 }
@@ -308,7 +241,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		if (!allowDisabled) {
 			obj.append("enabled", true);
 		}
-		if (filter == null) return obj;
+		if (filter == null) return obj.toString();
 		
 		if (filter.containsKey("searchstring")){
 			// Se a busca é por searchstring, cria query com wildcards requisitados em searchwildcards
@@ -333,32 +266,19 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 			}
 			
 			String searchString = SearchstringUtils.prepareForSearch(filter.getString("searchstring"));
-			return Filters.regex("searchstring", "(?i)" + (wildCardStart ? "" : "^") + searchString + (wildCardEnd ? "" : "$"));
+			mongoRegexQuery = "{searchstring: {$regex:" + "'(?i)" + (wildCardStart ? "" : "^") + searchString + (wildCardEnd ? "" : "$") + "'}" + (allowDisabled ? "" : ", enabled:true") + "}";
+			
+			return mongoRegexQuery;
 			
 		} else {
 			for (PropertyDescriptor pDescriptor : propertyList) {
 				String pName = pDescriptor.getName();
-				if(filter.isMultipleValued(pName)) {
-					obj.append(pName, new BasicDBObject("$in", filter.get(pName, pDescriptor.getPropertyType())));
-				} else if(filter.containsKey(pName)) {
-					if (pName.equals("id")) {
-						obj  = obj.append("_id", filter.get(pName, pDescriptor.getPropertyType()));
-					}
-					else {
-						obj.append(pName, filter.get(pName, pDescriptor.getPropertyType()));
-					}
+				if(filter.containsKey(pName)) {
+					if (pName.equals("id")) obj.append("_id", new BasicDBObject("$oid", filter.get(pName))); // se for id busca pelo ObjectId de key _id (padrão do Mongo)
+					else obj.append(pName, filter.get(pName));
 				} else if(filter.containsKey(pName+ ".id")) {
 					//Não funciona para collection, só objeto único embedded
 					obj.append(pName+".id", filter.get(pName+".id"));
-				} else if (filter.containsKey(pName+".lat") && filter.containsKey(pName+".lon") && filter.containsKey(pName+".radius")) {
-					//busca por geolocalização
-					
-					// para buscar pro geolocalização, o filtro tem que ter as duas propriedades:
-					// {propriedade}.center -> array de float ou double no formato [longitude, latitude]
-					// {propriedade}.radius -> int, raio da busca a ser feita
-					
-					BasicDBObject geometry = new BasicDBObject("type", "Point").append("coordinates", new double[] { filter.getDouble(pName+".lon"), filter.getDouble(pName+".lat")});
-					obj.append(pName, new BasicDBObject("$near", new BasicDBObject("$geometry", geometry).append("$maxDistance", filter.getDouble(pName+".radius"))));
 				} else if (filter.containsKey(pName+".center") && filter.containsKey(pName+".radius")) {
 					//busca por geolocalização
 					
@@ -379,41 +299,10 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 					obj.append(pName, new BasicDBObject("$gte", key));
 				} 
 			}
-			if(log.isDebugEnabled()) {
-				log.debug("Query: " + obj.toString());
-			}
-			return obj;
+			
+			return obj.toString();
 		}
 		
-		
-	}
-	
-	public D saveOrReplace(D entity) {
-		prepareEntity(entity);
-		validate(entity, ValidationGroups.MergePersist.class);
-		validate(entity); // valida campos sem grupos definidos
-		entity.setUpdateTime(new Date());
-		entity.setCreationTime(new Date());
-		
-		// gerar um novo id
-		if(entity.getId() == null) {
-			entity.setId(generateId());
-		}
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.setConfig(mapper.getSerializationConfig().withView(jsonView));
-		String json;
-		try {
-			json = mapper.writeValueAsString(entity);
-		} catch (JsonProcessingException e) {
-			throw new IllegalStateException("Erro convertendo entidade em Json", e);
-		}
-		//serializar a entidade em um BsonDocument
-		BsonDocument doc = BsonDocument.parse(json);
-		getMongoCollection().replaceOne(mongoQueryBuilder(new SimpleParsedMap("id", entity.getId()), true), doc, new UpdateOptions().upsert(true));
-		
-		activityLogService.log(entity, ActivityLogService.OPERATION_CREATE);
-
-		return entity;
 		
 	}
 
@@ -426,32 +315,14 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		entity.setCreationTime(new Date());
 		
 		// gerar um novo id
-		if(entity.getId() == null) {
-			entity.setId(generateId());
-		}
+		entity.setId(ObjectId.get().toString());
 		
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.setConfig(mapper.getSerializationConfig().withView(jsonView));
-		String json;
-		try {
-			json = mapper.writeValueAsString(entity);
-		} catch (JsonProcessingException e) {
-			throw new IllegalStateException("Erro convertendo entidade em Json", e);
-		}
-		//serializar a entidade em um BsonDocument
-		BsonDocument doc = BsonDocument.parse(json);
-		getMongoCollection().insertOne(doc);
+		getCollection().insert(entity);
 		
 		activityLogService.log(entity, ActivityLogService.OPERATION_CREATE);
 
 		return entity;
 	}
-	
-	
-	
-	
-	
-	protected abstract ID generateId();
 
 	@Override
 	public List<D> findByFilter(ParsedMap filter,
@@ -459,7 +330,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		
 		Find find;
 					
-		find = getJongoCollection().find(mongoQueryBuilder(filter).toString()).skip(offset>0?offset:0);
+		find = getCollection().find(mongoQueryBuilder(filter)).skip(offset>0?offset:0);
 		if (fetchSize>0)
 			find = find.limit(fetchSize);
 		MongoCursor<D> cursor = find.as(clazz); 
@@ -477,7 +348,8 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	@Override
 	public <T> List<T> findByFilter(ParsedMap filter,
 			QueryReturnType<T> returnType, int pageNumber, int fetchSize) {
-		throw new IllegalAccessError();
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -492,19 +364,21 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 
 	@Override
 	public D find(D copyWithId) {
-		return getJongoCollection().findOne(mongoQueryBuilder(new SimpleParsedMap("id", copyWithId.getId()), true).toString()).as(clazz);
+		return getCollection().findOne(Oid.withOid(copyWithId.getId())).as(clazz);
 	}
-	
+
 	@Override
 	public <T> T findFirstByFilter(ParsedMap filter,
 			QueryReturnType<T> returnType) {
-		throw new IllegalAccessError();
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public <T> T findFirstByFilter(QueryReturnType<T> returnType,
 			Object... params) {
-		throw new IllegalAccessError();
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -635,7 +509,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		activityLogService.logEntityUpdate(entity, updatedProperties, groups);
 
 //		getSession().update(retrievedEntity);
-		saveOrReplace(retrievedEntity);
+		getCollection().save(retrievedEntity);
 		return retrievedEntity;
 	}
 
@@ -670,7 +544,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		if (retrievedEntity.isEnabled()) {
 			activityLogService.log(entity, "delete", comment);
 			retrievedEntity.setEnabled(false);
-			getJongoCollection().save(retrievedEntity);
+			getCollection().save(retrievedEntity);
 		}
 	}
 
@@ -680,7 +554,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		if (!retrievedEntity.isEnabled()) {
 			activityLogService.log(entity, "restore", comment);
 			retrievedEntity.setEnabled(true);
-			getJongoCollection().save(retrievedEntity);
+			getCollection().save(retrievedEntity);
 		}
 		return retrievedEntity;
 	}
@@ -712,7 +586,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 					uploadManager.deleteFile(oldValue);
 				}
 				BeanUtils.setProperty(connectedEntity, propertyName, uploadKey);
-				getJongoCollection().update(new ObjectId(id.toString())).with("{$set: {" + propertyName + ": #}}", uploadKey);
+				getCollection().update(new ObjectId(id.toString())).with("{$set: {" + propertyName + ": #}}", uploadKey);
 				
 				Image imageAnnotation = pd.getReadMethod().getAnnotation(Image.class);
 				if (imageAnnotation != null) {
@@ -727,7 +601,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 						//define thumbnails temporariamente para a imagem original
 						BeanUtils.setProperty(connectedEntity, thumbnailProperty, uploadKey);
 						
-						getJongoCollection().update(new ObjectId(id.toString())).with("{$set: {" + thumbnailProperty + ": #}}", uploadKey);
+						getCollection().update(new ObjectId(id.toString())).with("{$set: {" + thumbnailProperty + ": #}}", uploadKey);
 					}
 
 //					sessionFactory.getCurrentSession().update(connectedEntity);
@@ -904,7 +778,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		try {
 			D entity = findById(id);
 			String oldValue = (String) BeanUtils.getProperty(entity, propertyName);
-			getJongoCollection().update(new ObjectId(id.toString())).with("{$set: {" + propertyName + ": #}}", stringValue);
+			getCollection().update(new ObjectId(id.toString())).with("{$set: {" + propertyName + ": #}}", stringValue);
 			
 			PropertyDescriptor property = entityProperties.get(propertyName);
 			

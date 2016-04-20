@@ -14,12 +14,15 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.jongo.marshall.jackson.oid.MongoId;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import dwf.persistence.annotations.MongoId;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.serialization.View;
 import dwf.utils.SearchstringUtils;
@@ -39,11 +42,13 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	private Date creationTime;
 	private Date updateTime;
 
-	@Id @MongoId
+	@Id 
+	@MongoId
 	@GeneratedValue(generator="baseEntityIdGenerator")
 	@GenericGenerator(name="baseEntityIdGenerator", strategy="dwf.persistence.domain.BaseEntityIdGenerator")
 	@NotEditableProperty()
-	@JsonView(View.Summary.class)
+	@JsonProperty("_id")
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public ID getId() {
 		return id;
 	}
@@ -55,6 +60,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 
 	@Column(name="enabled",nullable=false)
 	@NotEditableProperty()
+	@JsonView(View.Mongo.class)
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -84,6 +90,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(nullable=false)
 	@NotEditableProperty()
+	@JsonView(View.Mongo.class)
 	public Date getUpdateTime() {
 		return updateTime;
 	}
@@ -98,8 +105,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(nullable=false, updatable=false)
 	@NotEditableProperty()
-	@JsonView(View.Summary.class)
-	
+	@JsonView(View.Mongo.class)
 	public Date getCreationTime() {
 		return creationTime;
 	}
@@ -118,6 +124,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	 * @return
 	 */
 	@Transient
+	@JsonIgnore
 	public BaseEntity<?> getParent() {
 		return null;
 	}
@@ -129,6 +136,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 	protected abstract String displayText();
 	
 	@Transient
+	@JsonIgnore
 	public final String getDisplayText(){
 		return displayText();
 	}

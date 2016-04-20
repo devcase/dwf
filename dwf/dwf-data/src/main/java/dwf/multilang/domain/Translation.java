@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import dwf.serialization.View;
@@ -32,7 +33,7 @@ public abstract class Translation<D extends BaseMultilangEntity<?>> {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	@JsonView(View.Summary.class)
+	@JsonView({View.Rest.class})
 	public Long getId() {
 		return id;
 	}
@@ -42,7 +43,7 @@ public abstract class Translation<D extends BaseMultilangEntity<?>> {
 	@NaturalId
 	@ManyToOne
 	@NotNull
-	@JsonView(View.Summary.class)
+	@JsonIgnore
 	public D getParentEntity() {
 		return parentEntity;
 	}
@@ -57,7 +58,7 @@ public abstract class Translation<D extends BaseMultilangEntity<?>> {
 	@ElementCollection
 	@MapKeyColumn(length=30)
 	@Column(length=1000)
-	@JsonView(View.Summary.class)
+	@JsonView({View.Rest.class})
 	public Map<String, String> getText() {
 		return text;
 	}
@@ -68,7 +69,7 @@ public abstract class Translation<D extends BaseMultilangEntity<?>> {
 	@NaturalId
 	@NotEmpty
 	@Column(length=5)
-	@JsonView(View.Summary.class)
+	@JsonView({View.Rest.class})
 	public String getLanguage() {
 		return language;
 	}

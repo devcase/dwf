@@ -1,4 +1,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 dwf.data.autoconfigure.DwfDataAutoConfiguration,\
 dwf.data.autoconfigure.RabbitAutoConfiguration,\
-dwf.data.autoconfigure.DwfSecurityAutoConfiguration
+dwf.data.autoconfigure.DwfSecurityAutoConfiguration,\
+dwf.data.autoconfigure.JongoAutoConfiguration

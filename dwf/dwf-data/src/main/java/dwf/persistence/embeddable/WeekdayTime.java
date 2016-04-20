@@ -49,7 +49,7 @@ public class WeekdayTime implements Serializable{
 		this.weekday = weekday;
 	}
 
-	@JsonView(View.Summary.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	@Transient
 	public LocalTime getTime() {
 		if(time == null){
@@ -78,7 +78,7 @@ public class WeekdayTime implements Serializable{
 		}
 	}
 	
-	@JsonView(View.Summary.class)
+	@JsonView({View.Rest.class, View.Mongo.class})
 	public DayOfWeek getWeekday() {
 		return weekday;
 	}

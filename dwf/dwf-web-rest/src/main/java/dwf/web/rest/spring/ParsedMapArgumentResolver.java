@@ -1,5 +1,6 @@
 package dwf.web.rest.spring;
 
+import java.lang.reflect.Array;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 	
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return RequestParsedMap.class.isAssignableFrom(parameter.getParameterType()) || ParsedMap.class.isAssignableFrom(parameter.getParameterType());
+		return (!StandardFormatRequestParsedMap.class.isAssignableFrom(parameter.getParameterType())) && (RequestParsedMap.class.isAssignableFrom(parameter.getParameterType()) || ParsedMap.class.isAssignableFrom(parameter.getParameterType()));
 	}
 
 	@Override
@@ -295,20 +296,24 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 				return newObjectMap.get(key);
 			}
 			if(keyPrefix != null) key = keyPrefix + key;
+			Class testClass = expectedClass;
+			if(expectedClass.isArray()) {
+				testClass = expectedClass.getComponentType();
+			}
 			if(requestMap.containsKey(key)) {
 				//check if it is a array or a single value
 				List<Object> convertedValues = new ArrayList<Object>();
 				for (String submittedValue : requestMap.get(key)) {
-					if(expectedClass == boolean.class) {
+					if(testClass == boolean.class) {
 						convertedValues.add(convertToBoolean(submittedValue));
-					} else if(Boolean.class.isAssignableFrom(expectedClass)) {
+					} else if(Boolean.class.isAssignableFrom(testClass)) {
 						convertedValues.add(convertToBoolean(submittedValue));
-					} else if(Long.class.isAssignableFrom(expectedClass)) {
+					} else if(Long.class.isAssignableFrom(testClass)) {
 						convertedValues.add(convertToLong(submittedValue));
-					} else if(Double.class.isAssignableFrom(expectedClass)) {
+					} else if(Double.class.isAssignableFrom(testClass)) {
 						convertedValues.add(convertToDouble(submittedValue));
-					} else if(expectedClass.isEnum()){
-						convertedValues.add(Enum.valueOf((Class<? extends Enum>) expectedClass, submittedValue));
+					} else if(testClass.isEnum()){
+						convertedValues.add(Enum.valueOf((Class<? extends Enum>) testClass, submittedValue));
 					} else {
 						convertedValues.add(submittedValue);
 					}
@@ -323,7 +328,29 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 			return null;
 		}
 
-		
+		@Override
+		public boolean isMultipleValued(String key) {
+			if(newObjectMap.containsKey(key)) {
+				Object value = newObjectMap.get(key);
+				if(value == null) {
+					return false;
+				} else {
+					if((value.getClass().isArray()) && Array.getLength(value) > 1) {
+						//chegou array no filtro
+						return true;
+					} else if((value instanceof Collection<?>) && ((Collection) value).size() > 1) {
+						//chegou collection no filtro
+						return true;
+					} else {
+						return false;
+					}
+				}
+			} else {
+				String[] reqParam = requestMap.get(key);
+				return reqParam != null && reqParam.length > 1;
+			}
+		}
+
 		public String getQueryString() {
 			StringBuilder queryStringBuilder = new StringBuilder();
 			for (Map.Entry<String, String[]> requestParam : requestMap.entrySet()) {
