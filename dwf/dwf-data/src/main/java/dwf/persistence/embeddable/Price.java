@@ -78,4 +78,18 @@ public class Price implements Serializable {
 	}	
 	
 	
+	public Price multiply(int multiplier) {
+		return new Price(this.value * multiplier, this.getCurrencyCode());
+	}
+	
+	public Price sum(Price... price) {
+		double value = this.value;
+		for (Price price2 : price) {
+			if(!price2.getCurrencyCode().equals(this.getCurrencyCode())) {
+				throw new IllegalArgumentException();
+			}
+			value+=price2.value;
+		}
+		return new Price(value, this.getCurrencyCode());
+	}
 }
