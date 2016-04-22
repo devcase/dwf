@@ -19,10 +19,12 @@ public class BaseEntityIdGenerator implements IdentifierGenerator, Configurable 
 	
 	public static Long convertFromObjectId(ObjectId id) {
 		
-		long value = (((long) id.getTimestamp()) << 9*4 & 0xfff000000000L) +
-				(((long) id.getMachineIdentifier() << 7*4) & 0xff0000000L) +
-				(((int) id.getProcessIdentifier() << 4*4) & 0xfff0000L) +
-				(((int) id.getCounter()) & 0xffff);
+		//Usando apenas 12 bytes+3 bytes - para evitar números com mais de
+		//15 dígitos, que é o máximo do excel....
+		long value = (((long) id.getTimestamp()) << 5*4 & 0x3fffffff00000L) +
+				(((long) id.getMachineIdentifier() << 4*4) & 0xf0000L) +
+				(((int) id.getProcessIdentifier() << 3*4) & 0xf000L) +
+				(((int) id.getCounter()) & 0xfffff);
 		return value;
 
 	}
