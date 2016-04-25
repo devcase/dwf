@@ -49,16 +49,7 @@ public class BaseEntityIdGenerator implements IdentifierGenerator, Configurable 
 
 	@Override
 	public Serializable generate(SessionImplementor session, Object object) throws HibernateException {
-		if(object instanceof BaseEntity) {
-			Serializable id = ((BaseEntity<? extends Serializable>) object).getId();
-			if(id == null) {
-				return generateNewId();
-			} else {
-				return id;
-			}
-		} else {
-			throw new HibernateException("Not a BaseEntity subclass");
-		}
+		return generateNewId();
 	}
 
 }

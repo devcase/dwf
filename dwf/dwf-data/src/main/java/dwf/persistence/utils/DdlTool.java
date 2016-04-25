@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.PostgreSQL9Dialect;
 import org.hibernate.engine.jdbc.dialect.internal.StandardDialectResolver;
 import org.hibernate.engine.jdbc.dialect.spi.DatabaseMetaDataDialectResolutionInfoAdapter;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
@@ -29,7 +30,6 @@ public class DdlTool {
 	private DataSource dataSource;
 	@Autowired
 	private LocalSessionFactoryBean sessionFactoryBean;
-	@Value("${dwf.data.databaseSchema:public}")
 	private String databaseSchema; 
 	
 	public String getDatabaseSchema() {
@@ -54,7 +54,11 @@ public class DdlTool {
 		Configuration cfg = sessionFactoryBean.getConfiguration();
 		String originalDefaultSchema = cfg.getProperty(Environment.DEFAULT_SCHEMA);
 		try {
-			cfg.getProperties().put( Environment.DEFAULT_SCHEMA , databaseSchema);
+			if(databaseSchema != null) {
+				cfg.getProperties().put( Environment.DEFAULT_SCHEMA , databaseSchema);
+			} else {
+				cfg.getProperties().remove(Environment.DEFAULT_SCHEMA);
+			}
 			return cfg.generateSchemaCreationScript(dialect);
 		} finally {
 			//restore previous default schema
@@ -73,7 +77,11 @@ public class DdlTool {
 		try {
 			Dialect dialect = new StandardDialectResolver().resolveDialect(new DatabaseMetaDataDialectResolutionInfoAdapter(conn.getMetaData()));
 //			DatabaseMetadata database = new DatabaseMetadata(conn, dialect, cfg);
-			cfg.getProperties().put( Environment.DEFAULT_SCHEMA , databaseSchema);
+			if(databaseSchema != null) {
+				cfg.getProperties().put( Environment.DEFAULT_SCHEMA , databaseSchema);
+			} else {
+				cfg.getProperties().remove(Environment.DEFAULT_SCHEMA);
+			}
 			
 			return cfg.generateDropSchemaScript(dialect);
 		} finally {
@@ -94,7 +102,11 @@ public class DdlTool {
 		try {
 			Dialect dialect = new StandardDialectResolver().resolveDialect(new DatabaseMetaDataDialectResolutionInfoAdapter(conn.getMetaData()));
 			DatabaseMetadata database = new DatabaseMetadata(conn, dialect, cfg);
-			cfg.getProperties().put( Environment.DEFAULT_SCHEMA , databaseSchema);
+			if(databaseSchema != null) {
+				cfg.getProperties().put( Environment.DEFAULT_SCHEMA , databaseSchema);
+			} else {
+				cfg.getProperties().remove(Environment.DEFAULT_SCHEMA);
+			}
 			
 			return cfg.generateSchemaUpdateScriptList(dialect, database);
 		} finally {

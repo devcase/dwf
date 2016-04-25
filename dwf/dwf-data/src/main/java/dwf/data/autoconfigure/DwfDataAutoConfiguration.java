@@ -167,7 +167,7 @@ public class DwfDataAutoConfiguration  {
 	
 	@Bean
 	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-	@DependsOn("flyway") //sessionFactory é criado após o bean flyway
+	@DependsOn({"flyway", "flywayInitializer"}) //sessionFactory precisa ser criado após o bean flyway, se disponível
 	public LocalSessionFactoryBean sessionFactory(NamingStrategy namingStrategy, @Qualifier("dwfDataSource") DataSource dataSource) {
 		LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
 		sessionFactoryBean.setPackagesToScan( new String [] {"dwf.activitylog.domain", "dwf.user.domain", entityPackage});
@@ -194,6 +194,10 @@ public class DwfDataAutoConfiguration  {
 	static class MockFlywayConfiguration {
 		@Bean(name="flyway")
 		public Object flyway() {
+			return new Object();
+		}
+		@Bean(name="flywayInitializer")
+		public Object flywayInitializer() {
 			return new Object();
 		}
 	}

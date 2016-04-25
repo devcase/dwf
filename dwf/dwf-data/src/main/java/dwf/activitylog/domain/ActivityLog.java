@@ -21,6 +21,8 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.GenericGenerator;
+
 
 @Entity
 @Table(indexes = {
@@ -47,8 +49,8 @@ public class ActivityLog  {
 
 	
 	@Id
-	@GeneratedValue(generator="activityLogIdGenerator")
-	@TableGenerator(name="activityLogIdGenerator")
+	@GeneratedValue(generator="baseEntityIdGenerator")
+	@GenericGenerator(name="baseEntityIdGenerator", strategy="dwf.persistence.domain.BaseEntityIdGenerator")
 	public Long getId() {
 		return id;
 	}
