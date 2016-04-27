@@ -96,14 +96,8 @@ public class Price implements Serializable {
 			if(!price2.getCurrencyCode().equals(this.getCurrencyCode())) {
 				throw new IllegalArgumentException();
 			}
-			System.out.println(value + " + " + price2.value.doubleValue());
 			value = value.add(price2.value);
-			System.out.println(value);
 		}
 		return new Price(value, this.getCurrencyCode());
-	}
-	
-	public static void main(String[] args) {
-		System.out.println(368.77d + 59.15d);
 	}
 }

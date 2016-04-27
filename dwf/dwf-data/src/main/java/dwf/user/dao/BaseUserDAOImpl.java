@@ -1,16 +1,13 @@
 package dwf.user.dao;
 
-import java.util.List;
-
 import javax.transaction.Transactional;
 
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.stereotype.Repository;
 
 import dwf.persistence.dao.BaseDAOImpl;
 import dwf.user.domain.BaseUser;
 import dwf.user.domain.LoggedUserDetails;
-import dwf.utils.ParsedMap;
 
 @Repository("baseUserDAO")
 @Transactional
@@ -30,7 +27,9 @@ public class BaseUserDAOImpl extends BaseDAOImpl<BaseUser> implements BaseUserDA
 	public BaseUser findByPrincipal(Object principal) {
 		if(principal instanceof LoggedUserDetails) {
 			return findById(((LoggedUserDetails) principal).getId());
-		} 
+		} else if(principal instanceof User) {
+			return findByEmail(((User) principal).getName());
+		}
 		return findByEmail(principal.toString());
 	}
 	
