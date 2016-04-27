@@ -8,7 +8,6 @@ import java.util.concurrent.Callable;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -34,12 +34,12 @@ import dwf.persistence.dao.DAO;
 import dwf.persistence.domain.BaseEntity;
 import dwf.persistence.export.Exporter;
 import dwf.persistence.export.Importer;
+import dwf.user.dao.BaseUserDAO;
 import dwf.user.domain.BaseUser;
 import dwf.user.domain.LoggedUserDetails;
 import dwf.utils.DelegatingParsedMap;
 import dwf.utils.ParsedMap;
 import dwf.utils.SimpleParsedMap;
-import dwf.utils.SingleValueParsedMap;
 import dwf.web.message.UserMessageType;
 
 public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializable> extends BaseController {
@@ -61,6 +61,8 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 	private TranslationManager translationManager;
 	@Autowired
 	private ApplicationContext applicationContext;
+	@Autowired
+	private BaseUserDAO baseUserDAO;
 	
 	private Importer<D> importer;
 	private Exporter<D> exporter;
@@ -493,10 +495,12 @@ public class BaseCrudController<D extends BaseEntity<ID>, ID extends Serializabl
 
 	
 	protected BaseUser getCurrentBaseUser() {
-		Object currentUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if(currentUser instanceof LoggedUserDetails) {
-			return ((LoggedUserDetails) currentUser).getBaseUser();
-		} return null;
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if(auth != null) {
+			return baseUserDAO.findByPrincipal(auth.getPrincipal());
+		} else {
+			return null;
+		}
 	}
 	
 	protected D findById(ID id) {

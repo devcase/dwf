@@ -49,7 +49,7 @@ public class PricePropertyEditor extends PropertyEditorSupport implements Custom
 			Price price = new Price();
 			price.setCurrencyCode(split[0]);
 			try {
-				price.setValue(DecimalFormat.getInstance(locale).parse(split[1]).doubleValue());
+				price.setValueAsDouble(DecimalFormat.getInstance(locale).parse(split[1]).doubleValue());
 			} catch (ParseException e) {
 				throw new IllegalArgumentException("Invalid string for Cost", e);
 			}
