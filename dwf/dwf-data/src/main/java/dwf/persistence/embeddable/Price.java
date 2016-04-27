@@ -1,6 +1,7 @@
 package dwf.persistence.embeddable;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Currency;
 
 import javax.persistence.Column;
@@ -20,7 +21,7 @@ public class Price implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -8206227063669867200L;
-	private Double value;
+	private BigDecimal value;
 	private String currencyCode;
 	
 	
@@ -29,22 +30,29 @@ public class Price implements Serializable {
 	}
 	
 
-	public Price(Double value, String currencyCode) {
+	public Price(BigDecimal value, String currencyCode) {
 		this.value = value;
 		this.currencyCode = currencyCode;
 	}
 
-
+	public Price(Double value, String currencyCode) {
+		this.value = BigDecimal.valueOf((long) (value * 100), 2);
+		this.currencyCode = currencyCode;
+	}
 
 	@JsonView({View.Rest.class, View.Mongo.class})
-	public Double getValue() {
+	public BigDecimal getValue() {
 		return value;
 	}
 
-
-	public void setValue(Double value) {
+	public void setValue(BigDecimal value) {
 		this.value = value;
 	}
+	
+	public void setValueAsDouble(Double value) {
+		this.value = BigDecimal.valueOf((long) (value * 100), 2);
+	}
+
 
 	@Column(length=3)
 	@JsonView({View.Rest.class, View.Mongo.class})
@@ -79,17 +87,23 @@ public class Price implements Serializable {
 	
 	
 	public Price multiply(int multiplier) {
-		return new Price(this.value * multiplier, this.getCurrencyCode());
+		return new Price(this.value.multiply(BigDecimal.valueOf(multiplier)), this.getCurrencyCode());
 	}
 	
 	public Price sum(Price... price) {
-		double value = this.value;
+		BigDecimal value = this.value;
 		for (Price price2 : price) {
 			if(!price2.getCurrencyCode().equals(this.getCurrencyCode())) {
 				throw new IllegalArgumentException();
 			}
-			value+=price2.value;
+			System.out.println(value + " + " + price2.value.doubleValue());
+			value = value.add(price2.value);
+			System.out.println(value);
 		}
 		return new Price(value, this.getCurrencyCode());
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(368.77d + 59.15d);
 	}
 }
