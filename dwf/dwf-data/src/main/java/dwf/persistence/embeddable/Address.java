@@ -20,7 +20,9 @@ public class Address {
 	private String state;
 	private String countryCode;
 	private String postalCode;
+	private String premise;
 	private String additionalInfo;
+	
 	@JsonView({View.Rest.class, View.Mongo.class})
 	public String getStreetNumber() {
 		return streetNumber;
@@ -77,6 +79,14 @@ public class Address {
 	public void setAdditionalInfo(String additionalInfo) {
 		this.additionalInfo = additionalInfo;
 	}
+	@JsonView({View.Rest.class, View.Mongo.class})
+	public String getPremise() {
+		return premise;
+	}
+	public void setPremise(String premise) {
+		this.premise = premise;
+	}
+	
 	
 	@Transient
 	@JsonIgnore
@@ -88,8 +98,8 @@ public class Address {
 		if(StringUtils.isNotBlank(route)) {
 			sb.append(", ").append(streetNumber);
 		}
-		if(StringUtils.isNotBlank(additionalInfo)) {
-			sb.append(", ").append(additionalInfo);
+		if(StringUtils.isNotBlank(premise)) {
+			sb.append(", ").append(premise);
 		}
 		if(StringUtils.isNotBlank(sublocality)) {
 			sb.append(", ").append(sublocality);
@@ -110,7 +120,7 @@ public class Address {
 	}
 	
 	/**
-	 * For geocoding (ignore additional info)
+	 * For geocoding (ignore premise)
 	 * @return
 	 */
 	@Transient
