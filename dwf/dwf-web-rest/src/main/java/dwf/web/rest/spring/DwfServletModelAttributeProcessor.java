@@ -72,7 +72,7 @@ public class DwfServletModelAttributeProcessor extends ServletModelAttributeMeth
 	}
 
 	/**
-	 * Remove parâmetros com nome {alguma coisa}.id. (Exemplo: combos de seleção de entidades que enviam {nome propriedade}.id vazio). 
+	 * Remove parâmetros vazios com nome {alguma coisa}.id. (Exemplo: combos de seleção de entidades que enviam {nome propriedade}.id vazio). 
 	 * O DAO não vai funcionar corretamente nestes casos.
 	 * @param mpvs
 	 * @param request

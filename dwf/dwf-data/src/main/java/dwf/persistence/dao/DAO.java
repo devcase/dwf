@@ -27,7 +27,8 @@ public interface DAO<D extends BaseEntity<?>> {
 	 * @return
 	 */
 	List<D> findByFilter(ParsedMap filter, int offset, int fetchSize);
-	<T> List<T> findByFilter(ParsedMap filter, QueryReturnType<T> returnType, int pageNumber, int fetchSize);
+	<T> List<T> findByFilter(ParsedMap filter, QueryReturnType<T> returnType, int offset, int fetchSize);
+	
 	List<D> findByFilter(ParsedMap filter);
 	List<D> findAll();
 //	List<?> findByFilter(Object... params);

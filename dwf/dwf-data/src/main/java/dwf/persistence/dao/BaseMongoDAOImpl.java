@@ -290,21 +290,24 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		getMongoCollection().deleteMany(mongoQueryBuilder(filter));
 	}
 
-	protected Bson mongoQueryBuilder(ParsedMap filter) {
+	protected final Bson mongoQueryBuilder(ParsedMap filter) {
 		return mongoQueryBuilder(filter, false);
 	}
 
+	protected final Bson mongoQueryBuilder(ParsedMap filter, boolean allowDisabled) {
+		return mongoQueryBuilder(new BasicDBObject(), filter, allowDisabled);
+	}
+	
 	/**
 	 * Transforma os parâmetros de filter em uma query mongo
 	 * @param filter
 	 * @param allowDisabled
 	 * @return
 	 */
-	protected Bson mongoQueryBuilder(ParsedMap filter, boolean allowDisabled) {
-                if(filter == null) {
-                    filter = new SimpleParsedMap();
-                }
-		BasicDBObject obj = new BasicDBObject();
+	protected Bson mongoQueryBuilder(BasicDBObject obj, ParsedMap filter, boolean allowDisabled) {
+        if(filter == null) {
+            filter = new SimpleParsedMap();
+        }
 		if (!allowDisabled) {
 			obj.append("enabled", true);
 		}
