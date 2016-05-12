@@ -16,15 +16,20 @@ public class RequestMappingPostProcessor implements BeanPostProcessor {
 	private ParsedMapArgumentResolver parsedMapArgumentResolver;
 	@Autowired
 	private StandardFormatRequestParsedMapArgumentResolver standardFormatRequestParsedMapArgumentResolver;
+	@Autowired
+	private RequestParamBeanArgumentResolver beanArgumentHandler;
+	
 	
     public Object postProcessBeforeInitialization(Object bean, String name) throws BeansException {
         if (bean instanceof RequestMappingHandlerAdapter) {
         	RequestMappingHandlerAdapter adapter = (RequestMappingHandlerAdapter) bean;
-        	adapter.setIgnoreDefaultModelOnRedirect(true);
+        	adapter.setIgnoreDefaultModelOnRedirect(true); //?????
     		adapter.setCustomArgumentResolvers(new ArrayList<HandlerMethodArgumentResolver>());
     		adapter.getCustomArgumentResolvers().add(standardFormatRequestParsedMapArgumentResolver);
     		adapter.getCustomArgumentResolvers().add(parsedMapArgumentResolver);
+    		adapter.getCustomArgumentResolvers().add(beanArgumentHandler);
     		adapter.getCustomArgumentResolvers().add(new DwfServletModelAttributeProcessor());
+    		return adapter;
         }
         return bean;
     }
