@@ -9,6 +9,8 @@ import com.google.maps.GeocodingApi;
 import com.google.maps.GeocodingApiRequest;
 import com.google.maps.model.AddressComponent;
 import com.google.maps.model.AddressComponentType;
+import com.google.maps.model.AddressType;
+import com.google.maps.model.ComponentFilter;
 import com.google.maps.model.GeocodingResult;
 
 import dwf.persistence.embeddable.Address;
@@ -23,12 +25,22 @@ public class GoogleMapsConsultaCEPServiceImpl implements ConsultaCEPService {
 
 	@Override
 	public Address[] consultaCEP(String cep) {
-		GeocodingApiRequest req = GeocodingApi.geocode(context, MessageFormat.format("CEP {0}, Brasil", cep));
+		//faz busca pelo postalcode
+		GeocodingApiRequest req = GeocodingApi.newRequest(context).components(ComponentFilter.postalCode(cep), ComponentFilter.country("BR")).resultType(AddressType.POSTAL_CODE);
+//		GeocodingApiRequest req = GeocodingApi.geocode(context, MessageFormat.format("CEP {0}, Brasil", cep));
 		GeocodingResult[] result = req.awaitIgnoreError(); //síncrono
 		if(result == null || result.length == 0) {
 			//nenhum resultado
 			return null;
 		} else {
+			//encontrou resultado - buscar rua via geocoding reverso
+			req = GeocodingApi.reverseGeocode(context, result[0].geometry.location).resultType(AddressType.ROUTE);
+			result = req.awaitIgnoreError(); //síncrono
+			if(result == null || result.length == 0) {
+				//nenhum resultado
+				return null;
+			}
+			
 			List<Address> ret = new ArrayList<Address>(result.length);
 			for (int i = 0; i < result.length; i++) {
 				GeocodingResult geocodingResult = result[i];
@@ -36,6 +48,9 @@ public class GoogleMapsConsultaCEPServiceImpl implements ConsultaCEPService {
 				for (AddressComponent addressComponent : geocodingResult.addressComponents) {
 					for (AddressComponentType addressComponentType : addressComponent.types) {
 						switch(addressComponentType) {
+						case ROUTE:
+							address.setRoute(addressComponent.longName);
+							break;
 						case POSTAL_CODE:
 							address.setPostalCode(addressComponent.longName);
 							break;

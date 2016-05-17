@@ -10,7 +10,7 @@ import dwf.persistence.embeddable.Address;
 
 public class ViaCEPConsultaCEPServiceImpl implements ConsultaCEPService {
 	
-	private Pattern cepPattern = Pattern.compile("/[0-9]{8}");
+	private Pattern cepPattern = Pattern.compile("[0-9]{8}");
 	private RestTemplate restTemplate = new RestTemplate();
 
 	@Override
