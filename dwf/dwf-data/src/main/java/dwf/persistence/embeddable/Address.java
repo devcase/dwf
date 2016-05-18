@@ -130,7 +130,7 @@ public class Address {
 		if(StringUtils.isNotBlank(route)) {
 			sb.append(route);
 		}
-		if(StringUtils.isNotBlank(route)) {
+		if(StringUtils.isNotBlank(streetNumber)) {
 			sb.append(", ").append(streetNumber);
 		}
 		if(StringUtils.isNotBlank(sublocality)) {
