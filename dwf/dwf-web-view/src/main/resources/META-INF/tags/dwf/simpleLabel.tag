@@ -19,6 +19,9 @@
 %><c:if test="${empty _labelText}"><%-- PROCURA POR LABEL GENÉRICO COM O ATRIBUTO NAME (ex: label.enabled) --%><%
 	%><spring:message code="label.${attrMap.name}" var="_labelText"  text=""/><%
 %></c:if><%
+%><c:if test="${empty _labelText}"><%-- PROCURA POR LABEL GENÉRICO COM O ATRIBUTO NAME (ex: enabled) --%><%
+	%><spring:message code="${attrMap.name}" var="_labelText"  text=""/><%
+%></c:if><%
 %><c:if test="${empty _labelText}"><%-- PROCURA POR NOME DE ENTIDADE --%><%
 	%><spring:message code="domain.${attrMap.property}" var="_labelText"  text="${attrMap.property }"/><%
 %></c:if><%

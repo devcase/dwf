@@ -26,8 +26,8 @@ public class GoogleMapsConsultaCEPServiceImpl implements ConsultaCEPService {
 	@Override
 	public Address[] consultaCEP(String cep) {
 		//faz busca pelo postalcode
-		GeocodingApiRequest req = GeocodingApi.newRequest(context).components(ComponentFilter.postalCode(cep), ComponentFilter.country("BR")).resultType(AddressType.POSTAL_CODE);
-//		GeocodingApiRequest req = GeocodingApi.geocode(context, MessageFormat.format("CEP {0}, Brasil", cep));
+		//GeocodingApiRequest req = GeocodingApi.newRequest(context).components(ComponentFilter.postalCode(cep), ComponentFilter.country("BR")).resultType(AddressType.POSTAL_CODE);
+		GeocodingApiRequest req = GeocodingApi.geocode(context, MessageFormat.format("CEP{0}, Brasil", cep));
 		GeocodingResult[] result = req.awaitIgnoreError(); //síncrono
 		if(result == null || result.length == 0) {
 			//nenhum resultado
