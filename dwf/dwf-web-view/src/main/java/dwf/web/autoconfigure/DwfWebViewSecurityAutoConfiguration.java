@@ -107,8 +107,9 @@ public class DwfWebViewSecurityAutoConfiguration {
 	@Configuration(value="dwfWebViewSecurityConfig")
 	@ConditionalOnWebApplication
 	@AutoConfigureOrder(SecurityProperties.ACCESS_OVERRIDE_ORDER + 1)
+	@ConditionalOnProperty(prefix="dwf.security.web", value="enabled", matchIfMissing=true)
 	@EnableWebSecurity
-	static class DwfWebViewSecurityConfig extends WebSecurityConfigurerAdapter {
+	public static class DwfWebViewSecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		@Autowired
 		private RememberMeServices rememberMeServices;

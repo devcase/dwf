@@ -188,12 +188,14 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 			}
 		}
 
-		protected boolean convertToBoolean(String paramValue) {
+		protected Boolean convertToBoolean(String paramValue) {
 			paramValue = paramValue.toLowerCase().trim();
 			if ("true".equals(paramValue) || "yes".equals(paramValue)) {
 				return true;
 			} else if ("false".equals(paramValue) || "no".equals(paramValue)) { 
 				return false;
+			} else if ("".equals(paramValue)) { 
+				return null;
 			} else {
 				throw new IllegalArgumentException("Value at provided key can't be parsed into a Boolean");
 			}

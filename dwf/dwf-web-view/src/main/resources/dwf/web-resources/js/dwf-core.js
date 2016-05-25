@@ -263,10 +263,17 @@ $(document).on("click", ".dwf-boxcheckbox", function () {
 $(document).on("dwf-postupdate", function (evt) {
 	$(evt.target).find(".price-format").each(function () {
 		var inpt = $(this);
+		var decimalSeparator = $(this).attr('decimalSeparator');
+		if(!decimalSeparator) decimalSeparator = $decimalSeparator;
+		if(!decimalSeparator) decimalSeparator = ',';
+		var groupingSeparator = $(this).attr('groupingSeparator');
+		if(!groupingSeparator) groupingSeparator = groupingSeparator;
+		if(!groupingSeparator) groupingSeparator = '.';
+		
 		inpt.priceFormat({
 			prefix: '',
-			centsSeparator: $(this).attr('decimalSeparator'),
-			thousandsSeparator: $(this).attr('groupingSeparator')
+			centsSeparator: decimalSeparator,
+			thousandsSeparator: groupingSeparator
 		});
 		inpt.closest('form').on("submit", function () {
 			inpt.val(inpt.val().replace(new RegExp("\\"+inpt.attr('groupingSeparator'), 'g'), ''));
