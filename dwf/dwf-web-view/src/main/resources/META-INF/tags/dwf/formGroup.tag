@@ -19,9 +19,10 @@ Atributos:
 <%@ variable name-given="label" scope="NESTED" variable-class="java.lang.String"%>
 <dwf:mergeMaps map1="${attrMap}" map2="${attrMap.parentAttrMap}" var="attrMap"/>
 <dwf:simpleLabel parentAttrMap="${attrMap}" var="label"/>
-<%-- NOME DO PARÂMETRO DO REQUEST E VALOR PREENCHIDO --%>
+<%-- NOME DO PARÂMETRO (CAMPO NAME DO INPUT) E VALOR PREENCHIDO --%>
 <c:choose>
 	<c:when test="${!empty attrMap.name}">
+		<%-- BUSCA VALOR VIA EL IGUAL AO NAME --%>
 		<dwf:resolveEL el="${attrMap.name}" var="value" />
 		<c:set var="name" value="${attrMap.name}"/>		
 	</c:when>
@@ -30,6 +31,7 @@ Atributos:
 		<c:set var="name" value="${attrMap.property}"/>
 	</c:when>
 </c:choose>
+<%-- BUSCA VALOR A PARTIR DE PARÂMETRO DO REQUEST, SE NÃO FOI CONFIGURADO PARA IGNORAR - START--%>
 <c:if test="${!attrMap.ignoreParams}">
 	<c:if test="${!empty pageContext.request.getParameterValues(name.concat('[]')) }">
 		<c:set var="value" value="${pageContext.request.getParameterValues(name.concat('[]')) }"/>
@@ -38,9 +40,12 @@ Atributos:
 		<c:set var="value" value="${param[name]}"/>
 	</c:if>
 </c:if>
+
+<%-- BUSCA VALOR A PARTIR DO ATRIBUTO VALUE DA TAG --%>
 <c:if test="${!empty attrMap.value}">
 	<c:set var="value" value="${attrMap.value}"/>
 </c:if>
+
 <dwf:findViolation path="${name}" var="violation"/>
 <%-- Search for BindingResults, when using @Valid annotations --%>
 <c:set var="bindingErrors" value="${requestScope['org.springframework.validation.BindingResult.form'].getFieldErrors(name)}"/>
