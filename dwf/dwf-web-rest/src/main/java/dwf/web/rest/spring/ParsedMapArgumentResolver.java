@@ -1,13 +1,11 @@
 package dwf.web.rest.spring;
 
-import java.lang.reflect.Array;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -23,6 +21,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import dwf.utils.ParsedMap;
+import dwf.utils.SimpleParsedMap;
 import dwf.web.conversion.DwfCustomDateEditor;
 
 /**
@@ -58,22 +57,23 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 	 */
 	public static class RequestParsedMap implements ParsedMap, Map<String, Object> {
 		private final Map<String, String[]> requestMap;
-		private final Map<String, Object> newObjectMap; //mapa para colocar itens extras
+		private final SimpleParsedMap simpleParsedMap;
+		
 		private final String keyPrefix;
 		private final Locale locale;
 		public RequestParsedMap(Map<String, String[]> requestMap,
 				String keyPrefix, Locale locale) {
 			super();
 			this.requestMap = Collections.unmodifiableMap(requestMap);
-			this.newObjectMap = new HashMap<String, Object>();
+			this.simpleParsedMap = new SimpleParsedMap();
 			this.keyPrefix = keyPrefix;
 			this.locale = locale;
 		}
 		
 		@Override
 		public String getString(String key) {
-			if(newObjectMap.containsKey(key)) {
-				return (String) newObjectMap.get(key);
+			if(simpleParsedMap.containsKey(key)) {
+				return simpleParsedMap.getString(key);
 			}
 			if(keyPrefix != null) key = keyPrefix + key;
 			if(requestMap.containsKey(key) && requestMap.get(key).length != 0) {
@@ -85,8 +85,8 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 
 		@Override
 		public Double getDouble(String key) {
-			if(newObjectMap.containsKey(key)) {
-				return (Double) newObjectMap.get(key);
+			if(simpleParsedMap.containsKey(key)) {
+				return simpleParsedMap.getDouble(key);
 			}
 			if(keyPrefix != null) key = keyPrefix + key;
 			if(!requestMap.containsKey(key) || requestMap.get(key).length == 0 || StringUtils.isBlank(requestMap.get(key)[0])) {
@@ -100,9 +100,10 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 		
 		@Override
 		public Date getDate(String key) {
-			if(newObjectMap.containsKey(key)) {
-				return (Date) newObjectMap.get(key);
+			if(simpleParsedMap.containsKey(key)) {
+				return simpleParsedMap.getDate(key);
 			}
+
 			if(keyPrefix != null) key = keyPrefix + key;
 			if(!requestMap.containsKey(key) || requestMap.get(key).length == 0 || StringUtils.isBlank(requestMap.get(key)[0])) {
 				return null;
@@ -131,8 +132,8 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 
 		@Override
 		public Long getLong(String key) {
-			if(newObjectMap.containsKey(key)) {
-				return (Long) newObjectMap.get(key);
+			if(simpleParsedMap.containsKey(key)) {
+				return simpleParsedMap.getLong(key);
 			}
 			
 			if(keyPrefix != null) key = keyPrefix + key;
@@ -148,8 +149,8 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 
 		@Override
 		public Long[] getLongArray(String key) {
-			if(newObjectMap.containsKey(key)) {
-				return (Long[]) newObjectMap.get(key);
+			if(simpleParsedMap.containsKey(key)) {
+				return simpleParsedMap.getLongArray(key);
 			}
 			
 			if(keyPrefix != null) key = keyPrefix + key;
@@ -176,9 +177,9 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 		
 		@Override
 		public Boolean getBoolean(String key) {
-			if(newObjectMap.containsKey(key)) {
-				return (Boolean) newObjectMap.get(key);
-			} 
+			if(simpleParsedMap.containsKey(key)) {
+				return simpleParsedMap.getBoolean(key);
+			}
 			if(keyPrefix != null) key = keyPrefix + key;
 			if(!requestMap.containsKey(key) || requestMap.get(key).length == 0 || StringUtils.isBlank(requestMap.get(key)[0])) {
 				return null;
@@ -206,23 +207,23 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 		}
 
 		public boolean isEmpty() {
-			return newObjectMap.isEmpty() && requestMap.isEmpty();
+			return simpleParsedMap.isEmpty() && requestMap.isEmpty();
 		}
 
 		public boolean containsKey(String key) {
-			return newObjectMap.containsKey(key) || requestMap.containsKey(keyPrefix + key);
+			return simpleParsedMap.containsKey(key) || requestMap.containsKey(keyPrefix + key);
 			
 		}
 		public boolean containsKey(Object key) {
-			return newObjectMap.containsKey(key) || requestMap.containsKey(keyPrefix + key);
+			return simpleParsedMap.containsKey(key.toString()) || requestMap.containsKey(keyPrefix + key);
 		}
 
 		public boolean containsValue(Object value) {
-			return newObjectMap.containsValue(value) || requestMap.containsValue(value);
+			return simpleParsedMap.containsValue(value) || requestMap.containsValue(value);
 		}
 
 		public Object get(Object key) {
-			if(newObjectMap.containsKey(key)) return newObjectMap.get(key);
+			if(simpleParsedMap.containsKey(key)) return simpleParsedMap.get(key);
 
 			if(keyPrefix != null) key = keyPrefix + key;
 			String[] value = requestMap.get(key);
@@ -234,7 +235,7 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 		}
 
 		public Object put(String key, Object value) {
-			return newObjectMap.put(key, value);
+			return simpleParsedMap.put(key, value);
 		}
 
 		public Object remove(Object key) {
@@ -278,8 +279,8 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 		 */
 		@Override
 		public Object get(String key) {
-			if(newObjectMap.containsKey(key)) {
-				return newObjectMap.get(key);
+			if(simpleParsedMap.containsKey(key)) {
+				return simpleParsedMap.get(key);
 			}
 			if(keyPrefix != null) key = keyPrefix + key;
 			if(requestMap.containsKey(key) && requestMap.get(key).length != 0) {
@@ -294,14 +295,16 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 		 */
 		@Override
 		public <T> Object get(String key, Class<T> expectedClass) {
-			if(newObjectMap.containsKey(key)) {
-				return newObjectMap.get(key);
+			if(simpleParsedMap.containsKey(key)) {
+				return simpleParsedMap.get(key, expectedClass);
 			}
 			if(keyPrefix != null) key = keyPrefix + key;
 			Class testClass = expectedClass;
 			if(expectedClass.isArray()) {
 				testClass = expectedClass.getComponentType();
 			}
+
+			
 			if(requestMap.containsKey(key)) {
 				//check if it is a array or a single value
 				List<Object> convertedValues = new ArrayList<Object>();
@@ -332,21 +335,8 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 
 		@Override
 		public boolean isMultipleValued(String key) {
-			if(newObjectMap.containsKey(key)) {
-				Object value = newObjectMap.get(key);
-				if(value == null) {
-					return false;
-				} else {
-					if((value.getClass().isArray()) && Array.getLength(value) > 1) {
-						//chegou array no filtro
-						return true;
-					} else if((value instanceof Collection<?>) && ((Collection) value).size() > 1) {
-						//chegou collection no filtro
-						return true;
-					} else {
-						return false;
-					}
-				}
+			if(simpleParsedMap.containsKey(key)) {
+				return simpleParsedMap.isMultipleValued(key);
 			} else {
 				String[] reqParam = requestMap.get(key);
 				return reqParam != null && reqParam.length > 1;
