@@ -6,8 +6,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-public class SimpleParsedMap implements ParsedMap {
+public class SimpleParsedMap implements ParsedMap, Map<String, Object> {
 	private final Map<String, Object> values;
 
 	public SimpleParsedMap(Map<String, ?> values) {
@@ -200,4 +201,60 @@ public class SimpleParsedMap implements ParsedMap {
 			return false;
 		}
 	}
+	
+	public boolean isEmpty() {
+		return values.isEmpty();
+	}
+
+	@Override
+	public int size() {
+		return values.size();
+	}
+
+	@Override
+	public boolean containsKey(Object key) {
+		return values.containsKey(key);
+	}
+
+	@Override
+	public boolean containsValue(Object value) {
+		return values.containsValue(value);
+	}
+
+	@Override
+	public Object get(Object key) {
+		return values.get(key);
+	}
+
+	@Override
+	public Object remove(Object key) {
+		return values.remove(key);
+	}
+
+	@Override
+	public void putAll(Map<? extends String, ? extends Object> m) {
+		values.putAll(m);
+	}
+
+	@Override
+	public void clear() {
+		values.clear();
+	}
+
+	@Override
+	public Set<String> keySet() {
+		return values.keySet();
+	}
+
+	@Override
+	public Collection<Object> values() {
+		return values.values();
+	}
+
+	@Override
+	public Set<java.util.Map.Entry<String, Object>> entrySet() {
+		return values.entrySet();
+	}
+	
+	
 }
