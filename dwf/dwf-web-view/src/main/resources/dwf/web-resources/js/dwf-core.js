@@ -273,7 +273,8 @@ $(document).on("dwf-postupdate", function (evt) {
 		inpt.priceFormat({
 			prefix: '',
 			centsSeparator: decimalSeparator,
-			thousandsSeparator: groupingSeparator
+			thousandsSeparator: groupingSeparator,
+			clearOnEmpty: true
 		});
 		inpt.closest('form').on("submit", function () {
 			inpt.val(inpt.val().replace(new RegExp("\\"+inpt.attr('groupingSeparator'), 'g'), ''));
