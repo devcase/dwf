@@ -4,14 +4,14 @@
 	<parent>
 		<groupId>br.com.devcase.dwf</groupId>
 		<artifactId>dwf</artifactId>
-		<version>0.0.2-SNAPSHOT</version>
+		<version>0.0.2-RELEASE</version>
 	</parent>
 	<artifactId>dwf-test</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>br.com.devcase.dwf</groupId>
 			<artifactId>dwf-core</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>0.0.2-RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
