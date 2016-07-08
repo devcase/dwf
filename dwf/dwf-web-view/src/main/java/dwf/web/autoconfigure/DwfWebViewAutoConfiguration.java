@@ -31,7 +31,6 @@ import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomi
 import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.boot.context.embedded.tomcat.TomcatContextCustomizer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Condition;
@@ -42,7 +41,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.View;
@@ -69,12 +67,6 @@ import dwf.web.spring.ExposeApplicationContextFilter;
 public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 
 
-	@Bean
-	public MessageSource messageSource() {
-		ResourceBundleMessageSource messageSource = new  ResourceBundleMessageSource();
-		messageSource.setBasenames("labels", "dwf.labels", "org.hibernate.validator.ValidationMessages");
-		return messageSource;
-	}
 	
 	/**
 	 * Overrides {@link org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration} 
@@ -124,8 +116,6 @@ public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 		registry.addInterceptor(new DwfReCaptchaInterceptor(recaptchaPrivateKey)).addPathPatterns("/**");
 	}
 	
-	
-
 	@Bean
 	@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public LocaleResolver localeResolver() {
