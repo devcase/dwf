@@ -23,6 +23,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -43,6 +45,8 @@ import org.springframework.web.context.support.ContextExposingHttpServletRequest
 @ConditionalOnWebApplication
 @ConditionalOnProperty(prefix = "spring.mail", value = "host")
 public class JspBasedMailBuilder {
+	private Log log = LogFactory.getLog(getClass());
+	
 	@Autowired
 	private JavaMailSender javaMailSender;
 	@Autowired
@@ -78,6 +82,12 @@ public class JspBasedMailBuilder {
 			mimeMessageHelper.setSubject(subject);
 			String charCode = resp.getCharacterEncoding() != null ? resp.getCharacterEncoding() :  resp.getContentType() != null && resp.getContentType().contains("ISO-8859-1") ? "ISO-8859-1" : "UTF-8";//TODO - tosco
 			String messageText= mailBodyOs.toString(charCode);
+			
+			if(log.isDebugEnabled()) {
+				log.debug("corpo e-mail: " + messageText);
+			}
+			
+			
 			mimeMessage.setText(messageText, "UTF-8", "html");
 			
 			return mimeMessage;
