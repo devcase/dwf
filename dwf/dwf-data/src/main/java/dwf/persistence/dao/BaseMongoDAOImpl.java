@@ -235,7 +235,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	protected Jongo getJongo() {
 		DB db = mongoClient.getDB(properties.getDatabase());
 		JacksonMapper.Builder mapperBuilder = new JacksonMapper.Builder();
-		mapperBuilder.withView(jsonView);
+//		mapperBuilder.withView(jsonView);
 		mapperBuilder.addDeserializer(Price.class, new PriceJsonDeserializer());
 		mapperBuilder.addSerializer(Price.class, new PriceJsonSerializer());
 		return new Jongo(db, mapperBuilder.build());
