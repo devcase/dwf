@@ -43,16 +43,15 @@ import org.jongo.Find;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
+import org.jongo.marshall.jackson.JacksonMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.UpdateOptions;
 
 import dwf.activitylog.domain.UpdatedProperty;
 import dwf.activitylog.service.ActivityLogService;
@@ -65,7 +64,10 @@ import dwf.persistence.annotations.Image;
 import dwf.persistence.annotations.MongoEntity;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.persistence.annotations.UpdatableProperty;
+import dwf.persistence.dao.mongo.PriceJsonDeserializer;
+import dwf.persistence.dao.mongo.PriceJsonSerializer;
 import dwf.persistence.domain.BaseEntity;
+import dwf.persistence.embeddable.Price;
 import dwf.persistence.utils.NotSyncPropertyDescriptor;
 import dwf.persistence.validation.ValidationGroups;
 import dwf.serialization.View;
@@ -87,8 +89,6 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	protected ActivityLogService activityLogService;
 	@Autowired
 	protected Validator beanValidator;
-	@Autowired
-	private Jongo jongo;
 	@Autowired
 	private MongoClient mongoClient;
 	@Autowired(required = false)
@@ -227,9 +227,18 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 			MongoEntity annotation = clazz.getAnnotation(MongoEntity.class);
 			if (annotation == null || annotation.collectionName().equals(""))
 				throw new Error("Entidades Mongo devem ter anotação MongoEntity com valor para collectionName!");
-			mongoCollection = jongo.getCollection(annotation.collectionName());
+			mongoCollection = getJongo().getCollection(annotation.collectionName());
 		}
 		return mongoCollection;
+	}
+	
+	protected Jongo getJongo() {
+		DB db = mongoClient.getDB(properties.getDatabase());
+		JacksonMapper.Builder mapperBuilder = new JacksonMapper.Builder();
+		mapperBuilder.withView(jsonView);
+		mapperBuilder.addDeserializer(Price.class, new PriceJsonDeserializer());
+		mapperBuilder.addSerializer(Price.class, new PriceJsonSerializer());
+		return new Jongo(db, mapperBuilder.build());
 	}
 	
 	@PostConstruct
@@ -398,23 +407,26 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		entity.setUpdateTime(new Date());
 		entity.setCreationTime(new Date());
 		
+		boolean newEntity = false;
 		// gerar um novo id
 		if(entity.getId() == null) {
+			newEntity = true;
 			entity.setId(generateId());
 		}
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.setConfig(mapper.getSerializationConfig().withView(jsonView));
-		String json;
-		try {
-			json = mapper.writeValueAsString(entity);
-		} catch (JsonProcessingException e) {
-			throw new IllegalStateException("Erro convertendo entidade em Json", e);
-		}
-		//serializar a entidade em um BsonDocument
-		BsonDocument doc = BsonDocument.parse(json);
-		getMongoCollection().replaceOne(mongoQueryBuilder(new SimpleParsedMap("id", entity.getId()), true), doc, new UpdateOptions().upsert(true));
+//		ObjectMapper mapper = new ObjectMapper();
+//		mapper.setConfig(mapper.getSerializationConfig().withView(jsonView));
+//		String json;
+//		try {
+//			json = mapper.writeValueAsString(entity);
+//		} catch (JsonProcessingException e) {
+//			throw new IllegalStateException("Erro convertendo entidade em Json", e);
+//		}
+//		//serializar a entidade em um BsonDocument
+//		BsonDocument doc = BsonDocument.parse(json);
+//		getMongoCollection().replaceOne(mongoQueryBuilder(new SimpleParsedMap("id", entity.getId()), true), doc, new UpdateOptions().upsert(true));
+		getJongoCollection().save(entity);
 		
-		activityLogService.log(entity, ActivityLogService.OPERATION_CREATE);
+		activityLogService.log(entity, newEntity ? ActivityLogService.OPERATION_CREATE : ActivityLogService.OPERATION_UPDATE);
 
 		return entity;
 		
@@ -433,17 +445,18 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 			entity.setId(generateId());
 		}
 		
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.setConfig(mapper.getSerializationConfig().withView(jsonView));
-		String json;
-		try {
-			json = mapper.writeValueAsString(entity);
-		} catch (JsonProcessingException e) {
-			throw new IllegalStateException("Erro convertendo entidade em Json", e);
-		}
-		//serializar a entidade em um BsonDocument
-		BsonDocument doc = BsonDocument.parse(json);
-		getMongoCollection().insertOne(doc);
+//		ObjectMapper mapper = new ObjectMapper();
+//		mapper.setConfig(mapper.getSerializationConfig().withView(jsonView));
+//		String json;
+//		try {
+//			json = mapper.writeValueAsString(entity);
+//		} catch (JsonProcessingException e) {
+//			throw new IllegalStateException("Erro convertendo entidade em Json", e);
+//		}
+//		//serializar a entidade em um BsonDocument
+//		BsonDocument doc = BsonDocument.parse(json);
+//		getMongoCollection().insertOne(doc);
+		getJongoCollection().insert(entity);
 		
 		activityLogService.log(entity, ActivityLogService.OPERATION_CREATE);
 
