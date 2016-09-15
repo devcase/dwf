@@ -3,6 +3,7 @@ package dwf.geocode;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
@@ -10,7 +11,6 @@ import com.google.maps.GeocodingApiRequest;
 import com.google.maps.model.AddressComponent;
 import com.google.maps.model.AddressComponentType;
 import com.google.maps.model.AddressType;
-import com.google.maps.model.ComponentFilter;
 import com.google.maps.model.GeocodingResult;
 
 import dwf.persistence.embeddable.Address;
@@ -23,18 +23,25 @@ public class GoogleMapsConsultaCEPServiceImpl implements ConsultaCEPService {
 		context = new GeoApiContext().setApiKey(googleMapsApiKey);
 	}
 
+	Pattern cepSemSeparacaoPattern = Pattern.compile("\\d{8}");
+	
 	@Override
 	public Address[] consultaCEP(String cep) {
+		//formata o cep
+		if(cepSemSeparacaoPattern.matcher(cep).matches()) {
+			cep = cep.substring(0, 5) + "-" + cep.substring(5);
+		}
+		
 		//faz busca pelo postalcode
 		//GeocodingApiRequest req = GeocodingApi.newRequest(context).components(ComponentFilter.postalCode(cep), ComponentFilter.country("BR")).resultType(AddressType.POSTAL_CODE);
-		GeocodingApiRequest req = GeocodingApi.geocode(context, MessageFormat.format("CEP{0}, Brasil", cep));
+		GeocodingApiRequest req = GeocodingApi.geocode(context, MessageFormat.format("CEP {0}, Brasil", cep));
 		GeocodingResult[] result = req.awaitIgnoreError(); //síncrono
 		if(result == null || result.length == 0) {
 			//nenhum resultado
 			return null;
 		} else {
 			//encontrou resultado - buscar rua via geocoding reverso
-			req = GeocodingApi.reverseGeocode(context, result[0].geometry.location).resultType(AddressType.ROUTE);
+			req = GeocodingApi.reverseGeocode(context, result[0].geometry.location).resultType(AddressType.STREET_ADDRESS);
 			result = req.awaitIgnoreError(); //síncrono
 			if(result == null || result.length == 0) {
 				//nenhum resultado
