@@ -31,6 +31,7 @@ Atributos:
 		<c:set var="name" value="${attrMap.property}"/>
 	</c:when>
 </c:choose>
+
 <%-- BUSCA VALOR A PARTIR DE PARÂMETRO DO REQUEST, SE NÃO FOI CONFIGURADO PARA IGNORAR - START--%>
 <c:if test="${!attrMap.ignoreParams}">
 	<c:if test="${!empty pageContext.request.getParameterValues(name.concat('[]')) }">
@@ -62,6 +63,8 @@ Atributos:
 <c:if test="${attrMap.withoutLabel || label eq 'none'}">
 	<c:set var="controlStyleClasses" value="${controlStyleClasses} col-sm-offset-${labelWidth}"/>
 </c:if>
+
+<c:set var="formlayout" value="${!empty attrMap.formlayout ? attrMap.formlayout : formlayout }"/>
 <%-- formulário com layout vertical /inline --%>
 <c:if test="${formlayout eq 'vertical'}">
 	<c:set var="labelStyleClasses" value=""/>
