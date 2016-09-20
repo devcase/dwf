@@ -42,11 +42,11 @@ public abstract class BaseImporter<D extends BaseEntity<?>> implements Importer<
 	
 	@Override
 	public void importFromExcel(InputStream inputStream, int size) throws IOException {
-		log.debug("Start loading excel file");
+		log.info("Start loading excel file");
 		//read the source file
 		XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+		log.info("Excel file loading complete");
 		try {
-			log.debug("Excel file loading complete");
 			@SuppressWarnings("unchecked")
 			final DAO<D> dao = (DAO<D>) applicationContext.getBean(entityName + "DAO", DAO.class);
 			
