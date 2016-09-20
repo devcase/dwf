@@ -174,6 +174,14 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 			}
 		}
 
+		protected int convertToInteger(String paramValue) {
+			try {
+				return NumberFormat.getInstance(this.locale).parse(paramValue).intValue();
+			} catch (ParseException e) {
+				throw new IllegalArgumentException("Value at provided key can't be parsed into a Integer", e);
+			}
+		}
+
 		
 		@Override
 		public Boolean getBoolean(String key) {
@@ -315,6 +323,8 @@ public class ParsedMapArgumentResolver implements HandlerMethodArgumentResolver 
 						convertedValues.add(convertToBoolean(submittedValue));
 					} else if(Long.class.isAssignableFrom(testClass)) {
 						convertedValues.add(convertToLong(submittedValue));
+					} else if(Integer.class.isAssignableFrom(testClass)) {
+						convertedValues.add(convertToInteger(submittedValue));
 					} else if(Double.class.isAssignableFrom(testClass)) {
 						convertedValues.add(convertToDouble(submittedValue));
 					} else if(testClass.isEnum()){
