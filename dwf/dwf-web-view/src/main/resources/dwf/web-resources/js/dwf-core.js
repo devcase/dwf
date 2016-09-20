@@ -38,7 +38,7 @@ $.validator.addClassRules("required", { required: true });
  * Enables jquery-validate and adapts to bootstrap
  */
 $(document).on('dwf-postupdate', function(evt) {
-	$(evt.target).find("form.validate").each(function() {
+	$(evt.target).find("form.validate").andSelf().filter("form.validate").each(function() {
 		$(this).validate({
 			errorElement: 'span',
 			//errorClass: 'help-block',
