@@ -24,7 +24,7 @@ getJspContext().setAttribute("enumValues", values);
 	<c:choose>
 		<c:when test="${attrMap.style eq 'inline'}">
 			<c:forEach items="${enumValues}" var="enumValue">
-				<label class= "">
+				<label class= "radio-inline">
 					<input type="radio" name="${name}" value="${enumValue}"
 						${value == enumValue ? 'checked="checked"' : '' } ${attrMap.required? ' required="true"' : '' }>
 						<spring:message code="${attrMap.enumtype}.${enumValue}" text="?${attrMap.enumtype}.${enumValue}?" />
@@ -33,7 +33,7 @@ getJspContext().setAttribute("enumValues", values);
 		</c:when>
 		<c:otherwise>
 			<div class="row" ><c:forEach items="${enumValues}" var="enumValue">
-				<div class="col-12">
+				<div class="radio">
 					<label class= "float-left ">
 						<input type="radio" name="${name}" value="${enumValue}"
 							${value == enumValue ? 'checked="checked"' : '' } ${attrMap.required? ' required="true"' : '' }>
