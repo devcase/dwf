@@ -5,14 +5,14 @@ import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -30,7 +30,9 @@ import dwf.web.rest.autoconfigure.DwfWebRestAutoConfiguration;
 @Configuration
 @AutoConfigureBefore(DwfWebRestAutoConfiguration.class)
 @ConditionalOnWebApplication
+@EnableWebSecurity
 public class DwfWebViewSecurityAutoConfiguration {
+	public static final  int DWF_WEB_VIEW_SECURITY_ORDER = ManagementServerProperties.BASIC_AUTH_ORDER + 1; //configurado após a configuração de segurança do spring actuator 
 
 	@ConditionalOnMissingBean(value=UserDetailsService.class)
 	static class NoDwfDataUserDetailsServiceConfiguration {
@@ -106,9 +108,8 @@ public class DwfWebViewSecurityAutoConfiguration {
 
 	@Configuration(value="dwfWebViewSecurityConfig")
 	@ConditionalOnWebApplication
-	@AutoConfigureOrder(SecurityProperties.ACCESS_OVERRIDE_ORDER + 1)
 	@ConditionalOnProperty(prefix="dwf.security.web", value="enabled", matchIfMissing=true)
-	@EnableWebSecurity
+	@Order(DWF_WEB_VIEW_SECURITY_ORDER)
 	public static class DwfWebViewSecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		@Autowired
@@ -124,6 +125,9 @@ public class DwfWebViewSecurityAutoConfiguration {
 		private String rememberMeTokenKey;
 		@Value("${dwf.security.web.frameoption.disable:false}")
 		private boolean frameoptionDisable;
+		
+		@Value("${dwf.security.web.allrequests.authenticated:true}")
+		private boolean authenticatedByDefault;
 		
 
 		@Override
@@ -144,7 +148,7 @@ public class DwfWebViewSecurityAutoConfiguration {
 					.and()
 				.rememberMe().rememberMeServices(rememberMeServices).userDetailsService(userDetailsService).key(rememberMeTokenKey);
 			
-			
+
 			ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorize = http.authorizeRequests();
 			
 			//dwf.security.web.permitallpatterns define some urls that may be accessed
@@ -153,16 +157,20 @@ public class DwfWebViewSecurityAutoConfiguration {
 				authorize = authorize.antMatchers(permitAllPatterns).permitAll();
 			}
 			authorize = authorize
-					.antMatchers("/signin","/signin/authenticate","/resources/**","/resetPassword/**").permitAll()
-					.anyRequest().authenticated();
-			authorize.and();
+					.antMatchers("/signin","/signin/authenticate","/resources/**","/resetPassword/**").permitAll();
+			
+			if(authenticatedByDefault) {
+				authorize.anyRequest().authenticated();
+			}
+			
+			http = authorize.and();
 			
 			if(ignoreCsrfPatterns != null && ignoreCsrfPatterns.length > 0) {
-				http.csrf().ignoringAntMatchers(ignoreCsrfPatterns);
+				http = http.csrf().ignoringAntMatchers(ignoreCsrfPatterns).and();
 			}
 			
 			if(frameoptionDisable) {
-				http.headers().frameOptions().disable();
+				http = http.headers().frameOptions().disable().and();
 			}
 			
 		}
