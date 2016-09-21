@@ -129,11 +129,12 @@ public class DwfWebViewSecurityAutoConfiguration {
 		@Value("${dwf.security.web.allrequests.authenticated:true}")
 		private boolean authenticatedByDefault;
 		
+		
 
 		@Override
 		// @formatter:off
 		protected void configure(HttpSecurity http) throws Exception {
-			http
+			http.headers().cacheControl().disable().and()
 				.formLogin()
 					.loginPage("/signin")
 					.loginProcessingUrl("/signin/authenticate")
