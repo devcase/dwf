@@ -62,6 +62,8 @@ Atributos:
 <c:if test="${attrMap.withoutLabel || label eq 'none'}">
 	<c:set var="controlStyleClasses" value="${controlStyleClasses} col-sm-offset-${labelWidth}"/>
 </c:if>
+
+<c:set var="formlayout" value="${!empty attrMap.formlayout ? attrMap.formlayout : formlayout }"/>
 <%-- formulário com layout vertical /inline --%>
 <c:if test="${formlayout eq 'vertical'}">
 	<c:set var="labelStyleClasses" value=""/>
