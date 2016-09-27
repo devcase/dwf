@@ -75,7 +75,7 @@ getJspContext().setAttribute("groupingSeparator", grouping);
 				function(evt) {
 					if (typeof google != 'undefined'
 							&& typeof google.maps != 'undefined') {
-						$(this).trigger('googlemapsapiready');
+						$(evt.target).trigger('googlemapsapiready');
 					}
 				});
 	</script>

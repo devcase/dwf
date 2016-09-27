@@ -27,7 +27,6 @@ $(document).on('submit', 'form[dwf-toggle~="ajaxform"]', function(evt) {
 		    	    	    	$(newcontent).find('[dwf-toggle~="remoteload"]').not('[dwf-target]').attr('dwf-target', '#' + $parent.attr('id'))
 		    	    	    }
 		    	    	    
-		    	    	    
 		    	    	    $(newcontent).trigger('dwf-postupdate');
     	    			}
     	    		});
