@@ -114,7 +114,7 @@ public class Address {
 			sb.append(" - ").append(countryCode);
 		}
 		if(StringUtils.isNotBlank(postalCode)) {
-			sb.append(", ").append(postalCode);
+			sb.append(", ").append(getFormattedPostalCode());
 		}
 		return sb.toString();
 	}
@@ -146,7 +146,7 @@ public class Address {
 			sb.append(" - ").append(countryCode);
 		}
 		if(StringUtils.isNotBlank(postalCode)) {
-			sb.append(", ").append(postalCode);
+			sb.append(", ").append(getFormattedPostalCode());
 		}
 		return sb.toString();
 	}
@@ -155,5 +155,15 @@ public class Address {
 		return this.getFullAddress();
 	}
 	
+	@Transient
+	public String getFormattedPostalCode() {
+		if(postalCode  != null && postalCode.matches("\\d{8}")) {
+			return postalCode.substring(0, 5) + "-" + postalCode.substring(5);
+		} else if(postalCode  != null && postalCode.matches("\\d{7}")) {
+				return "0" + postalCode.substring(0, 4) + "-" + postalCode.substring(4);
+		} else {
+			return postalCode;
+		}
+	}
 	
 }
