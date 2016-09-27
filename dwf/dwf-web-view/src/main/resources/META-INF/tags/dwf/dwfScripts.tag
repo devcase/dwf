@@ -47,11 +47,11 @@ getJspContext().setAttribute("groupingSeparator", grouping);
 <script type="text/javascript" src="${appPath}/resources/js/jquery.validate/additional-methods.min.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery.validate/localization/messages_<dwf:locale format="underscore"/>.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery.validate/localization/methods_<dwf:locale format="language"/>.js"></script>
-<script type="text/javascript" src="${appPath}/resources/js/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="${appPath}/resources/js/ckeditor/ckeditor.js" async defer></script>
 <script type="text/javascript" src="${appPath}/resources/js/serializeObject.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery.tokeninput.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/jquery.price_format.2.0.patch.min.js"></script>
-<script type="text/javascript" src="${appPath}/resources/js/moment-with-locales.min.js"></script>
+<script type="text/javascript" src="${appPath}/resources/js/moment-with-locales.min.js" async defer></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-core.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-token-input.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-remoteload.js"></script>
