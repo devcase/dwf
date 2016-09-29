@@ -933,7 +933,9 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		}
 	}
 	
-	
+	public void hardDelete(Serializable id) {
+		getMongoCollection().deleteOne(mongoQueryBuilder(new SimpleParsedMap("id", id), true));
+	}
 
 	
 }
