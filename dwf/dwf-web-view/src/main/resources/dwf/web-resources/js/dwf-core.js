@@ -28,7 +28,7 @@ $.extend($.validator.methods, {
 		}
 	},
 	cep : function(value, element) {
-		return this.optional(element) || /(\d{5}(-?\d{3})?)?/.test(value);
+		return this.optional(element) || /(\d{5}(-?\d{3})?)/.test(value);
 	}
 });
 $.validator.addClassRules("validate-date", { date: true });
@@ -37,6 +37,10 @@ $.validator.addClassRules("validate-digits", { digits: true });
 $.validator.addClassRules("validate-email", { email: true });
 $.validator.addClassRules("validate-cep", { cep: true });
 $.validator.addClassRules("required", { required: true });
+$.extend($.validator.messages, {
+	cep: "Por favor, introduza um CEP v&aacute;lido."
+});
+
 
 /**
  * Enables jquery-validate and adapts to bootstrap
