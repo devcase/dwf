@@ -26,12 +26,16 @@ $.extend($.validator.methods, {
 		} else {
 			return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d+)?$/.test(value);
 		}
+	},
+	cep : function(value, element) {
+		return this.optional(element) || /(\d{5}(-?\d{3})?)?/.test(value);
 	}
 });
 $.validator.addClassRules("validate-date", { date: true });
 $.validator.addClassRules("validate-number", { number: true });
 $.validator.addClassRules("validate-digits", { digits: true });
 $.validator.addClassRules("validate-email", { email: true });
+$.validator.addClassRules("validate-cep", { cep: true });
 $.validator.addClassRules("required", { required: true });
 
 /**
