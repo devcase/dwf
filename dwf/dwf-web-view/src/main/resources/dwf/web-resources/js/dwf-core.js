@@ -26,13 +26,37 @@ $.extend($.validator.methods, {
 		} else {
 			return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d+)?$/.test(value);
 		}
-	}
+	},
+	cep : function(value, element) {
+		return this.optional(element) || /^\d{5}(-?\d{3})?$/.test(value);
+	},
+	phoneBR: function(value, element) {
+		return this.optional(element) || /^\d{3,5}-?\d{4,5}$/.test(value);
+	},
+	ddd: function(value, element) {
+		return this.optional(element) || /^\d{2}$/.test(value);
+	},
+	cpf: function(value, element) {
+		return this.optional(element) || /^\d{2,3}.?\d{3}.?\d{3}-?\d{2}$/.test(value);
+	} 
+
 });
 $.validator.addClassRules("validate-date", { date: true });
 $.validator.addClassRules("validate-number", { number: true });
 $.validator.addClassRules("validate-digits", { digits: true });
 $.validator.addClassRules("validate-email", { email: true });
+$.validator.addClassRules("validate-cep", { cep: true });
+$.validator.addClassRules("validate-phoneBR", { phoneBR: true });
+$.validator.addClassRules("validate-ddd", { ddd: true });
+$.validator.addClassRules("validate-cpf", { cpf: true });
 $.validator.addClassRules("required", { required: true });
+$.extend($.validator.messages, {
+	cep: "Por favor, introduza um CEP v&aacute;lido.",
+	phoneBR: "Por favor, introduza um telefone v&aacute;lido (sem DDD).",
+	ddd: "Por favor, introduza um DDD v&aacute;lido.",
+	cpf: "Por favor, introduza um CPF v&aacute;lido."
+});
+
 
 /**
  * Enables jquery-validate and adapts to bootstrap
