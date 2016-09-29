@@ -67,7 +67,7 @@ Atributos:
 <%-- formulário com layout vertical /inline --%>
 <c:if test="${formlayout eq 'vertical'}">
 	<c:set var="labelStyleClasses" value=""/>
-	<c:set var="controlStyleClasses" value=""/>
+	<c:set var="controlStyleClasses" value="form-group-content"/>
 </c:if>
 <c:if test="${formlayout eq 'inline' || formlayout eq 'vertical'}">
 	<c:set var="ommitControlDiv" value="true"/>
@@ -81,6 +81,7 @@ Atributos:
 	</c:if>
 	<div class="${controlStyleClasses}">
 		<jsp:doBody/>
+		
 		<c:if test="${!empty violation}"><%-- VALIDATION ERROR --%>
 			<span class="help-block">${violation.message}</span>
 		</c:if>
