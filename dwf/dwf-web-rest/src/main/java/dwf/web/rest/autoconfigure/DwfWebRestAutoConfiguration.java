@@ -1,5 +1,6 @@
 package dwf.web.rest.autoconfigure;
 
+
 import javax.servlet.ServletContainerInitializer;
 
 import org.apache.catalina.Context;
@@ -13,8 +14,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration;
-import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -120,7 +121,8 @@ public class DwfWebRestAutoConfiguration {
 			TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory() {
 
 				@Override
-				protected void configureContext(Context context, ServletContextInitializer[] initializers) {
+				protected void configureContext(Context context,
+						ServletContextInitializer[] initializers) {
 					super.configureContext(context, initializers);
 					
 					//disables jar scanning - tld are already compiled
@@ -153,7 +155,8 @@ public class DwfWebRestAutoConfiguration {
 			};
 			
 			//don't register JspServlet - uses compiled jsp
-			factory.setRegisterJspServlet(false);
+			//factory.setRegisterJspServlet(false);
+			factory.setJspServlet(null);
 			return factory;
 		}
 
