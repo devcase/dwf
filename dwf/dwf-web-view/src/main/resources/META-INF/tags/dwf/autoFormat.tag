@@ -8,14 +8,13 @@
 	
 	String format = (String) getJspContext().getAttribute("format");
 	if(format != null && !format.isEmpty()) {
-		getJspContext().setAttribute("format", format);
 	} else if (value instanceof CharSequence) {
-		getJspContext().setAttribute("format", "string");
+		format = "string";
 	} else if (value instanceof Number) {
 		if(value instanceof Integer || value instanceof Long) {
-			getJspContext().setAttribute("format", "integer");
+			format = "integer";
 		} else {
-			getJspContext().setAttribute("format", "number");
+			format = "number";
 		}
 	} else if (value instanceof Date || value instanceof Calendar) {
 		long timeinmillis = value instanceof Date ? ((Date) value).getTime() : ((Calendar) value).getTimeInMillis();
@@ -31,34 +30,23 @@
 		hasTime = dateinmillis != timeinmillis;
 		
 		if(hasTime && hasDate) {
-			getJspContext().setAttribute("format", "datetime");
+			format = "datetime";
 		} else if (hasDate) {
-			getJspContext().setAttribute("format", "date");
+			format = "date";
 		} else {
-			getJspContext().setAttribute("format", "time");
+			format = "time";
 		}
-		String datePatternJava;
-		Locale locale = LocaleContextHolder.getLocale();
-		if(locale.equals(Locale.US)) {
-			datePatternJava = "MM/dd/yyyy";
-		} else if(locale.equals(Locale.JAPAN) || locale.equals(Locale.CHINA) || locale.equals(Locale.KOREAN)){
-			datePatternJava = "yyyy/MM/dd";
-		} else {
-			datePatternJava = "dd/MM/yyyy";
-		}
-		getJspContext().setAttribute("datePatternJava", datePatternJava);
-		
 	} else if (value instanceof TimeZone) {
-		getJspContext().setAttribute("format", "timezone");	
+		format = "timezone";
 	} else if (value instanceof Boolean) {
-		getJspContext().setAttribute("format", "boolean");
+		format = "boolean";
 	} else if (value instanceof java.util.Collection){
-		getJspContext().setAttribute("format", "collection");
+		format = "collection";
 	} else if(value != null && value.getClass().isEnum()) {
-		getJspContext().setAttribute("format", "enum");
+		format = "enum";
 		getJspContext().setAttribute("enumClassName", value.getClass().getName());
 	} else if(value instanceof Price) {
-		getJspContext().setAttribute("format", "price");
+		format = "price";
 	} else if(value instanceof BaseMultilangEntity) {
 		//multilang!
 		Locale locale = LocaleContextHolder.getLocale();
@@ -69,6 +57,20 @@
 			out.append(translation);
 			return;
 		}
+	}
+	getJspContext().setAttribute("format", format);		
+	
+	if ("date".equals(format) || "datetime".equals(format)) {
+		String datePatternJava;
+		Locale locale = LocaleContextHolder.getLocale();
+		if(locale.equals(Locale.US)) {
+			datePatternJava = "MM/dd/yyyy";
+		} else if(locale.equals(Locale.JAPAN) || locale.equals(Locale.CHINA) || locale.equals(Locale.KOREAN)){
+			datePatternJava = "yyyy/MM/dd";
+		} else {
+			datePatternJava = "dd/MM/yyyy";
+		}
+		getJspContext().setAttribute("datePatternJava", datePatternJava);
 	}
 %><%-- ATENวรO - Nใo adicione quebras de linha เ saํda --%><c:choose><c:when test="${format eq 'string'}"><dwf:escapeHtml value="${value}" /></c:when><c:when 
 	test="${format eq 'boolean'}"><dwf:yesNo value="${value}" /></c:when><c:when 

@@ -352,9 +352,9 @@ $(document).on("change", ".dwf-checkbox-listener input[type='checkbox']", functi
 		$(this).closest('.dwf-checkbox-listener').removeClass('info');
 	}
 });
-$(document).on("dwf-postupdate", function() {
-	$(this).find(".dwf-checkbox-listener input[type='checkbox']:checked").closest('.dwf-checkbox-listener').addClass('info');
-	$(this).find(".dwf-checkbox-listener input[type='checkbox']").not(":checked").closest('.dwf-checkbox-listener').removeClass('info');
+$(document).on("dwf-postupdate", function(evt) {
+	$(evt.target).find(".dwf-checkbox-listener input[type='checkbox']:checked").closest('.dwf-checkbox-listener').addClass('info');
+	$(evt.target).find(".dwf-checkbox-listener input[type='checkbox']").not(":checked").closest('.dwf-checkbox-listener').removeClass('info');
 });
 
 /**
