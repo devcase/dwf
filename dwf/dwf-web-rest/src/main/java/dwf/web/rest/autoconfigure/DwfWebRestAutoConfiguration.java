@@ -16,11 +16,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
-import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.orm.hibernate4.support.OpenSessionInViewInterceptor;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -33,13 +31,6 @@ import dwf.web.upload.S3DownloadEndpoint;
 @Configuration
 @ComponentScan(basePackages = {"dwf.web"})
 public class DwfWebRestAutoConfiguration {
-	@Bean
-	public MessageSource messageSource() {
-		ResourceBundleMessageSource messageSource = new  ResourceBundleMessageSource();
-		messageSource.setBasenames("labels", "dwf.labels", "org.hibernate.validator.ValidationMessages");
-		return messageSource;
-	}
-
 	@ConditionalOnWebApplication
 	@ConditionalOnBean(type={"dwf.data.autoconfigure.DwfDataAutoConfiguration", "org.hibernate.SessionFactory"})
 	public static class OpenSessionInViewConfiguration {

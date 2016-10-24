@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +33,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -79,6 +81,15 @@ public class DwfDataAutoConfiguration  {
 	public void setEntityPackage(String entityPackage) {
 		this.entityPackage = entityPackage;
 	}
+	
+	@Bean
+	public MessageSource messageSource() {
+		ResourceBundleMessageSource messageSource = new  ResourceBundleMessageSource();
+		messageSource.setBasenames("labels", "dwf.labels", "org.hibernate.validator.ValidationMessages");
+		return messageSource;
+	}
+
+
 
 	/**
 	 * Bean Validation Provider. 
