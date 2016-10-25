@@ -12,6 +12,9 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<classifier>-boot</classifier>
+				</configuration>
 			</plugin>
 			<plugin><!-- check for more configuration on parent's pom.xml -->
 				<groupId>com.heroku.sdk</groupId>
@@ -49,12 +52,6 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-war-plugin</artifactId>
-				<configuration>
-					<attachClasses>true</attachClasses><!-- Gera e instala jar, para ser usado por travenup-backoffice-integration-test -->
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
