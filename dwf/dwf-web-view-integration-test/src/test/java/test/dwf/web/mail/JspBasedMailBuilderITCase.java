@@ -27,6 +27,7 @@ public class JspBasedMailBuilderITCase {
 	public void testBuildMail() {
 		TestRestTemplate restTemplate = new TestRestTemplate();
 		ResponseEntity<String> responseEn = restTemplate.getForEntity("http://localhost:" + serverPort + "/jspBasedMailBuilder?locale=en_US", String.class);
+		System.out.println(responseEn.getBody());
 		Assert.assertTrue(responseEn.getBody().contains("English"));
 		Assert.assertTrue(responseEn.getBody().contains("SUPER STRING"));
 		ResponseEntity<String> responsePt = restTemplate.getForEntity("http://localhost:" + serverPort + "/jspBasedMailBuilder?locale=pt_BR", String.class);

@@ -55,6 +55,12 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-juli</artifactId>
+			<version>${tomcat.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>br.com.devcase.dwf</groupId>
 			<artifactId>dwf-web-view</artifactId>
 		</dependency>

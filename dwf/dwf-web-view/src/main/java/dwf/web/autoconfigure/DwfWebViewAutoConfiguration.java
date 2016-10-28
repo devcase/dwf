@@ -22,6 +22,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration;
@@ -31,6 +32,7 @@ import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomi
 import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.boot.context.embedded.tomcat.TomcatContextCustomizer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Condition;
@@ -41,6 +43,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.View;
@@ -66,7 +69,16 @@ import dwf.web.spring.ExposeApplicationContextFilter;
 @PropertySource("classpath:/dwf-web-view-default.properties")
 public class DwfWebViewAutoConfiguration extends WebMvcConfigurerAdapter {
 
-
+	@Configuration
+	@ConditionalOnMissingBean(name="messageSource")
+	static class MessageSourceConfig {
+		@Bean
+		public MessageSource messageSource() {
+			ResourceBundleMessageSource messageSource = new  ResourceBundleMessageSource();
+			messageSource.setBasenames("labels", "dwf.labels", "org.hibernate.validator.ValidationMessages");
+			return messageSource;
+		}
+	}
 	
 	/**
 	 * Overrides {@link org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration} 
