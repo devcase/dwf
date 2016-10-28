@@ -48,6 +48,10 @@ public class SitemeshView extends JstlView {
 		return new RequestDispatcher() {
 			@Override
 			public void include(ServletRequest exposedRequest, ServletResponse response) throws ServletException, IOException {
+				String decorator = exposedRequest.getParameter("decorator");
+				if(!StringUtils.isBlank(decorator)) {
+					exposedRequest.setAttribute("decorator", decorator);
+				}
 
 				PageResponseWrapper pageResponseWrapper = wrapResponse(response);
 				defaultDispatcher.include(exposedRequest, pageResponseWrapper);
@@ -56,6 +60,10 @@ public class SitemeshView extends JstlView {
 
 			@Override
 			public void forward(ServletRequest exposedRequest, ServletResponse response) throws ServletException, IOException {
+				String decorator = exposedRequest.getParameter("decorator");
+				if(!StringUtils.isBlank(decorator)) {
+					exposedRequest.setAttribute("decorator", decorator);
+				}
 				// defaultDispatcher.forward(request, z);
 				PageResponseWrapper pageResponseWrapper = wrapResponse(response);
 				defaultDispatcher.forward(exposedRequest, pageResponseWrapper);

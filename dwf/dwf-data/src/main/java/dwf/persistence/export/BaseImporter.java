@@ -152,7 +152,7 @@ public abstract class BaseImporter<D extends BaseEntity<?>> implements Importer<
 		case Cell.CELL_TYPE_FORMULA:
 			val = c.getStringCellValue();
 			break;
-		default: throw new IllegalArgumentException("Not a numeric value");
+		default: throw new IllegalArgumentException("Not a valid cell type: " + c.getCellType());
 		}
 		
 		if(val != null) val = val.trim();

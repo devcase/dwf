@@ -236,7 +236,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	}
 
 	@Override
-	public final List<D> findByFilter(ParsedMap filter, int offset, int pageSize) {
+	public List<D> findByFilter(ParsedMap filter, int offset, int pageSize) {
 		QueryReturnType<D> qrt = QueryReturnType.Factory.domainQueryReturnType();
 		return findByFilter(filter, qrt, offset, pageSize);
 	}
@@ -428,7 +428,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		return count(q, params);
 	}
 
-	public final List<?> findByPage(String hql, int offset, int fetchSize, Map<String, Object> params) {
+	public List<?> findByPage(String hql, int offset, int fetchSize, Map<String, Object> params) {
 		Query query = getSession().createQuery(hql).setReadOnly(true);
 		for (Entry<String, Object> entry : params.entrySet()) {
 			Object value = entry.getValue();
@@ -446,7 +446,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		return query.list();
 	}
 
-	public final int count(String hql, Map<String, Object> params) {
+	public int count(String hql, Map<String, Object> params) {
 		Query query = getSession().createQuery(hql).setReadOnly(true);
 		for (Entry<String, Object> entry : params.entrySet()) {
 			Object value = entry.getValue();

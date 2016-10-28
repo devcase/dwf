@@ -134,7 +134,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	 * @param query
 	 */
 	protected void appendConditions(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params, StringBuilder query, String domainAlias) {
-		for ( PropertyDescriptor pDescriptor : dao.getPropertyList()) {
+		for ( PropertyDescriptor pDescriptor : dao.getPropertyList()) { 
 			String pName = pDescriptor.getName();
 			String ref = pName;
 			boolean join = join(filter, pDescriptor);
@@ -144,6 +144,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 				ref = domainAlias.concat(".").concat(pName);
 			}
 
+			
 			if(filter.isMultipleValued(pName)) {
 				query.append(" and ").append(ref).append(" in (:").append(pName).append(") ");
 				params.put(pName, filter.get(pName, pDescriptor.getPropertyType()));
@@ -193,6 +194,29 @@ public class DefaultQueryBuilder implements QueryBuilder {
 					}
 				}
 				query.append(")");
+			}
+			
+			if(filter.containsKey(pName + ".isnull")) {
+				Boolean v = filter.getBoolean(pName + ".isnull");
+				if(Boolean.TRUE.equals(v)) {
+					query.append(" and ").append(ref).append(" is null ");
+				} else if(Boolean.FALSE.equals(v)) {
+					query.append(" and ").append(ref).append(" is not null ");
+				}
+			}
+			if(filter.containsKey(pName + ".gt")) {
+				Double v = filter.getDouble(pName + ".gt");
+				if(v != null) {
+					query.append(" and ").append(ref).append(" > :").append(pName).append("_gt");
+					params.put(pName + "_gt", v);
+				}
+			}
+			if(filter.containsKey(pName + ".lt")) {
+				Double v = filter.getDouble(pName + ".lt");
+				if(v != null) {
+					query.append(" and ").append(ref).append(" < :").append(pName).append("_lt");
+					params.put(pName + "_lt", v);
+				}
 			}
 		}
 		
