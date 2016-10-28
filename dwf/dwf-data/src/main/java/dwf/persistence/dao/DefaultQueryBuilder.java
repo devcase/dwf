@@ -218,6 +218,14 @@ public class DefaultQueryBuilder implements QueryBuilder {
 					params.put(pName + "_lt", v);
 				}
 			}
+			if(filter.containsKey(pName + ".isempty")) {
+				Boolean v = filter.getBoolean(pName + ".isempty");
+				if(Boolean.TRUE.equals(v)) {
+					query.append(" and ").append(ref).append(" is empty ");
+				} else if(Boolean.FALSE.equals(v)) {
+					query.append(" and ").append(ref).append(" is not empty ");
+				}
+			}
 		}
 		
 		if(Boolean.TRUE.equals(filter.getBoolean("includeDisabled")) || filter.containsKey("enabled")) { 
