@@ -16,12 +16,10 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.GenericGenerator;
 import org.jongo.marshall.jackson.oid.MongoId;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.serialization.View;
@@ -29,7 +27,7 @@ import dwf.utils.SearchstringUtils;
 
 @MappedSuperclass
 @Access(AccessType.PROPERTY)
-@JsonIgnoreProperties({"parent", "autocompleteText"})
+@JsonIgnoreProperties(value = {"parent", "autocompleteText"}, ignoreUnknown=true)
 public abstract class BaseEntity<ID extends Serializable> implements Serializable {
 	
 	/**
