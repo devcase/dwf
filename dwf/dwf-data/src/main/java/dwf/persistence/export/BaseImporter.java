@@ -12,8 +12,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -25,8 +23,6 @@ public abstract class BaseImporter<D extends BaseEntity<?>> implements Importer<
 	
 	@Autowired
 	private ApplicationContext applicationContext;
-	@Autowired
-	private SessionFactory sessionFactory;
 	protected final Class<D> clazz;
 	protected final String entityFullName;
 	protected final String entityName;

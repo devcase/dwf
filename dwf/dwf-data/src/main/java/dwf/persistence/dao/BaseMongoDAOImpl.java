@@ -299,11 +299,11 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		getMongoCollection().deleteMany(mongoQueryBuilder(filter));
 	}
 
-	protected final Bson mongoQueryBuilder(ParsedMap filter) {
+	protected Bson mongoQueryBuilder(ParsedMap filter) {
 		return mongoQueryBuilder(filter, false);
 	}
 
-	protected final Bson mongoQueryBuilder(ParsedMap filter, boolean allowDisabled) {
+	protected Bson mongoQueryBuilder(ParsedMap filter, boolean allowDisabled) {
 		return mongoQueryBuilder(new BasicDBObject(), filter, allowDisabled);
 	}
 	
