@@ -12,6 +12,7 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.POIXMLException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -52,7 +53,10 @@ public class AsyncImporterListener implements MessageListener{
 			is.skip(ENTITY_NAME_SIZE);
 			importer.importFromExcel(is, size);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Erro de IO", e);
+		} catch (RuntimeException e) {
+			log.error("Erro inesperado", e);
+			
 		}
 	}
 	
