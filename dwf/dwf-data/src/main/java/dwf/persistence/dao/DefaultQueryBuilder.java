@@ -195,7 +195,9 @@ public class DefaultQueryBuilder implements QueryBuilder {
 				}
 				query.append(")");
 			}
+
 			
+			//queries do tipo "função"
 			if(filter.containsKey(pName + ".isnull")) {
 				Boolean v = filter.getBoolean(pName + ".isnull");
 				if(Boolean.TRUE.equals(v)) {
@@ -218,6 +220,20 @@ public class DefaultQueryBuilder implements QueryBuilder {
 					params.put(pName + "_lt", v);
 				}
 			}
+			if(filter.containsKey(pName + ".gteq")) {
+				Double v = filter.getDouble(pName + ".gteq");
+				if(v != null) {
+					query.append(" and ").append(ref).append(" >= :").append(pName).append("_gteq");
+					params.put(pName + "_gteq", v);
+				}
+			}
+			if(filter.containsKey(pName + ".lteq")) {
+				Double v = filter.getDouble(pName + ".lteq");
+				if(v != null) {
+					query.append(" and ").append(ref).append(" <= :").append(pName).append("_lteq");
+					params.put(pName + "_lteq", v);
+				}
+			}
 			if(filter.containsKey(pName + ".isempty")) {
 				Boolean v = filter.getBoolean(pName + ".isempty");
 				if(Boolean.TRUE.equals(v)) {
@@ -226,6 +242,15 @@ public class DefaultQueryBuilder implements QueryBuilder {
 					query.append(" and ").append(ref).append(" is not empty ");
 				}
 			}
+			if(filter.containsKey(pName + ".ignorecase")) {
+				String v = filter.getString(pName + ".ignorecase");
+				if(v != null) {
+					query.append(" and lower(").append(ref).append(") = :").append(pName).append("_ignorecase");
+					params.put(pName + "_ignorecase", v.toLowerCase());
+				}
+				
+			}
+			
 		}
 		
 		if(Boolean.TRUE.equals(filter.getBoolean("includeDisabled")) || filter.containsKey("enabled")) { 
