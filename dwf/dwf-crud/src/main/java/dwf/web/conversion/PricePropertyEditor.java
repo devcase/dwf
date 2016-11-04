@@ -47,7 +47,13 @@ public class PricePropertyEditor extends PropertyEditorSupport implements Custom
 				throw new IllegalArgumentException("Invalid string for Cost");
 			}
 			Price price = new Price();
-			price.setCurrencyCode(split[0]);
+			String currencyCode = split[0].trim();
+			
+			if(StringUtils.startsWithIgnoreCase(currencyCode, "R$")) {
+				currencyCode = "BRL";
+			}
+			
+			price.setCurrencyCode(currencyCode);	
 			try {
 				price.setValueAsDouble(DecimalFormat.getInstance(locale).parse(split[1]).doubleValue());
 			} catch (ParseException e) {
