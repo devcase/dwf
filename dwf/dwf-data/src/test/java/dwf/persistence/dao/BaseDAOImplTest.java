@@ -151,4 +151,35 @@ public class BaseDAOImplTest {
 		//manteve item2?
 		Assert.assertTrue(dExistente.getListaTextos1().contains("item2"));
 	}
+	
+
+	@Test
+	public void testSetProperty() {
+		Entidade dExistente = new Entidade();
+		dExistente.setId(123L);
+		dExistente.setTexto1("valor antigo");
+		dExistente.setTexto2("valor imutável");
+		dExistente.setValor1(1);
+		dExistente.setValor2(null);
+		dExistente.setListaTextos1(new ArrayList<String>());
+		dExistente.getListaTextos1().add("item1");
+		dExistente.getListaTextos1().add("item2");
+		dExistente = spy(dExistente);
+		
+		when(daoImpl.findById(123L)).thenReturn(dExistente);
+		
+		daoImpl.setProperty(dExistente.getId(), "texto1", "valor novo");
+		
+		//chamou o método que grava log de modificação de entidade?
+		verify(activityLogService, times(1)).logEntityPropertyUpdate(eq(dExistente), any());
+		//ignorou campos sem a anotação AtualizarValor1?
+		Assert.assertEquals("valor novo", dExistente.getTexto1());
+		
+		daoImpl.setProperty(dExistente.getId(), "texto2", "valor imutável");
+		//não chamou o método que grava log de modificação de entidade (só chamou uma vez, na primeira vez)
+		verify(activityLogService, times(1)).logEntityPropertyUpdate(eq(dExistente), any());
+		//ignorou campos sem a anotação AtualizarValor1?
+		Assert.assertNotEquals("valor novo", dExistente.getTexto2());
+			
+	}
 }
