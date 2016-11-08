@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.jongo.Aggregate;
 import org.jongo.Find;
 import org.jongo.Jongo;
@@ -916,18 +917,30 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 	}
 
 	@Override
-	public void setProperty(Serializable id, String propertyName, String stringValue) {
+	public <T> void setProperty(Serializable id, String propertyName, T value) {
 		try {
 			D entity = findById(id);
 			String oldValue = (String) BeanUtils.getProperty(entity, propertyName);
-			getJongoCollection().update(new ObjectId(id.toString())).with("{$set: {" + propertyName + ": #}}", stringValue);
+			getJongoCollection().update(new ObjectId(id.toString())).with("{$set: {" + propertyName + ": #}}", value);
 			
 			PropertyDescriptor property = entityProperties.get(propertyName);
 			
+
 			if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
-				boolean hiddenValues = property.getReadMethod().getAnnotation(HideActivityLogValues.class) != null;
-				activityLogService.logEntityPropertyUpdate(entity, new UpdatedProperty(propertyName, oldValue, stringValue, hiddenValues));
+				UpdatedProperty up = new UpdatedProperty();
+				if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
+					if (property.getReadMethod().getAnnotation(HideActivityLogValues.class) != null) {
+						up.setHiddenValues(true);
+					} else {
+						up.setNewValue(value != null ? value.toString() : "-");
+						up.setOldValue(oldValue != null ? oldValue.toString() : "-");
+						up.setHiddenValues(false);
+					}
+					up.setPropertyName(property.getName());
+				}
+				activityLogService.logEntityPropertyUpdate(entity, up);
 			}
+
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}

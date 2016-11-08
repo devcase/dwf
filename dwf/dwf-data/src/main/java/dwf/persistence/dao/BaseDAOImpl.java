@@ -983,21 +983,39 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 
 
 	@Override
-	public void setProperty(Serializable id, String propertyName, String stringValue) {
+	public <T> void setProperty(Serializable id, String propertyName, T value) {
 		D connectedEntity = findById(id);
 		try {
+			ClassMetadata cm = sessionFactory.getClassMetadata(clazz);
+			Type t = cm.getPropertyType(propertyName); 
+
 			getSession().refresh(connectedEntity);
 			getSession().setReadOnly(connectedEntity, false);
 			
-			String oldValue = (String) BeanUtils.getProperty(connectedEntity, propertyName);
-			BeanUtils.setProperty(connectedEntity, propertyName, stringValue);
+			T oldValue = (T) BeanUtils.getProperty(connectedEntity, propertyName);
+			BeanUtils.setProperty(connectedEntity, propertyName, value);
 			sessionFactory.getCurrentSession().update(connectedEntity);
 			sessionFactory.getCurrentSession().flush();
 			
 			PropertyDescriptor property = entityProperties.get(propertyName);
+
 			if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
-				boolean hiddenValues = property.getReadMethod().getAnnotation(HideActivityLogValues.class) == null;
-				activityLogService.logEntityPropertyUpdate(connectedEntity, new UpdatedProperty(propertyName, oldValue, stringValue, hiddenValues));
+				UpdatedProperty up = new UpdatedProperty();
+				if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
+					if (property.getReadMethod().getAnnotation(HideActivityLogValues.class) != null) {
+						up.setHiddenValues(true);
+					} else if(t.isAssociationType()) {
+						up.setNewValue(value != null ? t.toLoggableString(value, (SessionFactoryImplementor) sessionFactory) : "-");
+						up.setOldValue(oldValue != null ? t.toLoggableString(oldValue, (SessionFactoryImplementor) sessionFactory) : "-");
+						up.setHiddenValues(false);
+					} else {
+						up.setNewValue(value != null ? value.toString() : "-");
+						up.setOldValue(oldValue != null ? oldValue.toString() : "-");
+						up.setHiddenValues(false);
+					}
+					up.setPropertyName(property.getName());
+				}
+				activityLogService.logEntityPropertyUpdate(connectedEntity, up);
 			}
 
 		} catch (Exception e) {

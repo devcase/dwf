@@ -774,18 +774,30 @@ public abstract class OldMongoDAOImpl<D extends BaseEntity<String>> implements O
 	}
 
 	@Override
-	public void setProperty(Serializable id, String propertyName, String stringValue) {
+	public <T> void setProperty(Serializable id, String propertyName, T value) {
 		try {
 			D entity = findById(id);
 			String oldValue = (String) BeanUtils.getProperty(entity, propertyName);
-			getCollection().update(new ObjectId(id.toString())).with("{$set: {" + propertyName + ": #}}", stringValue);
+			getCollection().update(new ObjectId(id.toString())).with("{$set: {" + propertyName + ": #}}", value);
 			
 			PropertyDescriptor property = entityProperties.get(propertyName);
 			
+
 			if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
-				boolean hiddenValues = property.getReadMethod().getAnnotation(HideActivityLogValues.class) != null;
-				activityLogService.logEntityPropertyUpdate(entity, new UpdatedProperty(propertyName, oldValue, stringValue, hiddenValues));
+				UpdatedProperty up = new UpdatedProperty();
+				if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
+					if (property.getReadMethod().getAnnotation(HideActivityLogValues.class) != null) {
+						up.setHiddenValues(true);
+					} else {
+						up.setNewValue(value != null ? value.toString() : "-");
+						up.setOldValue(oldValue != null ? oldValue.toString() : "-");
+						up.setHiddenValues(false);
+					}
+					up.setPropertyName(property.getName());
+				}
+				activityLogService.logEntityPropertyUpdate(entity, up);
 			}
+
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
