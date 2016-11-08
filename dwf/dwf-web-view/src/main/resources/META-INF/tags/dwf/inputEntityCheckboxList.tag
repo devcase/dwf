@@ -46,14 +46,14 @@ if(rawselectedids == null) {
 } 
 %>
 <dwf:formGroup parentAttrMap="${attrMap}">
-	<div class="btn-group" >
-		<c:forEach items="${targetEntityList}" var="targetEntity" varStatus="loopStatus">
+	<c:forEach items="${targetEntityList}" var="targetEntity" varStatus="loopStatus">
+		<div class="checkbox" style="display: inline-block; margin-right: 20px;">
 			<c:set var="checked" value="${value.contains(targetEntity) || selectedIds.contains(targetEntity.id)}"/>
-			<label class= "btn btn-borderless">
+			<label >
 				<input type="checkbox" name="${name}[].id" value="${targetEntity.id }" ${checked ? 'checked="checked"' : '' }>
 					<c:if test="${hasIcon and !empty targetEntity.xsIconImage and !attrMap.noIcons}"><img src="<dwf:remoteUrl uploadKey="${targetEntity.xsIconImage}" />" style="width: 1em; height: 1em;"/></c:if>
 					<dwf:autoFormat value="${targetEntity}"/></input>
 			</label>
-		</c:forEach>
-	</div>	
+		</div>
+	</c:forEach>
 </dwf:formGroup>

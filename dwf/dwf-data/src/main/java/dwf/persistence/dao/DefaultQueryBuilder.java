@@ -1,8 +1,6 @@
 package dwf.persistence.dao;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Array;
-import java.text.Normalizer;
 import java.util.Collection;
 import java.util.Map;
 
@@ -32,7 +30,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	public String createQuery(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params) {
 
 		StringBuilder query = new StringBuilder();
-		String domainAlias = returnType.prependSelect(query, dao.getEntityFullName(), params, filter);
+		String domainAlias = returnType.insertBeforeSelect(query, dao.getEntityFullName(), params, filter);
 		appendSelectIdsCommand(filter, returnType, params, query, "s");
 
 		appendJoins(filter, returnType, params, query, "s");
@@ -41,8 +39,8 @@ public class DefaultQueryBuilder implements QueryBuilder {
 
 		appendConditions(filter, returnType, params, query, "s");
 
+		returnType.appendAfterSelect(query, dao.getEntityFullName(), params, filter);
 		
-		query.append(") ");
 		if(!returnType.isCount()) {
 			appendOrderBy(filter, returnType, params, query, domainAlias);
 		}
@@ -68,12 +66,24 @@ public class DefaultQueryBuilder implements QueryBuilder {
 	 * @param query
 	 */
 	protected void appendOrderBy(ParsedMap filter, QueryReturnType<?> returnType, Map<String, Object> params, StringBuilder query, String domainAlias) {
-		if(filter.containsKey("orderBy") && dao.hasPropertyWithName(filter.getString("orderBy"))) {
-			query.append(" order by ").append(domainAlias).append(".").append( filter.getString("orderBy"));
-			if(filter.containsKey("orderByDirection")) {
-				//avoiding append to the hql the content directly from the filter
-				query.append(" ").append(filter.getString("orderByDirection").toLowerCase().equals("desc") ? " DESC " : " ASC ");
+		if(filter.containsKey("orderBy")) {
+			String orderBy = filter.getString("orderBy");
+			String orderByDirection = null;
+			if(orderBy.toLowerCase().endsWith(" desc") || orderBy.toLowerCase().endsWith(" asc")) {
+				orderByDirection = orderBy.toLowerCase().endsWith(" desc") ? "DESC" : "ASC";
+				orderBy = orderBy.substring(0, orderBy.indexOf(" "));
 			}
+			if(filter.containsKey("orderByDirection")) {
+				orderByDirection = filter.getString("orderByDirection").toLowerCase().equals("desc") ? " DESC " : " ASC ";
+			}
+			
+			if(dao.hasPropertyWithName(orderBy)) {
+				query.append(" order by ").append(domainAlias).append(".").append( orderBy );
+				if(orderByDirection != null) {
+					query.append(" ").append(orderByDirection);
+				}
+			}
+			
 		} else {
 			appendDefaultOrderBy(filter, returnType, params, query, domainAlias);
 		}

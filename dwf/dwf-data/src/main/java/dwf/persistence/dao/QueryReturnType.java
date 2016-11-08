@@ -20,10 +20,15 @@ public interface QueryReturnType<T> {
 		}
 
 		@Override
-		public String prependSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter) {
+		public String insertBeforeSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter) {
 			query.append("select count(s2.id) from ").append(entityName).append(" s2 where s2.id in (");
 			return "s2";
 		}
+		@Override
+		public void appendAfterSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter) {
+			query.append(")");
+		}
+
 	};
 
 	static final QueryReturnType<?> DOMAIN = new QueryReturnType<Object>() {
@@ -33,10 +38,15 @@ public interface QueryReturnType<T> {
 		}
 
 		@Override
-		public String prependSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter) {
+		public String insertBeforeSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter) {
 			query.append("select s2 from ").append(entityName).append(" s2 where s2.id in (");
 			return "s2";
 		}
+		@Override
+		public void appendAfterSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter) {
+			query.append(")");
+		}
+
 	};
 	
 	static final QueryReturnType<Long> ID = new QueryReturnType<Long>() {
@@ -46,14 +56,22 @@ public interface QueryReturnType<T> {
 		}
 		
 		@Override
-		public String prependSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter) {
+		public String insertBeforeSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter) {
 			query.append("select s2.id from ").append(entityName).append(" s2 where s2.id in (");
 			return "s2";
 		}
+
+		@Override
+		public void appendAfterSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter) {
+			query.append(")");
+		}
+		
+		
 
 	};
 
 	
 	boolean isCount();
-	String prependSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter);
+	String insertBeforeSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter);
+	void appendAfterSelect(StringBuilder query, String entityName, Map<String, Object> params, ParsedMap filter);
 }
