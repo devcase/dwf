@@ -537,11 +537,11 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 		validate(entity, groups);
 		
 		D retrievedEntity = find(entity);
+		
 		if (retrievedEntity == null) {
 			throw new IllegalArgumentException("Id must be not-null");
 		}
 		getSession().refresh(retrievedEntity);
-		getSession().setReadOnly(retrievedEntity, false);
 
 		if (groups != null) {
 			for (Class<?> validGrpClazz : groups) {
@@ -562,127 +562,54 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 				}
 			}
 		}
-
-		// initializes properties before eviction
-		for (final PropertyDescriptor property : this.updatableProperties.keySet()) {
-			UpdatableProperty annotation = this.updatableProperties.get(property);
-			if (checkUpdateGroup(annotation, groups)) {
-				try {
-					Object value = PropertyUtils.getSimpleProperty(retrievedEntity, property.getName());
-					Hibernate.initialize(value);
-				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-					// Error copying the property
-					throw new RuntimeException(e);
-				}
-			}
-		}
+//
+//		// initializes properties before eviction
+//		for (final PropertyDescriptor property : this.updatableProperties.keySet()) {
+//			UpdatableProperty annotation = this.updatableProperties.get(property);
+//			if (checkUpdateGroup(annotation, groups)) {
+//				try {
+//					Object value = PropertyUtils.getSimpleProperty(retrievedEntity, property.getName());
+//					Hibernate.initialize(value);
+//				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+//					// Error copying the property
+//					throw new RuntimeException(e);
+//				}
+//			}
+//		}
 
 		List<UpdatedProperty> loggedUpdatedProperties = new ArrayList<UpdatedProperty>();
 
 		
-		ClassMetadata cm = sessionFactory.getClassMetadata(clazz);
-		
+		boolean updated = false;
 
 		for (final PropertyDescriptor property : this.updatableProperties.keySet()) {
-			try {
-				UpdatableProperty annotation = this.updatableProperties.get(property);
-				if (checkUpdateGroup(annotation, groups)) {
-					Type t = cm.getPropertyType(property.getName()); 
-					
-					Object value = PropertyUtils.getSimpleProperty(entity, property.getName());
-					Object oldValue = PropertyUtils.getSimpleProperty(retrievedEntity, property.getName());
-
-					if(value == null && ignoreNulls) {
-						continue;
-					}
-					
-//					if(value != null && t.isEntityType()  && !getSession().contains(value)) {
-//						//it's an entity - retrieving connected value
-//						ClassMetadata propertyCM = sessionFactory.getClassMetadata(t.getReturnedClass());
-//						if(propertyCM != null) {
-//							Serializable id = propertyCM.getIdentifier(value, (org.hibernate.engine.spi.SessionImplementor) getSession());
-//							String entityName = propertyCM.getEntityName();
-//							value = getSession().get(entityName, id);
-//						}
-//					} else if(t.isCollectionType() && t.isAssociationType()){
-//						//é coleção de entidades - recuperar cada entidade
-//						
-//					}
-					
-					boolean isCollection = t.isCollectionType();
-					if(isCollection) {
-						boolean isList = t instanceof ListType;
-						boolean isMap = t instanceof MapType;
-						boolean isArray = t instanceof ArrayType;
-						//TODO - outros tipos de coleções
-						boolean isOldValueEmpty = oldValue == null ? true : isList ? ((List) oldValue).isEmpty() :  isMap? ((Map) oldValue).isEmpty() : ((Collection<?>) oldValue).isEmpty();
-						
-						if(value == null) {
-							if(oldValue == null || isOldValueEmpty) {
-								continue;
-							}
-						} else {
-							if(isArray) {
-								//
-								if (ArrayUtils.isEquals((Array) value, (Array) oldValue)) {
-									continue;
-								}
-							} else if (isList) {
-								//TODO Listas - detectar se faz diferença a ordem
-								if(CollectionUtils.isEqualCollection((Collection<?>) value, (Collection<?>) oldValue)) { //Desconsidera a ordem
-									continue;
-								}
-							} else {
-								if(value.equals(oldValue)) { //pode não funcionar, dependendo da implementação de equals (funciona para AbstractMap e AbstractList)
-									continue;
-								}
-							}
+			UpdatableProperty annotation = this.updatableProperties.get(property);
+			if (checkUpdateGroup(annotation, groups)) {
+				Object value;
+				try {
+					value = PropertyUtils.getSimpleProperty(entity, property.getName());
+					updated = updateProperty(retrievedEntity, property, value, ignoreNulls, new LogUpdateHandler() {
+						@Override
+						public void log(UpdatedProperty up) {
+							loggedUpdatedProperties.add(up);
 						}
-					} else {
-						if (value == null) {
-							if (oldValue == null) {
-								continue; // dois nulos - não troca
-							}
-						} else {
-							if (value.equals(oldValue)) {
-								continue; // dois iguais - não troca
-							}
-						}
-					}
-
-
-					UpdatedProperty up = new UpdatedProperty();
-					if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
-						if (property.getReadMethod().getAnnotation(HideActivityLogValues.class) != null) {
-							up.setHiddenValues(true);
-						} else if(t.isAssociationType()) {
-							up.setNewValue(value != null ? t.toLoggableString(value, (SessionFactoryImplementor) sessionFactory) : "-");
-							up.setOldValue(oldValue != null ? t.toLoggableString(oldValue, (SessionFactoryImplementor) sessionFactory) : "-");
-							up.setHiddenValues(false);
-						} else {
-							up.setNewValue(value != null ? value.toString() : "-");
-							up.setOldValue(oldValue != null ? oldValue.toString() : "-");
-							up.setHiddenValues(false);
-						}
-						up.setPropertyName(property.getName());
-						loggedUpdatedProperties.add(up);
-					}
-					
-					BeanUtils.copyProperty(retrievedEntity, property.getName(), value);
+					}) || updated;
+				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+					throw new RuntimeException(e);
 				}
-			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-				// Error copying the property
-				throw new RuntimeException(e);
 			}
 		}
 		
-		if(!loggedUpdatedProperties.isEmpty()) {
-			activityLogService.logEntityUpdate(entity, loggedUpdatedProperties, groups);
-		}
-		retrievedEntity.setUpdateTime(new Date());
 		try {
-			getSession().update(retrievedEntity);
-			getSession().flush();
+			if(!loggedUpdatedProperties.isEmpty()) {
+				activityLogService.logEntityUpdate(entity, loggedUpdatedProperties, groups);
+			}
+			if(updated) {
+				getSession().setReadOnly(retrievedEntity, false);
+				retrievedEntity.setUpdateTime(new Date());
+				getSession().update(retrievedEntity);
+				getSession().flush();
+			}
 			return retrievedEntity;
 		} finally {
 			getSession().setReadOnly(retrievedEntity, true);
@@ -740,6 +667,141 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 				throw new RuntimeException(e);
 			}
+		}
+	}
+	
+	protected interface LogUpdateHandler {
+		void log(UpdatedProperty up);
+	}
+	
+	/**
+	 * Called by updateByAnnotation and setProperty
+	 * @param retrievedEntity
+	 * @param property
+	 * @param value
+	 * @param ignoreNulls
+	 * @param updateHandler
+	 * @return
+	 */
+	protected boolean updateProperty(D retrievedEntity, PropertyDescriptor property, Object value, boolean ignoreNulls, LogUpdateHandler updateHandler) {
+		try {
+			ClassMetadata cm = sessionFactory.getClassMetadata(clazz);
+
+			Type t = cm.getPropertyType(property.getName()); 
+			
+			Object oldValue = PropertyUtils.getSimpleProperty(retrievedEntity, property.getName());
+
+			if(value == null && ignoreNulls) {
+				return false;
+			}
+			
+//			if(value != null && t.isEntityType()  && !getSession().contains(value)) {
+//				//it's an entity - retrieving connected value
+//				ClassMetadata propertyCM = sessionFactory.getClassMetadata(t.getReturnedClass());
+//				if(propertyCM != null) {
+//					Serializable id = propertyCM.getIdentifier(value, (org.hibernate.engine.spi.SessionImplementor) getSession());
+//					String entityName = propertyCM.getEntityName();
+//					value = getSession().get(entityName, id);
+//				}
+//			} else if(t.isCollectionType() && t.isAssociationType()){
+//				//é coleção de entidades - recuperar cada entidade
+//				
+//			}
+			
+			boolean isCollection = t.isCollectionType();
+			
+			//verifica se é necessário atualizar o valor (se é um valor novo)
+			if(isCollection) {
+				//é coleçao - verifica se o conteúdo mudou
+				
+				boolean isList = t instanceof ListType;
+				boolean isMap = t instanceof MapType;
+				boolean isArray = t instanceof ArrayType;
+				//TODO - outros tipos de coleções
+				boolean isOldValueEmpty = oldValue == null ? true : isList ? ((List) oldValue).isEmpty() :  isMap? ((Map) oldValue).isEmpty() : ((Collection<?>) oldValue).isEmpty();
+				
+				if(value == null) {
+					if(oldValue == null || isOldValueEmpty) {
+						return false;
+					}
+				} else {
+					if(isArray) {
+						//
+						if (ArrayUtils.isEquals((Array) value, (Array) oldValue)) {
+							return false;
+						}
+					} else if (isList) {
+						//TODO Listas - detectar se faz diferença a ordem
+						if(CollectionUtils.isEqualCollection((Collection<?>) value, (Collection<?>) oldValue)) { //Desconsidera a ordem
+							return false;
+						}
+					} else {
+						if(value.equals(oldValue)) { //pode não funcionar, dependendo da implementação de equals (funciona para AbstractMap e AbstractList)
+							return false;
+						}
+					}
+				}
+			} else {
+				if (value == null) {
+					if (oldValue == null) {
+						// dois nulos - não troca
+						return false;
+					}
+				} else {
+					if (value.equals(oldValue)) {
+						// dois iguais - não troca
+						return false;
+					}
+				}
+			}
+
+			//monta o UpdatedProperty (para logar)
+			UpdatedProperty up = new UpdatedProperty();
+			if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
+				if (property.getReadMethod().getAnnotation(HideActivityLogValues.class) != null) {
+					up.setHiddenValues(true);
+				} else if(t.isAssociationType()) {
+					up.setNewValue(value != null ? t.toLoggableString(value, (SessionFactoryImplementor) sessionFactory) : "-");
+					up.setOldValue(oldValue != null ? t.toLoggableString(oldValue, (SessionFactoryImplementor) sessionFactory) : "-");
+					up.setHiddenValues(false);
+				} else {
+					up.setNewValue(value != null ? value.toString() : "-");
+					up.setOldValue(oldValue != null ? oldValue.toString() : "-");
+					up.setHiddenValues(false);
+				}
+				up.setPropertyName(property.getName());
+				
+				if(updateHandler != null) {
+					updateHandler.log(up);
+				}
+			}
+			
+			if(log.isDebugEnabled()) {
+				log.debug("Updating " + property + ": " + oldValue + " -> " + value);
+			}
+			
+			
+			//efetiva a atualização
+			if(isCollection) {
+				boolean isList = t instanceof ListType;
+				boolean isMap = t instanceof MapType;
+				boolean isArray = t instanceof ArrayType;
+				
+				if(isMap) {
+					//limpa mapa antigo e adiciona os valores do novo mapa
+					((Map) oldValue).clear();
+					((Map) oldValue).putAll(((Map) value));
+				} else {
+					// copia o novo valor para a entidade conectada
+					BeanUtils.copyProperty(retrievedEntity, property.getName(), value);
+				}
+			} else {
+				BeanUtils.copyProperty(retrievedEntity, property.getName(), value);
+			}
+			return true;
+		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			// Error copying the property
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -985,52 +1047,21 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 	@Override
 	public <T> void setProperty(Serializable id, String propertyName, T value) {
 		D connectedEntity = findById(id);
+		getSession().refresh(connectedEntity);
+		PropertyDescriptor property = entityProperties.get(propertyName);
+
 		try {
-			ClassMetadata cm = sessionFactory.getClassMetadata(clazz);
-			Type t = cm.getPropertyType(propertyName); 
-
-			getSession().refresh(connectedEntity);
 			getSession().setReadOnly(connectedEntity, false);
-			
-			T oldValue = (T) PropertyUtils.getSimpleProperty(connectedEntity, propertyName);
-			
-			if(value == null && oldValue == null) {
-				return;
-			} else if(oldValue != null && value != null && oldValue.equals(value)) {
-				return;
-			}
-			
-			BeanUtils.setProperty(connectedEntity, propertyName, value);
-			sessionFactory.getCurrentSession().update(connectedEntity);
-			sessionFactory.getCurrentSession().flush();
-			
-			PropertyDescriptor property = entityProperties.get(propertyName);
-
-			if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
-				UpdatedProperty up = new UpdatedProperty();
-				if (property.getReadMethod().getAnnotation(IgnoreActivityLog.class) == null) {
-					if (property.getReadMethod().getAnnotation(HideActivityLogValues.class) != null) {
-						up.setHiddenValues(true);
-					} else if(t.isAssociationType()) {
-						up.setNewValue(value != null ? t.toLoggableString(value, (SessionFactoryImplementor) sessionFactory) : "-");
-						up.setOldValue(oldValue != null ? t.toLoggableString(oldValue, (SessionFactoryImplementor) sessionFactory) : "-");
-						up.setHiddenValues(false);
-					} else {
-						up.setNewValue(value != null ? value.toString() : "-");
-						up.setOldValue(oldValue != null ? oldValue.toString() : "-");
-						up.setHiddenValues(false);
-					}
-					up.setPropertyName(property.getName());
+			boolean updated = updateProperty(connectedEntity, property, value, false, new LogUpdateHandler() {
+				@Override
+				public void log(UpdatedProperty up) {
+					activityLogService.logEntityPropertyUpdate(connectedEntity, up);
 				}
-				activityLogService.logEntityPropertyUpdate(connectedEntity, up);
-			}
-
-		} catch (Exception e) {
-			// Error copying the property
-			throw new RuntimeException(e);
+			});
+			getSession().flush();
 		} finally {
 			getSession().setReadOnly(connectedEntity, true);
-		}
+		} 
 	}
 
 	
