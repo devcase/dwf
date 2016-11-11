@@ -694,21 +694,12 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			if(value == null && ignoreNulls) {
 				return false;
 			}
+			final boolean isCollection = t.isCollectionType();
 			
-//			if(value != null && t.isEntityType()  && !getSession().contains(value)) {
-//				//it's an entity - retrieving connected value
-//				ClassMetadata propertyCM = sessionFactory.getClassMetadata(t.getReturnedClass());
-//				if(propertyCM != null) {
-//					Serializable id = propertyCM.getIdentifier(value, (org.hibernate.engine.spi.SessionImplementor) getSession());
-//					String entityName = propertyCM.getEntityName();
-//					value = getSession().get(entityName, id);
-//				}
-//			} else if(t.isCollectionType() && t.isAssociationType()){
-//				//é coleção de entidades - recuperar cada entidade
-//				
-//			}
-			
-			boolean isCollection = t.isCollectionType();
+			if(isCollection && !Hibernate.isInitialized(value)) {
+				//o novo valor é um proxy de coleção não inicializado
+				return false;
+			}
 			
 			//verifica se é necessário atualizar o valor (se é um valor novo)
 			if(isCollection) {
