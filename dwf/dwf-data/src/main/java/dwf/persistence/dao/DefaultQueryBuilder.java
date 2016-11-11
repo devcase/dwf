@@ -217,28 +217,28 @@ public class DefaultQueryBuilder implements QueryBuilder {
 				}
 			}
 			if(filter.containsKey(pName + ".gt")) {
-				Double v = filter.getDouble(pName + ".gt");
+				Object v = filter.get(pName + ".gt", pDescriptor.getPropertyType());
 				if(v != null) {
 					query.append(" and ").append(ref).append(" > :").append(pName).append("_gt");
 					params.put(pName + "_gt", v);
 				}
 			}
 			if(filter.containsKey(pName + ".lt")) {
-				Double v = filter.getDouble(pName + ".lt");
+				Object v = filter.get(pName + ".lt", pDescriptor.getPropertyType());
 				if(v != null) {
 					query.append(" and ").append(ref).append(" < :").append(pName).append("_lt");
 					params.put(pName + "_lt", v);
 				}
 			}
 			if(filter.containsKey(pName + ".gteq")) {
-				Double v = filter.getDouble(pName + ".gteq");
+				Object v = filter.get(pName + ".gteq", pDescriptor.getPropertyType());
 				if(v != null) {
 					query.append(" and ").append(ref).append(" >= :").append(pName).append("_gteq");
 					params.put(pName + "_gteq", v);
 				}
 			}
 			if(filter.containsKey(pName + ".lteq")) {
-				Double v = filter.getDouble(pName + ".lteq");
+				Object v = filter.get(pName + ".gteq", pDescriptor.getPropertyType());
 				if(v != null) {
 					query.append(" and ").append(ref).append(" <= :").append(pName).append("_lteq");
 					params.put(pName + "_lteq", v);

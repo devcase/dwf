@@ -992,7 +992,7 @@ public abstract class BaseDAOImpl<D extends BaseEntity<? extends Serializable>> 
 			getSession().refresh(connectedEntity);
 			getSession().setReadOnly(connectedEntity, false);
 			
-			T oldValue = (T) BeanUtils.getProperty(connectedEntity, propertyName);
+			T oldValue = (T) PropertyUtils.getSimpleProperty(connectedEntity, propertyName);
 			
 			if(value == null && oldValue == null) {
 				return;
