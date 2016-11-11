@@ -182,8 +182,8 @@ public abstract class BaseController  {
 		for (CustomPropertyEditorFactory customEditorFactory : editorFactories.values()) {
 			PropertyEditor customEditor = customEditorFactory.getPropertyEditor(request);
 			for (Class<?> targetClass : customEditorFactory.getTargetClasses()) {
-				if(log.isDebugEnabled()) {
-					log.debug("Registering Custom Editor " + customEditor);
+				if(log.isTraceEnabled()) {
+					log.trace("Registering Custom Editor " + customEditor);
 				}
 				binder.registerCustomEditor(targetClass, customEditor);
 			}

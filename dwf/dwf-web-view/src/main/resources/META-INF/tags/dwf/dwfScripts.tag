@@ -63,9 +63,7 @@ getJspContext().setAttribute("groupingSeparator", grouping);
 <script type="text/javascript" src="${appPath}/resources/js/dwf-ajaxform.js"></script>
 <script src="https://www.google.com/recaptcha/api.js?hl=<dwf:locale format='language'/>" async defer></script>
 <c:if test="${!empty environment.getProperty('dwf.geocode.googlemaps.browserkey') }">
-	<script async defer src="https://maps.googleapis.com/maps/api/js?key=${environment.getProperty('dwf.geocode.googlemaps.browserkey')}&callback=triggerGooglemapsapiready"></script>
 	<script type="text/javascript">
-		
 		function triggerGooglemapsapiready() {
 			$(document).trigger("googlemapsapiready");
 		}
@@ -79,4 +77,5 @@ getJspContext().setAttribute("groupingSeparator", grouping);
 					}
 				});
 	</script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=${environment.getProperty('dwf.geocode.googlemaps.browserkey')}&callback=triggerGooglemapsapiready"></script>
 </c:if>
