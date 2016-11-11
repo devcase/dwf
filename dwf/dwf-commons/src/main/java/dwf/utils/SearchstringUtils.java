@@ -26,7 +26,7 @@ public class SearchstringUtils {
 			if(c >= 'A' && c <= 'Z') {
 				sb.append((char) (c - UPPER_TO_LOW));
 				appendSpace = true;
-			} else if((c >= 'a' && c <='z') || (c >= '0' && c <='1')) {
+			} else if((c >= 'a' && c <='z') || (c >= '0' && c <='9')) {
 				sb.append(c);
 				appendSpace = true;
 			} else if( c == ' ' || c == 0x00a0 /* no break space */ || c == '\n' /* quebra de linha */) {
