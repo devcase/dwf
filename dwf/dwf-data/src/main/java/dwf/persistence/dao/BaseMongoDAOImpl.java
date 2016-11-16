@@ -360,10 +360,14 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 					else {
 						obj.append(pName, filter.get(pName, pDescriptor.getPropertyType()));
 					}
-				} else if(filter.containsKey(pName+ ".id")) {
+				} 
+				
+				if(filter.containsKey(pName+ ".id")) {
 					//Não funciona para collection, só objeto único embedded
 					obj.append(pName+".id", filter.get(pName+".id"));
-				} else if (filter.containsKey(pName+".lat") && filter.containsKey(pName+".lon") && filter.containsKey(pName+".radius")) {
+				} 
+				
+				if (filter.containsKey(pName+".lat") && filter.containsKey(pName+".lon") && filter.containsKey(pName+".radius")) {
 					//busca por geolocalização
 					
 					// para buscar pro geolocalização, o filtro tem que ter as duas propriedades:
@@ -372,7 +376,8 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 					
 					BasicDBObject geometry = new BasicDBObject("type", "Point").append("coordinates", new double[] { filter.getDouble(pName+".lon"), filter.getDouble(pName+".lat")});
 					obj.append(pName, new BasicDBObject("$near", new BasicDBObject("$geometry", geometry).append("$maxDistance", filter.getDouble(pName+".radius"))));
-				} else if (filter.containsKey(pName+".center") && filter.containsKey(pName+".radius")) {
+				} 
+				if (filter.containsKey(pName+".center") && filter.containsKey(pName+".radius")) {
 					//busca por geolocalização
 					
 					// para buscar pro geolocalização, o filtro tem que ter as duas propriedades:
@@ -381,7 +386,8 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 					
 					BasicDBObject geometry = new BasicDBObject("type", "Point").append("coordinates", filter.get(pName+".center"));
 					obj.append(pName, new BasicDBObject("$near", new BasicDBObject("$geometry", geometry).append("$maxDistance", filter.get(pName+".radius"))));
-				} else if (filter.containsKey(pName+".after") || filter.containsKey(pName+".gte")) {
+				} 
+				if (filter.containsKey(pName+".after") || filter.containsKey(pName+".gte")) {
 					// filtrar após uma data ou maior que um número
 					
 					// {propriedade}.after -> Date
@@ -390,7 +396,12 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 					Object key = filter.get(pName+".after");
 					if (key == null) key = filter.get(pName+".gte");
 					obj.append(pName, new BasicDBObject("$gte", key));
-				} 
+				}
+				//não é igual
+				if (filter.containsKey(pName+".ne")) {
+					obj.append(pName, new BasicDBObject("$ne", filter.get(pName+".ne")));
+					
+				}
 			}
 			if(log.isDebugEnabled()) {
 				log.debug("Query: " + obj.toString());

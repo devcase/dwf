@@ -258,9 +258,15 @@ public class DefaultQueryBuilder implements QueryBuilder {
 					query.append(" and lower(").append(ref).append(") = :").append(pName).append("_ignorecase");
 					params.put(pName + "_ignorecase", v.toLowerCase());
 				}
-				
 			}
-			
+			if(filter.containsKey(pName + ".ne")) {
+				Object v = filter.get(pName + ".ne", pDescriptor.getPropertyType());
+				if(v != null) {
+					query.append(" and ").append(ref).append(" != :").append(pName).append("_ne");
+					params.put(pName + "_ne", v);
+				}
+			}
+
 		}
 		
 		if(Boolean.TRUE.equals(filter.getBoolean("includeDisabled")) || filter.containsKey("enabled")) { 
