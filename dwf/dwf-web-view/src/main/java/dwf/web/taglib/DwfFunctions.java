@@ -62,4 +62,14 @@ public class DwfFunctions {
 		period = org.joda.time.Period.fieldDifference(inicio, fim);
 		return PeriodFormat.wordBased(locale).print(period);
 	}
+	
+	public static String escapeUrlPathSegment(String x) {
+		return com.google.common.net.UrlEscapers.urlPathSegmentEscaper().escape(x);
+	}
+	public static String escapeUrlFormParameter(String x) {
+		return com.google.common.net.UrlEscapers.urlFormParameterEscaper().escape(x);
+	}
+	public static String escapeUrlFragment(String x) {
+		return com.google.common.net.UrlEscapers.urlFragmentEscaper().escape(x);
+	}
 }

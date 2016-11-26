@@ -317,5 +317,20 @@
 		<function-class>dwf.web.taglib.DwfFunctions</function-class>
 		<function-signature>String periodFormat( java.lang.Object, java.util.Locale )</function-signature>
 	</function>
+	<function>
+		<name>escapeUrlPathSegment</name>
+		<function-class>dwf.web.taglib.DwfFunctions</function-class>
+		<function-signature>String escapeUrlPathSegment( java.lang.String )</function-signature>
+	</function>
+	<function>
+		<name>escapeUrlFormParameter</name>
+		<function-class>dwf.web.taglib.DwfFunctions</function-class>
+		<function-signature>String escapeUrlFormParameter( java.lang.String )</function-signature>
+	</function>
+	<function>
+		<name>escapeUrlFragment</name>
+		<function-class>dwf.web.taglib.DwfFunctions</function-class>
+		<function-signature>String escapeUrlFragment( java.lang.String )</function-signature>
+	</function>
 	
 </taglib>
