@@ -18,8 +18,6 @@ $(document).on('submit', 'form[dwf-toggle~="ajaxform"]', function(evt) {
 					$wrapper.html(data);
     	    		$wrapper.fadeIn({
     	    			always: function() {
-		    	    		var top = $wrapper.scrollTop(); //Getting Y of target element
-		    	    	    window.scrollTo(0, top);
 		    	    	    newcontent = $wrapper.children().unwrap();
 		    	    	    
 		    	    	    //enable links with dwf-toggle="remoteload"
