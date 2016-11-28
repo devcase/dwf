@@ -38,7 +38,6 @@ import org.apache.commons.logging.LogFactory;
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.jongo.Aggregate;
 import org.jongo.Find;
 import org.jongo.Jongo;
@@ -47,6 +46,7 @@ import org.jongo.MongoCursor;
 import org.jongo.marshall.jackson.JacksonMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
+import org.springframework.data.geo.Point;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -65,6 +65,8 @@ import dwf.persistence.annotations.Image;
 import dwf.persistence.annotations.MongoEntity;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.persistence.annotations.UpdatableProperty;
+import dwf.persistence.dao.mongo.GeoJsonMultiPointDeserializer;
+import dwf.persistence.dao.mongo.GeoJsonMultiPointSerializer;
 import dwf.persistence.dao.mongo.PriceJsonDeserializer;
 import dwf.persistence.dao.mongo.PriceJsonSerializer;
 import dwf.persistence.domain.BaseEntity;
@@ -239,6 +241,8 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 //		mapperBuilder.withView(jsonView);
 		mapperBuilder.addDeserializer(Price.class, new PriceJsonDeserializer());
 		mapperBuilder.addSerializer(Price.class, new PriceJsonSerializer());
+		mapperBuilder.addSerializer(Point[].class, new GeoJsonMultiPointSerializer());
+		mapperBuilder.addDeserializer(Point[].class, new GeoJsonMultiPointDeserializer());
 		return new Jongo(db, mapperBuilder.build());
 	}
 	
