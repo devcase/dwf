@@ -404,7 +404,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 				if (filter.containsKey(pName+".contains.lat") && filter.containsKey(pName+".contains.lon") ) {
 					//busca por geolocalização - propriedade é área
 					
-					BasicDBObject geometry = new BasicDBObject("type", "Point").append("coordinates", new double[] { filter.getDouble(pName+".lon"), filter.getDouble(pName+".lat")});
+					BasicDBObject geometry = new BasicDBObject("type", "Point").append("coordinates", new double[] { filter.getDouble(pName+".contains.lon"), filter.getDouble(pName+".contains.lat")});
 					obj.append(pName, new BasicDBObject("$geoIntersects", new BasicDBObject("$geometry", geometry)));
 				} 
 
