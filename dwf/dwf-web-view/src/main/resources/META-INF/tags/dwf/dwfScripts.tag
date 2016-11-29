@@ -62,25 +62,6 @@ getJspContext().setAttribute("groupingSeparator", grouping);
 <script type="text/javascript" src="${appPath}/resources/js/dwf-autoreloadcontent.js"></script>
 <script type="text/javascript" src="${appPath}/resources/js/dwf-ajaxform.js"></script>
 <script src="https://www.google.com/recaptcha/api.js?hl=<dwf:locale format='language'/>" async defer></script>
-<script type="text/javascript">
-	function triggerGooglemapsapiready() {
-		$(document).trigger("googlemapsapiready");
-	}
-</script>
 <c:if test="${environment.getProperty('dwf.geocode.googlemaps.allpages', 'false') eq 'true' and !empty environment.getProperty('dwf.geocode.googlemaps.browserkey') }">
-	<script type="text/javascript">
-		function triggerGooglemapsapiready() {
-			$(document).trigger("googlemapsapiready");
-		}
-		
-		$(document).on(
-				'dwf-postupdate',
-				function(evt) {
-					if (typeof google != 'undefined'
-							&& typeof google.maps != 'undefined') {
-						$(evt.target).trigger('googlemapsapiready');
-					}
-				});
-	</script>
 	<script async defer src="https://maps.googleapis.com/maps/api/js?key=${environment.getProperty('dwf.geocode.googlemaps.browserkey')}&callback=triggerGooglemapsapiready"></script>
 </c:if>

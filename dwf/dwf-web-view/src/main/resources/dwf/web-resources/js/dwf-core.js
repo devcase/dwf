@@ -417,3 +417,21 @@ $(document).on("submit", "form", function(evt) {
 		}
 	});
 });
+
+/**
+ * Usar em conjunto com <script async defer src="https://maps.googleapis.com/maps/api/js?key=XX&callback=triggerGooglemapsapiready"></script>
+ * @returns
+ */
+function triggerGooglemapsapiready() {
+	$(document).trigger("googlemapsapiready");
+}
+/**
+ * 
+ */
+$(document).on('dwf-postupdate',
+	function(evt) {
+		if (typeof google != 'undefined'
+				&& typeof google.maps != 'undefined') {
+			$(evt.target).trigger('googlemapsapiready');
+		}
+	});
