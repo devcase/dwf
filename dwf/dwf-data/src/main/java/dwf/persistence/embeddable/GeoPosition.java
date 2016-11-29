@@ -1,6 +1,9 @@
 package dwf.persistence.embeddable;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.Objects;
 
 import javax.persistence.Embeddable;
@@ -9,6 +12,7 @@ import javax.persistence.Transient;
 import org.springframework.util.NumberUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import dwf.serialization.View;
@@ -80,5 +84,11 @@ public class GeoPosition implements Serializable {
 		}
 	}
 	
+	@JsonIgnore
+	private static DecimalFormat decimalFormat = new DecimalFormat("00.0000000000", new DecimalFormatSymbols(Locale.US));
 	
+	public String toGoogleMapsLatLng() {
+		return "{lat:".concat(decimalFormat.format(lat)).concat(",lng:").concat(decimalFormat.format(lon)).concat("}");
+	}
+
 }

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class GeoJsonMultiPointDeserializer extends JsonDeserializer<Point[]> {
+public class PointArrayAsGeoJsonMultiPointDeserializer extends JsonDeserializer<Point[]> {
 
 	/*
 	 * (non-Javadoc)

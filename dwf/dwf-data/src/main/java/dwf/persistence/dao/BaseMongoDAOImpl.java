@@ -41,13 +41,20 @@ import org.bson.types.ObjectId;
 import org.jongo.Aggregate;
 import org.jongo.Find;
 import org.jongo.Jongo;
+import org.jongo.Mapper;
 import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
 import org.jongo.marshall.jackson.JacksonMapper;
+import org.jongo.marshall.jackson.configuration.MapperModifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.data.geo.Point;
+import org.springframework.data.mongodb.core.geo.GeoJsonLineString;
+import org.springframework.data.mongodb.core.geo.GeoJsonModule;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
@@ -65,8 +72,9 @@ import dwf.persistence.annotations.Image;
 import dwf.persistence.annotations.MongoEntity;
 import dwf.persistence.annotations.NotEditableProperty;
 import dwf.persistence.annotations.UpdatableProperty;
-import dwf.persistence.dao.mongo.GeoJsonMultiPointDeserializer;
-import dwf.persistence.dao.mongo.GeoJsonMultiPointSerializer;
+import dwf.persistence.dao.mongo.GeoJsonSerializingModule;
+import dwf.persistence.dao.mongo.PointArrayAsGeoJsonMultiPointDeserializer;
+import dwf.persistence.dao.mongo.PointArrayAsGeoJsonMultiPointSerializer;
 import dwf.persistence.dao.mongo.PriceJsonDeserializer;
 import dwf.persistence.dao.mongo.PriceJsonSerializer;
 import dwf.persistence.domain.BaseEntity;
@@ -239,10 +247,12 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		DB db = mongoClient.getDB(properties.getDatabase());
 		JacksonMapper.Builder mapperBuilder = new JacksonMapper.Builder();
 //		mapperBuilder.withView(jsonView);
+		mapperBuilder.registerModule(new GeoJsonModule());
+		mapperBuilder.registerModule(new GeoJsonSerializingModule());
 		mapperBuilder.addDeserializer(Price.class, new PriceJsonDeserializer());
 		mapperBuilder.addSerializer(Price.class, new PriceJsonSerializer());
-		mapperBuilder.addSerializer(Point[].class, new GeoJsonMultiPointSerializer());
-		mapperBuilder.addDeserializer(Point[].class, new GeoJsonMultiPointDeserializer());
+		mapperBuilder.addSerializer(Point[].class, new PointArrayAsGeoJsonMultiPointSerializer());
+		mapperBuilder.addDeserializer(Point[].class, new PointArrayAsGeoJsonMultiPointDeserializer());
 		return new Jongo(db, mapperBuilder.build());
 	}
 	
@@ -391,6 +401,14 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 					BasicDBObject geometry = new BasicDBObject("type", "Point").append("coordinates", filter.get(pName+".center"));
 					obj.append(pName, new BasicDBObject("$near", new BasicDBObject("$geometry", geometry).append("$maxDistance", filter.get(pName+".radius"))));
 				} 
+				if (filter.containsKey(pName+".contains.lat") && filter.containsKey(pName+".contains.lon") ) {
+					//busca por geolocalização - propriedade é área
+					
+					BasicDBObject geometry = new BasicDBObject("type", "Point").append("coordinates", new double[] { filter.getDouble(pName+".lon"), filter.getDouble(pName+".lat")});
+					obj.append(pName, new BasicDBObject("$geoIntersects", new BasicDBObject("$geometry", geometry)));
+				} 
+
+				
 				if (filter.containsKey(pName+".after") || filter.containsKey(pName+".gte")) {
 					// filtrar após uma data ou maior que um número
 					
@@ -448,6 +466,7 @@ public abstract  class BaseMongoDAOImpl<D extends BaseEntity<ID>, ID extends Ser
 		
 	}
 
+	
 	@Override
 	public D saveNew(D entity) {
 		prepareEntity(entity);

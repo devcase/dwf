@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-public class GeoJsonMultiPointSerializer extends JsonSerializer<Point[]> {
+public class PointArrayAsGeoJsonMultiPointSerializer extends JsonSerializer<Point[]> {
 
 	@Override
 	public void serialize(Point[] value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
