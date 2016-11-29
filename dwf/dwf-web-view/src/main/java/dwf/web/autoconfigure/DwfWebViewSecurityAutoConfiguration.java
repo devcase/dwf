@@ -3,6 +3,7 @@ package dwf.web.autoconfigure;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
@@ -25,6 +26,7 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import dwf.user.domain.BaseUserRole;
 import dwf.web.rest.autoconfigure.DwfWebRestAutoConfiguration;
 
 @Configuration
@@ -32,7 +34,7 @@ import dwf.web.rest.autoconfigure.DwfWebRestAutoConfiguration;
 @ConditionalOnWebApplication
 @EnableWebSecurity
 public class DwfWebViewSecurityAutoConfiguration {
-	public static final  int DWF_WEB_VIEW_SECURITY_ORDER = ManagementServerProperties.BASIC_AUTH_ORDER + 1; //configurado após a configuração de segurança do spring actuator 
+	public static final  int DWF_WEB_VIEW_SECURITY_ORDER = ManagementServerProperties.BASIC_AUTH_ORDER + 5; //configurado após a configuração de segurança do spring actuator 
 
 	@ConditionalOnMissingBean(value=UserDetailsService.class)
 	static class NoDwfDataUserDetailsServiceConfiguration {
@@ -128,6 +130,8 @@ public class DwfWebViewSecurityAutoConfiguration {
 		
 		@Value("${dwf.security.web.allrequests.authenticated:true}")
 		private boolean authenticatedByDefault;
+		@Value("${dwf.security.web.neededRoles:}")
+		private String neededRoles;
 		
 		
 
@@ -160,7 +164,11 @@ public class DwfWebViewSecurityAutoConfiguration {
 			authorize = authorize
 					.antMatchers("/signin","/signin/authenticate","/resources/**","/resetPassword/**").permitAll();
 			
-			if(authenticatedByDefault) {
+			
+			if(StringUtils.isNotBlank(neededRoles)) {
+				//Role obrigatório (ex: ROLE_BACKOFFICE para o backoffice)
+				authorize.anyRequest().hasAnyRole(neededRoles.replace("ROLE_", "").split(","));
+			} else if(authenticatedByDefault) {
 				authorize.anyRequest().authenticated();
 			}
 			
