@@ -3,6 +3,10 @@
 <%@ taglib uri="http://dwf.devcase.com.br/dwf" prefix="dwf"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ tag dynamic-attributes="attrMap"%>
+<c:if test="${!empty attrMap.entityName }">
+	<c:set var="previousEntityName" value="${entityName }"/>
+	<c:set var="entityName" value="${attrMap.entityName }" scope="request" />
+</c:if>
 <dwf:resolveEL el='${entityName}' var="entity"/>
 
 <%-- DETERMINAR TÍTULO --%>
@@ -37,6 +41,7 @@
 
 
 		<div class="form-horizontal" >
+			
 			<jsp:doBody />
 			<%-- FIELDS ATTRIBUTE --%>
 			<c:if test="${!empty attrMap.fields}">
@@ -50,4 +55,7 @@
 <c:if test="${!attrMap.panelless}">		
 	</div>
 </div>
+</c:if>
+<c:if test="${!empty attrMap.entityName }">
+	<c:set var="entityName" value="${previousEntityName }" scope="request" />
 </c:if>

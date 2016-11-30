@@ -15,6 +15,10 @@ Atributos:
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
 <%@ tag dynamic-attributes="attrMap"%>
 <%@ variable name-given="entity" scope="NESTED" variable-class="java.lang.Object"%>
+<c:if test="${!empty attrMap.entityName }">
+	<c:set var="previousEntityName" value="${entityName }"/>
+	<c:set var="entityName" value="${attrMap.entityName }" scope="request" />
+</c:if>
 <c:if test="${!empty entityName}">
 	<dwf:resolveEL el="${entityName}" var="entity"/>
 </c:if>
@@ -94,4 +98,7 @@ Atributos:
 </c:if>
 
 <c:set var="formlayout" value="${originalformlayout}"/>
+<c:if test="${!empty attrMap.entityName }">
+	<c:set var="entityName" value="${previousEntityName }" scope="request" />
+</c:if>
 
