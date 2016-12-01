@@ -27,7 +27,7 @@ getJspContext().setAttribute("hashkey", keyManager.generateHashKey(entityName, f
 		<input type="text" autocomplete="off" class="form-control" theme="${theme}" property="${name}" <c:if test="${!empty maxTokens}">maxTokens="${maxTokens}"</c:if> hashkey="${hashkey}" />
 		<c:forEach items="${value}" var="item">
 			<input type="hidden" token-id="${item.id}" class="init-token-id" value="${item.id}" />
-			<input type="hidden" token-id="${item.id}" class="init-token-name" value="${item.name}" />
+			<input type="hidden" token-id="${item.id}" class="init-token-name" value="${item.displayText}" />
 		</c:forEach>
 		<c:if test="${!empty attrMap.exampleList}">
 			<p class="help-block">Exemplos: 

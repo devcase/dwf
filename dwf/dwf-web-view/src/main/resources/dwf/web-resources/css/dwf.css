@@ -287,3 +287,11 @@ td.dwf-inputdayofweektime-inputtd>label {
 .form-buttons {
 	margin-top:15px;
 }
+
+.ui-datepicker {
+	z-index: 2!important;
+}
+
+.token-input-dropdown-facebook {
+	z-index: 2!important;
+}
