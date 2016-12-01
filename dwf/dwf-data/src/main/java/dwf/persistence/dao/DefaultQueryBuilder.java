@@ -238,7 +238,7 @@ public class DefaultQueryBuilder implements QueryBuilder {
 				}
 			}
 			if(filter.containsKey(pName + ".lteq")) {
-				Object v = filter.get(pName + ".gteq", pDescriptor.getPropertyType());
+				Object v = filter.get(pName + ".lteq", pDescriptor.getPropertyType());
 				if(v != null) {
 					query.append(" and ").append(ref).append(" <= :").append(pName).append("_lteq");
 					params.put(pName + "_lteq", v);
