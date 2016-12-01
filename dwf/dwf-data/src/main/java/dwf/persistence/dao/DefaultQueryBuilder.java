@@ -216,6 +216,16 @@ public class DefaultQueryBuilder implements QueryBuilder {
 					query.append(" and ").append(ref).append(" is not null ");
 				}
 			}
+			if(filter.containsKey(pName + ".ornull")) { //igual ou nulo
+				Object v = filter.get(pName + ".ornull", pDescriptor.getPropertyType());
+				query.append(" and (").append(":").append(pName).append("_ornull = ").append(ref).append(" or ").append(ref).append(" is null").append(") ");
+				params.put(pName + "_ornull", v);
+			}
+			if(filter.containsKey(pName + ".orempty")) { //igual ou vazio
+				Object v = filter.get(pName + ".orempty", pDescriptor.getPropertyType());
+				query.append(" and (").append(":").append(pName).append("_orempty member of ").append(ref).append(" or ").append(ref).append(" is empty").append(") ");
+				params.put(pName + "_orempty", v);
+			}
 			if(filter.containsKey(pName + ".gt")) {
 				Object v = filter.get(pName + ".gt", pDescriptor.getPropertyType());
 				if(v != null) {
