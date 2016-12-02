@@ -223,7 +223,9 @@ $(document).on('dwf-postupdate', function(evt) {
  */
 $(document).on('dwf-postupdate', function(evt) {
 	$(evt.target).find('.ckeditor').each(function() {
-		CKEDITOR.replace(this);
+		try {
+			CKEDITOR.replace(this);
+		} catch (e) {}
 	});
 });
 
