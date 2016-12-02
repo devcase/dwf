@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>br.com.devcase.dwf</groupId>
 		<artifactId>dwf</artifactId>
-		<version>2.7.8-RC4</version>
+		<version>2.7.8-RC5</version>
 	</parent>
 	<artifactId>dwf-whitelabel-views</artifactId>
 	<build>
