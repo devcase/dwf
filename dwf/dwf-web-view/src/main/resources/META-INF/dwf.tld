@@ -332,5 +332,10 @@
 		<function-class>dwf.web.taglib.DwfFunctions</function-class>
 		<function-signature>String escapeUrlFragment( java.lang.String )</function-signature>
 	</function>
+	<function>
+		<name>slugify</name>
+		<function-class>dwf.web.taglib.DwfFunctions</function-class>
+		<function-signature>String slugify( java.lang.String )</function-signature>
+	</function>
 	
 </taglib>

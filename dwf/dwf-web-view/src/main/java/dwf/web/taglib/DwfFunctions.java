@@ -1,6 +1,5 @@
 package dwf.web.taglib;
 
-import java.time.Period;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
@@ -10,6 +9,8 @@ import org.apache.commons.collections4.iterators.ArrayIterator;
 import org.joda.time.LocalDate;
 import org.joda.time.ReadablePeriod;
 import org.joda.time.format.PeriodFormat;
+
+import com.github.slugify.Slugify;
 
 public class DwfFunctions {
 	
@@ -71,5 +72,11 @@ public class DwfFunctions {
 	}
 	public static String escapeUrlFragment(String x) {
 		return com.google.common.net.UrlEscapers.urlFragmentEscaper().escape(x);
+	}
+	
+	private static final Slugify slugify = new Slugify();
+
+	public static String slugify(String x) {
+		return slugify.slugify(x);
 	}
 }
