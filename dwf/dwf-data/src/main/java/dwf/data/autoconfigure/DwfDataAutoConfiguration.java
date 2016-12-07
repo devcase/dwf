@@ -66,7 +66,7 @@ public class DwfDataAutoConfiguration  {
 	/**
 	 * configuravel a partir de dwf.data.entityPackage
 	 */
-	private String entityPackage;
+	private String[] entityPackage;
 
 	public Map<String, String> getHibernateProperties() {
 		return hibernateProperties;
@@ -75,10 +75,10 @@ public class DwfDataAutoConfiguration  {
 	public void setHibernateProperties(Map<String, String> hibernateProperties) {
 		this.hibernateProperties = hibernateProperties;
 	}
-	public String getEntityPackage() {
+	public String[] getEntityPackage() {
 		return entityPackage;
 	}
-	public void setEntityPackage(String entityPackage) {
+	public void setEntityPackage(String entityPackage[]) {
 		this.entityPackage = entityPackage;
 	}
 	
@@ -181,7 +181,11 @@ public class DwfDataAutoConfiguration  {
 	@DependsOn({"flyway", "flywayInitializer"}) //sessionFactory precisa ser criado após o bean flyway, se disponível
 	public LocalSessionFactoryBean sessionFactory(NamingStrategy namingStrategy, @Qualifier("dwfDataSource") DataSource dataSource) {
 		LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
-		sessionFactoryBean.setPackagesToScan( new String [] {"dwf.activitylog.domain", "dwf.user.domain", entityPackage});
+		String[] packages = new String[2 + entityPackage.length];
+		packages[0] = "dwf.activitylog.domain";
+		packages[1] = "dwf.user.domain";
+		System.arraycopy(entityPackage, 0, packages, 2, entityPackage.length);
+		sessionFactoryBean.setPackagesToScan(packages);
 		sessionFactoryBean.setNamingStrategy(namingStrategy);
 //		sessionFactoryBean.setPhysicalNamingStrategy(dwfNamingStrategy);
 		sessionFactoryBean.setDataSource(dataSource);
