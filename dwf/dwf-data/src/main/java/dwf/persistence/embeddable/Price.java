@@ -2,6 +2,7 @@ package dwf.persistence.embeddable;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Currency;
 
 import javax.persistence.Column;
@@ -88,6 +89,11 @@ public class Price implements Serializable {
 	
 	public Price multiply(int multiplier) {
 		return new Price(this.value.multiply(BigDecimal.valueOf(multiplier)), this.getCurrencyCode());
+	}
+	
+	public Price multiply(double multiplier) {
+		long newValue = (long) (value.scaleByPowerOfTen(2).longValue() * multiplier);
+		return new Price(BigDecimal.valueOf(newValue, 2), this.getCurrencyCode());
 	}
 	
 	public Price sum(Price... price) {
